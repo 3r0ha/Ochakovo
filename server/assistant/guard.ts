@@ -210,7 +210,7 @@ export function stripIds(text: string): string {
     .replace(vacancyIdWord, (id) => vacancies.find((v) => v.id === id)?.title ?? id)
 }
 
-/** Голос бренда: первая фраза — ответ, без markdown-заголовков, восклицаний и id, списки — «• », не длиннее ~900 знаков */
+/** Голос бренда: первая фраза — ответ, без markdown-заголовков, восклицаний, тире и id, списки — «• », не длиннее ~900 знаков */
 export function tidyAnswer(text: string): string {
   let t = stripIds(text.replace(/\r/g, '')).trim()
   while (FILLER.test(t)) t = t.replace(FILLER, '')
@@ -221,6 +221,9 @@ export function tidyAnswer(text: string): string {
     .replace(/^\s*\d+[.)]\s+/gm, '• ')
     .replace(/!+/g, '.')
     .replace(/\.{2,}|…/g, '.')
+    // Тире между словами модель ставит в определениях («смены — 12 часов»): двоеточие читается так же и без тире.
+    // Диапазоны «56 000–70 000» без пробелов не трогаем
+    .replace(/(\S)[ \u00a0]+[—–][ \u00a0]+/g, '$1: ')
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim()

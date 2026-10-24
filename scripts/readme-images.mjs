@@ -13,7 +13,7 @@ const shots = `${root}docs/brand/deck/shots`;
 mkdirSync(out, { recursive: true });
 
 // Слайды по ключу из комментария <!-- NN. ключ --> в index.html: номера могут сдвинуться, ключи нет
-const slides = ["cover", "noticed", "idea", "system", "images", "messages", "legend", "focus", "path", "analogs", "materials", "merch", "video", "reliable", "rules", "secondary", "launch"];
+const slides = ["cover", "criteria", "noticed", "idea", "system", "images", "messages", "legend", "focus", "path", "site-more", "bridge", "hr-more", "analogs", "materials", "merch", "video", "reliable", "rules", "secondary", "arch", "launch", "scale"];
 
 const browser = await chromium.launch();
 const tab = await browser.newPage({ viewport: { width: 1600, height: 900 } });

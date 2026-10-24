@@ -1,6 +1,6 @@
 // QR-коды для макетов docs/brand: листовки, ролл-ап и табличка на стол.
 // Ссылки — как их строит вкладка HR «Источники» (sourceLinks из shared/sources.ts): сайт с меткой точки контакта ?src=.
-// Адрес сайта ещё не утверждён, поэтому в макетах — демо-адрес из docs/deploy.md с демо-метками; в макетах это подписано.
+// В макетах — рабочий стенд antihype.best с демо-метками, сканируется и открывает живой сайт. Адрес компании появится при запуске.
 // Перед тиражом QR с меткой своей точки скачивают в HR-панели («Источники» → метка → SVG) и ставят на место этого.
 // Кодировщик — shared/qr.ts, тот же, что у HR-панели. Запуск: npx tsx scripts/materials-qr.ts
 
@@ -9,8 +9,8 @@ import { dirname, join } from 'node:path'
 import { encodeQr, qrSvg } from '../shared/qr'
 import { siteBase, sourceLinks } from '../shared/sources'
 
-/** Демо-адрес сайта: тот же, что в примерах docs/deploy.md и server/app.ts */
-export const DEMO_SITE = 'https://season.ochakovo.ru'
+/** Рабочий стенд команды (docs/deploy.md, «Домен antihype.best») */
+export const DEMO_SITE = 'https://antihype.best'
 
 const root = join(import.meta.dirname, '..')
 const site = { url: DEMO_SITE, bots: { telegram: null, max: null } }
@@ -25,6 +25,10 @@ const codes: [string, string][] = [
   ['print/qr/edu-mgupp.svg', tagged('edu-mgupp')],
   // Табличка на стол — контрольные вопросы с меткой той же ярмарки
   ['stand/qr/quiz-fair-mgupp.svg', `${siteBase(DEMO_SITE)}/game?t=quiz&src=fair-mgupp`],
+  // Финальный слайд презентации: сайт с меткой «презентация», игры и материалы кейса
+  ['deck/qr/site.svg', tagged('deck')],
+  ['deck/qr/play.svg', `${siteBase(DEMO_SITE)}/play?src=deck`],
+  ['deck/qr/materials.svg', `${siteBase(DEMO_SITE)}/materials`],
 ]
 
 for (const [rel, link] of codes) {

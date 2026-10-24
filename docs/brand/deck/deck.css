@@ -2501,3 +2501,160 @@ h2 {
   width: 100%;
   height: auto;
 }
+
+/* ── Разработка, мост в мессенджеры, масштаб ─────────────────────────── */
+/* Схема «где кандидат → один сервер → где HR» */
+.arch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.25fr) auto minmax(0, 1fr);
+  gap: 1.2cqw;
+  align-items: stretch;
+}
+.arch .col {
+  padding: 1.3cqw 1.5cqw;
+  background: var(--night);
+  box-shadow: inset 0 0 0 0.1cqw var(--hair);
+}
+.arch .col.core {
+  box-shadow: inset 0 0 0 0.16cqw var(--red);
+}
+.arch ul {
+  margin: 0.6cqw 0 0;
+  padding: 0;
+  list-style: none;
+}
+.arch li {
+  padding: 0.6cqw 0;
+  border-top: 0.1cqw solid var(--hair);
+  font-size: 1.35cqw;
+  line-height: 1.3;
+}
+.arch .arrow {
+  align-self: center;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 3cqw;
+  color: var(--red-bright);
+}
+/* «Почему так»: пять коротких обоснований в ряд */
+.why5 {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.6cqw;
+}
+.why5 > div {
+  border-top: 0.16cqw solid var(--red);
+  padding-top: 0.8cqw;
+}
+.why5 b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.9cqw;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.why5 p {
+  margin-top: 0.7cqw;
+  font-size: 1.25cqw;
+  line-height: 1.35;
+  color: var(--muted);
+}
+/* Мост в мессенджеры: три канала над общим движком */
+.chain {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6cqw;
+}
+.chain > div {
+  padding: 0.9cqw 1cqw;
+  background: var(--night);
+  box-shadow: inset 0 0 0 0.1cqw var(--hair);
+}
+.chain > .core {
+  grid-column: 1 / -1;
+  box-shadow: inset 0 0 0 0.16cqw var(--red);
+  text-align: center;
+}
+.chain b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.5cqw;
+  text-transform: uppercase;
+}
+.chain span {
+  display: block;
+  margin-top: 0.3cqw;
+  font-size: 1.05cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+/* HR-панель: 15 плиток в три ряда */
+.tiles.big.dense h3 {
+  font-size: 1.75cqw;
+}
+.tiles.big.dense p:not(.n) {
+  font-size: 1.1cqw;
+}
+/* Критерии: девять строк */
+.crit9 .row {
+  padding: 0.9cqw 0;
+}
+.crit9 .row > span {
+  font-size: 1.2cqw;
+}
+.crit9 .row > b {
+  font-size: 1.45cqw;
+}
+/* Финал: QR на сайт, игры и материалы */
+.qrs {
+  position: absolute;
+  top: calc(var(--sw) * 0.046);
+  right: calc(var(--sw) * 0.042);
+  display: flex;
+  gap: 1.6cqw;
+  z-index: 2;
+}
+.qrs figure {
+  margin: 0;
+  width: 10cqw;
+  height: auto;
+  overflow: visible;
+}
+.qrs img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: #fff;
+  padding: 0.5cqw;
+}
+.qrs figcaption {
+  margin-top: 0.6cqw;
+  font-size: 0.95cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.qrs figcaption b {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.35cqw;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.arch .kicker {
+  font-size: 1.05cqw;
+}
+/* Строки среднего размера: между обычными и компактными (масштабируемость) */
+.rows.mid .row {
+  padding: 1.05cqw 0;
+}
+.rows.mid .row > b {
+  font-size: 1.7cqw;
+}
+.rows.mid .row > span {
+  font-size: 1.32cqw;
+  line-height: 1.38;
+}

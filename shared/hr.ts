@@ -36,6 +36,8 @@ const sourceNames: Record<string, string> = {
   site: 'Чат на сайте',
   hr: 'Добавлено вручную',
   hiringday: 'День найма',
+  // QR на финальном слайде презентации
+  deck: 'Презентация',
 }
 
 /** Метки с приставкой площадки: fair-misis → «Ярмарка · misis», tg-studsovet → «Telegram · studsovet» */
