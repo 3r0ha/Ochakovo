@@ -2703,3 +2703,9 @@ h2 {
 .toc-i:hover span:last-child {
   text-decoration: underline;
 }
+/* Стикерпак на своём слайде: лист 5 × 3 с прозрачным фоном */
+.sticker-sheet {
+  display: block;
+  width: 100%;
+  height: auto;
+}
