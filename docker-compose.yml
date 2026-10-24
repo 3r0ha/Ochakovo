@@ -3,6 +3,7 @@
 #   С управляемой базой провайдера:   APP_DATABASE_URL=postgres://… в .env, затем  docker compose up -d --build
 #   С базой в контейнере рядом:        POSTGRES_PASSWORD=… в .env, затем  docker compose --profile local-db up -d --build
 #   Только база для разработки:        docker compose --profile local-db up -d db
+#   Стенд с HTTPS на своём домене:     DOMAIN=… в .env, затем  docker compose --profile local-db --profile https up -d --build
 #
 # Порты открыты только на этой машине (127.0.0.1): наружу сайт выходит через HTTPS-прокси, см. docs/deploy.md.
 
@@ -48,6 +49,22 @@ services:
         required: false
     restart: unless-stopped
 
+  # HTTPS на своём домене (профиль https): Caddy получает сертификат Let's Encrypt для DOMAIN и проксирует на app.
+  # Сеть хоста: Caddy слушает 80 и 443 на машине и ходит к app на 127.0.0.1, куда тот открыт. Настройки — deploy/Caddyfile
+  caddy:
+    image: caddy:2
+    profiles: [https]
+    network_mode: host
+    environment:
+      DOMAIN: ${DOMAIN:?задайте в .env DOMAIN (например antihype.best) для профиля https}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
 volumes:
   pgdata:
   generated:
+  caddy_data:
+  caddy_config:
