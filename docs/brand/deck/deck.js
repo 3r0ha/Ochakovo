@@ -150,81 +150,9 @@ if (!still && slides.length) {
     bar.style.transform = `scaleX(${(next + 1) / slides.length})`
     counter.textContent = `${pad(next + 1)} / ${pad(slides.length)}`
     if (push) history.replaceState(null, '', `#${next + 1}`)
-    renderPresenter()
   }
   const step = (d) => go(current + d)
 
-  // ── Окно докладчика: N открывает текст текущего слайда, таймер и следующий слайд ──────────────────────
-  // Текст лежит в слайдах скрытыми <aside class="notes" data-sec="…">: секунды — бюджет слайда в пятиминутном выступлении.
-  // Окно — отдельное, его держат на ноутбуке, пока слайды идут на проекторе; стрелки работают и в нём
-  let presenter = null
-  let started = 0
-  let clockTimer = 0
-  const secOf = (i) => Number(slides[i]?.querySelector('aside.notes')?.dataset.sec || 0)
-  const titleOf = (i) => {
-    const h = slides[i]?.querySelector('h1, h2, .display')
-    return h ? h.textContent.replace(/\s+/g, ' ').trim() : ''
-  }
-  const mmss = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`
-  const planUntil = (i) => slides.slice(0, i + 1).reduce((t, _, k) => t + secOf(k), 0)
-
-  function renderPresenter() {
-    if (!presenter || presenter.closed) return
-    const d = presenter.document
-    const note = slides[current].querySelector('aside.notes')
-    d.getElementById('n').textContent = `${pad(current + 1)} / ${pad(slides.length)}`
-    d.getElementById('title').textContent = titleOf(current)
-    d.getElementById('text').textContent = note ? note.textContent : 'Для этого слайда текста нет'
-    d.getElementById('budget').textContent = `${secOf(current)} с на слайд · к концу слайда ${mmss(planUntil(current))}`
-    d.getElementById('next').textContent = current + 1 < slides.length ? `${pad(current + 2)}. ${titleOf(current + 1)}` : 'Это последний слайд'
-    renderClock()
-  }
-  function renderClock() {
-    if (!presenter || presenter.closed) return clearInterval(clockTimer)
-    const elapsed = (Date.now() - started) / 1000
-    const el = presenter.document.getElementById('clock')
-    el.textContent = mmss(elapsed)
-    // Отстаём от плана больше чем на 10 секунд — время краснеет
-    el.classList.toggle('late', elapsed > planUntil(current) + 10)
-  }
-  function openPresenter() {
-    if (presenter && !presenter.closed) return presenter.focus()
-    presenter = window.open('', 'deck-presenter', 'width=600,height=780')
-    if (!presenter) return
-    started = Date.now()
-    const d = presenter.document
-    d.open()
-    d.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Докладчик</title><style>
-      body{margin:0;padding:28px 32px;background:#0c0c0c;color:#fff;font:20px/1.5 system-ui,sans-serif}
-      header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;color:rgba(255,255,255,.6);font-size:15px}
-      #clock{font:700 44px/1 system-ui,sans-serif;color:#fff;font-variant-numeric:tabular-nums}#clock.late{color:#ff3d5e}
-      h1{margin:18px 0 6px;font-size:17px;letter-spacing:.06em;text-transform:uppercase;color:#ff3d5e}
-      #text{font-size:24px;line-height:1.45;margin:0 0 22px}
-      #budget,small{color:rgba(255,255,255,.6);font-size:15px}
-      footer{border-top:1px solid rgba(255,255,255,.2);margin-top:18px;padding-top:12px;font-size:16px;color:rgba(255,255,255,.7)}
-      button{margin-top:16px;background:none;color:#fff;border:1px solid rgba(255,255,255,.4);padding:8px 14px;font:inherit;font-size:15px;cursor:pointer}
-    </style></head><body>
-      <header><span id="n"></span><span id="clock">0:00</span></header>
-      <h1 id="title"></h1><p id="text"></p><p id="budget"></p>
-      <footer>Дальше: <span id="next"></span></footer>
-      <button id="reset" type="button">Сбросить таймер</button>
-      <p><small>Стрелки и пробел листают слайды в обоих окнах</small></p>
-    </body></html>`)
-    d.close()
-    d.getElementById('reset').addEventListener('click', () => {
-      started = Date.now()
-      renderClock()
-    })
-    d.addEventListener('keydown', (e) => {
-      if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) step(1)
-      else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) step(-1)
-      else return
-      e.preventDefault()
-    })
-    clearInterval(clockTimer)
-    clockTimer = setInterval(renderClock, 500)
-    renderPresenter()
-  }
 
   addEventListener('keydown', (e) => {
     if (e.altKey || e.ctrlKey || e.metaKey) return
@@ -234,7 +162,6 @@ if (!still && slides.length) {
     else if (k === 'Home') go(0)
     else if (k === 'End') go(slides.length - 1)
     else if (k === 'f' || k === 'F' || k === 'а' || k === 'А') full()
-    else if (k === 'n' || k === 'N' || k === 'т' || k === 'Т') openPresenter()
     else return
     e.preventDefault()
   })

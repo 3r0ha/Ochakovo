@@ -67,7 +67,7 @@
 |---|---|---|
 | Сайт для кандидата | [antihype.best](https://antihype.best) | лучше открыть с телефона: сумма на первом экране, четыре задания прямо на странице, история и бренды, заявка |
 | Все материалы кейса одной страницей | [antihype.best/materials](https://antihype.best/materials) | каждый пункт кейса с превью и ссылкой на макет в натуральную величину |
-| Презентация | [antihype.best/materials/deck](https://antihype.best/materials/deck/index.html) | 31 слайд, листать стрелками, F открывает во весь экран, N открывает окно докладчика с текстом и таймером. Сверху навигация по шести разделам, справа название критерия |
+| Презентация | [antihype.best/materials/deck](https://antihype.best/materials/deck/index.html) | 31 слайд, листать стрелками, F открывает во весь экран. Сверху навигация по шести разделам, справа название критерия |
 | PDF презентации | [ochakovo-smena.pdf](docs/brand/deck/ochakovo-smena.pdf) | то же для печати и пересылки |
 | Вакансии | [antihype.best/vacancies](https://antihype.best/vacancies) | оплачиваемая практика в четырёх отделах и работа |
 | Заявка | [antihype.best/apply](https://antihype.best/apply) | анкета по кейсу, после отправки «Моя заявка» со статусом |
@@ -619,8 +619,8 @@ sequenceDiagram
 | [hr.md](docs/hr.md) | HR-панель: заявки, собеседования, выгрузки, хранение данных |
 | [llm.md](docs/llm.md) | помощник Квасыч на GigaChat |
 | [roadmap.md](docs/roadmap.md) | что сделано и что дальше |
-| [speech.md](docs/speech.md) | текст выступления на 5 минут по всем 31 слайду, время на каждый слайд |
-| [demo.md](docs/demo.md) | показ живого продукта: пять минут, вопросы жюри, запасной план |
+| [speech.md](docs/speech.md) | текст выступления по демо на 5 минут: что на экране и что говорить |
+| [demo.md](docs/demo.md) | подготовка к показу: вкладки, вопросы жюри, запасной план |
 | [quality-brief.md](docs/quality-brief.md) | правила текстов |
 | [tech.md](docs/tech.md) | техническое описание: запуск, база, API, боты, защита |
 | [deploy.md](docs/deploy.md) | развёртывание и эксплуатация |
