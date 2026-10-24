@@ -2859,3 +2859,37 @@ ul.plist li {
   padding-top: 0.25cqw;
   padding-bottom: 0.25cqw;
 }
+/* Карта функций продукта: четыре группы и экран рядом */
+.fwall-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14cqw;
+  gap: 2cqw;
+  align-items: start;
+  flex: 1;
+}
+.fwall-row.hr {
+  grid-template-columns: minmax(0, 1fr) 26cqw;
+}
+.fwall {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.6cqw;
+}
+.fwall ul {
+  margin: 0.5cqw 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fwall li {
+  padding: 0.75cqw 0;
+  border-top: 0.1cqw solid var(--hair);
+  font-size: 1.4cqw;
+  line-height: 1.28;
+}
+.fwall .kicker {
+  font-size: 1.15cqw;
+}
+.fwall-row .shots2 {
+  display: grid;
+  gap: 1.4cqw;
+}
