@@ -8,7 +8,9 @@
 
 Решение команды **группировка antihype** на кейс «Открой#Моспром» от АО МПБК «Очаково».
 
-[**Открыть сайт**](https://antihype.best) · [**Все материалы кейса**](https://antihype.best/materials) · [**Презентация**](https://antihype.best/materials/deck/index.html) · [**PDF презентации**](docs/brand/deck/ochakovo-smena.pdf)
+[**Открыть сайт**](https://antihype.best) · [**Все материалы кейса**](https://antihype.best/materials) · [**Презентация**](https://antihype.best/materials/deck/index.html) · [**PDF презентации**](docs/brand/deck/ochakovo-smena.pdf) · [**HR-панель**](https://antihype.best/hr)
+
+Вход в HR-панель: почта `jury@antihype.best`, пароль `jury-antihype`
 
 </div>
 
@@ -75,7 +77,7 @@
 | Ссылка с меткой точки | [antihype.best/?src=fair-mgupp](https://antihype.best/?src=fair-mgupp) | заявка придёт в HR-панель с меткой «Ярмарка МГУПП» |
 | Анкета фокус-группы | [antihype.best/focus?s=fg-a](https://antihype.best/focus?s=fg-a) | слоганы и вопросы о практике, анонимно |
 | Бот Квасыча | кнопка «Квасыч» на сайте | тот же движок, что в Telegram и MAX |
-| HR-панель | [antihype.best/hr](https://antihype.best/hr) | логин и пароль для жюри передаём вместе с решением: на рабочем сайте могут быть настоящие заявки, поэтому в открытом README их нет |
+| HR-панель | [antihype.best/hr](https://antihype.best/hr) | вход для жюри: почта `jury@antihype.best`, пароль `jury-antihype`. В панели уже есть демо-заявки |
 
 Макеты для печати открываются в браузере и сохраняются в PDF:
 

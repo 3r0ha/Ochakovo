@@ -2658,3 +2658,19 @@ h2 {
   font-size: 1.32cqw;
   line-height: 1.38;
 }
+/* Вход в HR-панель стенда для жюри: слайд HR-панели и финал */
+.login {
+  font-size: 1.15cqw;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.login b {
+  color: var(--fg);
+  font-weight: 600;
+}
+.qrs .login {
+  align-self: flex-start;
+  width: 14cqw;
+  margin: 0;
+  font-size: 1.05cqw;
+}

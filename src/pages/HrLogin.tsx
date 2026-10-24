@@ -25,6 +25,12 @@ function useCountdown() {
  * Вход в панель отдела персонала. Если пароль задал администратор (новый сотрудник или сброс),
  * после входа — второй шаг: свой пароль. Без него панель не откроется: сервер отвечает 401 password_change_required
  */
+/**
+ * Стенд для жюри antihype.best: вход открыт, он же написан в README и на странице материалов. Подсказка с кнопкой
+ * «Подставить» видна только на этом адресе: на сайте компании и в разработке её нет
+ */
+const JURY = typeof window !== 'undefined' && window.location.hostname === 'antihype.best' ? { email: 'jury@antihype.best', password: 'jury-antihype' } : null
+
 export function HrLogin() {
   const navigate = useNavigate()
   const [step, setStep] = useState<'checking' | 'login' | 'change'>('checking')
@@ -129,6 +135,23 @@ export function HrLogin() {
               {sending ? 'Входим' : wait > 0 ? `Войти · ${wait} с` : 'Войти'}
             </button>
             <p className="text-[15px] text-white/55">Не помнишь пароль? Новый задаст администратор панели.</p>
+            {JURY && (
+              <div className="border-t border-white/15 pt-5 text-[15px] leading-relaxed text-white/75">
+                <p>
+                  Вход для жюри: почта <b className="font-semibold text-white">{JURY.email}</b>, пароль <b className="font-semibold text-white">{JURY.password}</b>
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail(JURY.email)
+                    setPassword(JURY.password)
+                  }}
+                  className="mt-2 py-2 font-semibold text-white underline decoration-white/50 underline-offset-4 hover:decoration-white"
+                >
+                  Подставить
+                </button>
+              </div>
+            )}
           </form>
         )}
 

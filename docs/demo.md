@@ -8,7 +8,7 @@
 |---|---|---|
 | Презентация | [antihype.best/materials/deck](https://antihype.best/materials/deck/index.html), F на весь экран | основной экран показа |
 | Сайт на телефоне | [antihype.best/?src=fair-mgupp](https://antihype.best/?src=fair-mgupp) | путь кандидата с меткой ярмарки |
-| HR-панель | [antihype.best/hr](https://antihype.best/hr), вход под учётной записью стенда | заявка появится здесь |
+| HR-панель | [antihype.best/hr](https://antihype.best/hr), почта `jury@antihype.best`, пароль `jury-antihype` | заявка появится здесь |
 | Запасной вариант | PDF `docs/brand/deck/ochakovo-smena.pdf` на ноутбуке | если на площадке не будет сети |
 
 Телефон лучше вывести на общий экран через трансляцию. Если не выходит, тот же сайт в окне браузера шириной 390 px: в инструментах разработчика Chrome это режим устройства.
