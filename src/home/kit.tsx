@@ -4,12 +4,13 @@ import { Link } from 'react-router'
 import { applicationNumber, useSentApplication } from '../components/candidate/sent'
 import { Photo, type PhotoName } from '../components/Photo'
 import { BottleShape } from '../game/Bottle'
-import { prefersReducedMotion, scrollToTarget } from '../lib/motion'
+import { prefersReducedMotion } from '../lib/motion'
 import { inviteUrl } from '../lib/ref'
 import { useOffscreenPause } from '../lib/useOffscreenPause'
 import { useActivities, type ActivityId } from '../store/activities'
 import { nb } from '../lib/typo'
-import { HEADER_OFFSET, nextTask, SHIFT_DONE_LEFT, tasks } from './tasks'
+import { useGoToTask } from './taskNav'
+import { nextTask, SHIFT_DONE_LEFT, tasks } from './tasks'
 import { formatRub, minMonthlyPay, type Vacancy } from '@shared/content/vacancies'
 
 /**
@@ -288,6 +289,7 @@ export function NextStep({
 }) {
   const done = useActivities((s) => s.done)
   const sent = useSentApplication((s) => s.last)
+  const goTo = useGoToTask()
   const next = nextTask(done, after)
   const apply = tone === 'light' ? btn.ink : tone === 'red' ? btn.white : btn.red
   const ghost = tone === 'light' ? btn.ghostInk : btn.ghost
@@ -305,7 +307,7 @@ export function NextStep({
         </Link>
       )}
       <button
-        onClick={() => scrollToTarget(next ? next.anchor : '#final', HEADER_OFFSET)}
+        onClick={() => goTo(next)}
         className={`${ghost} !h-auto min-h-16 !whitespace-normal py-3 text-left leading-[1.05]`}
       >
         {`Следующее задание: ${next.label}`}

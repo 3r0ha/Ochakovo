@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router'
 import { vacancyById } from '@shared/content/vacancies'
 import { Mascot, type MascotPose } from '../components/Mascot'
 import { Announce, say } from '../home/kit'
+import { TaskNav } from '../home/taskNav'
 import { HEADER_OFFSET, nextTask } from '../home/tasks'
 import { trackEvent } from '../lib/api'
 import { prefersReducedMotion, scrollToTarget } from '../lib/motion'
@@ -537,6 +538,8 @@ function ResultPanel({ stats, total, best, record, minHeight, onReplay, seed, ch
   const done = useActivities((s) => s.done)
   const next = nextTask(done, 'game')
   const onHome = useLocation().pathname === '/'
+  // В мини-приложении (/play) «Дальше» открывает следующую игру на её экране
+  const goTo = useContext(TaskNav)
 
   useEffect(() => {
     heading.current?.focus({ preventScroll: true })
@@ -594,8 +597,8 @@ function ResultPanel({ stats, total, best, record, minHeight, onReplay, seed, ch
           Ещё раз
         </button>
         {next &&
-          (onHome ? (
-            <button onClick={() => scrollToTarget(next.anchor, HEADER_OFFSET)} className={`${btnGhost} max-sm:h-auto max-sm:min-h-12 max-sm:px-3 max-sm:py-2 max-sm:text-center max-sm:leading-tight`}>
+          (onHome || goTo ? (
+            <button onClick={() => (goTo ? goTo(next) : scrollToTarget(next.anchor, HEADER_OFFSET))} className={`${btnGhost} max-sm:h-auto max-sm:min-h-12 max-sm:px-3 max-sm:py-2 max-sm:text-center max-sm:leading-tight`}>
               Дальше: {next.label}
             </button>
           ) : (

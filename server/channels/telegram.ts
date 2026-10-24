@@ -1,3 +1,4 @@
+import { formatRub, minMonthlyPay } from '@shared/content/vacancies'
 import type { ChannelAdapter, DialogEngine, DialogEvent, DialogReply, DialogUser, OutMessage } from '../dialog/types'
 import { defaultPublicDir, loadMedia, MediaCache } from './media'
 import { newTgChat, tgAnswerCallback, tgDeleteCall, tgPlanEdit, tgPlanSend, type TgCall, type TgChatState } from './payload'
@@ -37,8 +38,13 @@ type TgResponse<T> = { ok: boolean; result?: T; description?: string; error_code
 export type TelegramOptions = {
   publicUrl?: string
   secret?: string
-  /** Для тестов: адрес фейкового API вместо https://api.telegram.org */
+  /**
+   * Адрес Bot API вместо https://api.telegram.org: фейковый API в проверках или свой прокси, если сервер стоит там,
+   * откуда Telegram недоступен (переменная TELEGRAM_API_BASE)
+   */
   apiBase?: string
+  /** Адрес сайта для кнопки «Игры» у поля ввода (мини-приложение /play), по умолчанию SITE_URL */
+  siteUrl?: string
   publicDir?: string
   log?: Logger
   /** Как часто повторять «печатает…», пока бот готовит ответ: статус в Telegram гаснет через 5 с */
@@ -51,7 +57,26 @@ export type TelegramAdapter = ChannelAdapter & {
   setWebhook(url: string): Promise<void>
   /** Сообщение пользователю не в ответ на его действие (например, о статусе заявки) */
   sendTo(userId: string, messages: OutMessage[]): Promise<void>
+  /** Профиль бота: меню команд, описание и кнопка «Игры» у поля ввода. Вызывается при каждом запуске, повтор безвреден */
+  configure(): Promise<void>
 }
+
+/** Меню команд: те, что понимает движок (server/dialog/engine.ts) */
+const COMMANDS = [
+  { command: 'start', description: 'Начать сначала' },
+  { command: 'menu', description: 'Все разделы' },
+  { command: 'help', description: 'Что умеет Квасыч' },
+  { command: 'stop', description: 'Не присылать напоминания' },
+  { command: 'delete', description: 'Удалить мои данные' },
+]
+
+/** Подпись в профиле и в ссылке на бота, до 120 знаков */
+const SHORT_DESCRIPTION = `Квасыч из «Очаково»: практика и работа на лето от ${formatRub(minMonthlyPay)}, игры о заводе и заявка за 2 минуты`
+
+/** Текст в пустом чате до «Старт», до 512 знаков */
+const DESCRIPTION =
+  'Я Квасыч, бот завода «Очаково» в Москве. Покажу вакансии и зарплаты, подберу работу под учёбу, приму заявку на ' +
+  'оплачиваемую практику и отвечу на вопросы про смены, общежитие и дорогу. Игры о заводе открываются во весь экран кнопкой «Игры».'
 
 export class TelegramApiError extends Error {
   constructor(
@@ -64,7 +89,8 @@ export class TelegramApiError extends Error {
 }
 
 export function createTelegramAdapter(token: string, opts: TelegramOptions = {}): TelegramAdapter {
-  const apiBase = (opts.apiBase ?? 'https://api.telegram.org').replace(/\/$/, '')
+  const apiBase = (opts.apiBase ?? (process.env.TELEGRAM_API_BASE?.trim() || 'https://api.telegram.org')).replace(/\/$/, '')
+  const siteUrl = (opts.siteUrl ?? process.env.SITE_URL ?? '').trim().replace(/\/$/, '')
   const publicDir = opts.publicDir ?? defaultPublicDir()
   const log = opts.log ?? console
   const typingInterval = opts.typingInterval ?? 4000
@@ -292,6 +318,18 @@ export function createTelegramAdapter(token: string, opts: TelegramOptions = {})
     async sendTo(userId, messages) {
       // В личном чате id чата совпадает с id пользователя; та же очередь, что и у ответов бота
       await updates.run(userId, () => deliver(userId, { messages }))
+    },
+
+    async configure() {
+      await call('setMyCommands', { commands: COMMANDS })
+      await call('setMyShortDescription', { short_description: SHORT_DESCRIPTION.slice(0, 120) })
+      await call('setMyDescription', { description: DESCRIPTION.slice(0, 512) })
+      // Мини-приложение открывается только по https: на локальном сайте кнопка у поля ввода остаётся меню команд
+      const menu = siteUrl.startsWith('https://')
+        ? { type: 'web_app', text: 'Игры', web_app: { url: `${siteUrl}/play?src=telegram` } }
+        : { type: 'commands' }
+      await call('setChatMenuButton', { menu_button: menu })
+      log.info(`[telegram] профиль бота: команды, описание, кнопка ${menu.type === 'web_app' ? '«Игры»' : 'меню команд'}`)
     },
 
     async setWebhook(url) {

@@ -201,7 +201,7 @@ curl -X POST localhost:8787/api/dialog -H 'content-type: application/json' \
   -d '{"user":{"channel":"web","id":"demo-1"},"event":{"type":"start","payload":"fair-mgupp"}}'
 ```
 
-Ответ: `{"messages":[{"text":"…","image":{"path":"…"},"buttons":[[{"kind":"action","text":"…","action":"…"}]]}],"notice":"…"}`. События: `start` (с меткой из диплинка), `action` (нажатие кнопки), `text`, `contact`.
+Ответ: `{"messages":[{"text":"…","image":{"path":"…"},"buttons":[[{"kind":"action","text":"…","action":"…"}]]}],"notice":"…"}`. События: `start` (с меткой из диплинка), `action` (нажатие кнопки), `text`, `contact`. Кнопки: `action`, `link`, `contact` и `app`. Кнопка `app` открывает игры сайта (`/play`) во весь экран: в Telegram это web_app, мини-приложение внутри мессенджера, только для https-адреса сайта; в MAX это ссылка; в чат на сайте её не отправляем.
 
 **Боты.** Бот запускается, только если задан его токен (`TELEGRAM_BOT_TOKEN`, `MAX_BOT_TOKEN`); адаптеры лежат в `server/channels/telegram.ts` и `server/channels/max.ts`. С пустым `PUBLIC_URL` бот работает через long polling, это удобно локально; вебхуки тогда отвечают 403. С `PUBLIC_URL` сервер ставит вебхуки `PUBLIC_URL/bots/telegram` и `PUBLIC_URL/bots/max` и принимает только запросы с секретом (`TELEGRAM_WEBHOOK_SECRET`, `MAX_WEBHOOK_SECRET`); если секрет не задан, сервер создаёт его сам. `/api/dialog` принимает не больше 40 нажатий в минуту из одного чата и код приглашения `refCode`. Бот в MAX может завести только самозанятый, ИП или компания: код адаптера готов, живого бота нет.
 

@@ -1,6 +1,6 @@
 import { PAY_DAYS } from '@shared/content/handbook'
 import { formatRub, isPractice, netPay, payLabel, scheduleLine, shiftPay, vacancyById, type Vacancy } from '@shared/content/vacancies'
-import { reply, setState, state, type Ctx } from '../context'
+import { playButton, reply, setState, state, type Ctx } from '../context'
 import { shiftLine } from '../progress'
 import { btn, menuRow, monthButtons, monthList, monthsPhrase, msg, plural, toggle } from '../ui'
 import { remindRows } from './remind'
@@ -49,10 +49,12 @@ export function perShiftLine(v: Vacancy) {
 
 const payDays = `${PAY_DAYS[0]}-го и ${PAY_DAYS[1]}-го`
 
-export function start() {
+export function start(ctx: Ctx) {
+  // Во весь экран — тот же расчёт, что на сайте: месяцы на шкале и сумма на руки
+  const full = playButton(ctx, 'Посчитать во весь экран', 'money')
   return reply(
     msg('**Собери лето**\n\nВыбери работу, и я посчитаю, сколько выйдет за сезон. Суммы взяты из данных «Очаково» и вакансий на hh.ru.', {
-      buttons: [...liveRoles().map((i) => [btn(`${roleVacancy(i).title} · ${payLabel(roleVacancy(i))}`, `mo:r:${i}`)]), menuRow()],
+      buttons: [...liveRoles().map((i) => [btn(`${roleVacancy(i).title} · ${payLabel(roleVacancy(i))}`, `mo:r:${i}`)]), ...(full ? [[full]] : []), menuRow()],
     }),
   )
 }
@@ -90,7 +92,7 @@ export function route(ctx: Ctx, parts: string[]) {
     return months(ctx, { role, months: defaultMonths(roleVacancy(role)) }, true)
   }
   const s = state<MoneyState>(ctx, KEY)
-  if (!s) return start()
+  if (!s) return start(ctx)
   if (cmd === 'm') {
     const m = Number(arg)
     if (!allowedMonths(roleVacancy(s.role)).includes(m)) return months(ctx, s, true)
@@ -120,5 +122,5 @@ export function route(ctx: Ctx, parts: string[]) {
       ),
     )
   }
-  return start()
+  return start(ctx)
 }

@@ -1,7 +1,8 @@
 import type { CandidateStatus } from '@shared/candidateStatus'
 import type { Assistant } from '../assistant/types'
 import type { Session, Storage } from './storage'
-import type { DialogReply, DialogUser, HandleMeta, OutMessage } from './types'
+import type { Button, DialogReply, DialogUser, HandleMeta, OutMessage } from './types'
+import { app, link } from './ui'
 
 /** Сценарий самозаписи: кнопки b:… (server/dialog/flows/booking.ts) */
 export type BookingHandler = (ctx: Ctx, parts: string[]) => Promise<DialogReply> | DialogReply
@@ -55,6 +56,22 @@ export const siteBase = (ctx: Ctx) => ctx.opts.siteUrl.replace(/\/$/, '')
 export function siteLink(ctx: Ctx) {
   const base = siteBase(ctx)
   return `${base}/${base.includes('?') ? '&' : '?'}src=${ctx.user.channel}`
+}
+
+/** Игры сайта по одной на экран (/play): весь список или одна игра, с меткой канала для «Воронки» */
+export type PlayGame = 'money' | 'quiz' | 'game' | 'myth' | 'company' | 'path'
+
+export const playUrl = (ctx: Ctx, game?: PlayGame) => `${siteBase(ctx)}/play?src=${ctx.user.channel}${game ? `&g=${game}` : ''}`
+
+/**
+ * Кнопка «открыть игру во весь экран». В Telegram — мини-приложение (web_app), только по https: Telegram не примет
+ * сообщение с web_app на http-адрес, поэтому на локальном сайте это обычная ссылка. В MAX — ссылка.
+ * В чате на сайте кнопки нет: игры уже на этой странице
+ */
+export function playButton(ctx: Ctx, text: string, game?: PlayGame): Button | null {
+  if (ctx.user.channel === 'web') return null
+  const url = playUrl(ctx, game)
+  return ctx.user.channel === 'telegram' && url.startsWith('https://') ? app(text, url) : link(text, url)
 }
 
 /** Картинка к сообщению, если она есть: без sharp или при сбое отрисовки сообщение уходит текстом */

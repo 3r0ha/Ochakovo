@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { Link, useLocation } from 'react-router'
 import { useSentApplication } from '../candidate/sent'
+import { inTelegram } from '../../lib/telegram'
 import { CHAT_BAR_HEIGHT, OPEN_CHAT_EVENT, useOverlay } from './bus'
 
 // Здесь только кнопка. Сама панель чата — отдельный чанк, грузится при первом открытии
@@ -198,8 +199,9 @@ export function Chat() {
   // Фокус на полосе чата (телефон): пока он там, полосу не убираем
   const [barFocused, setBarFocused] = useState(false)
 
-  // Чат — для кандидатов: в HR-панели и на странице игры кнопка не нужна
-  const hiddenHere = pathname.startsWith('/hr') || pathname.startsWith('/game')
+  // Чат — для кандидатов: в HR-панели и на страницах игр кнопка не нужна. В мини-приложении Telegram человек и так
+  // в чате с ботом Квасыча, второй чат поверх игр лишний
+  const hiddenHere = inTelegram || pathname.startsWith('/hr') || pathname.startsWith('/game') || pathname.startsWith('/play')
   const placed = !hiddenHere && !gameInView && pastHero && !menu
   // Компьютер: вкладка в правом поле страницы, прячется, если под ней ссылка или кнопка
   const covers = useCoversInteractive(root, desktop && placed && !open)

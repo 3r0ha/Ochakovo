@@ -7,7 +7,10 @@ import { loadVacancyOverrides } from '@shared/content/vacancies'
 import { App } from './App'
 import './index.css'
 import { captureSource } from './lib/source'
+import { initTelegram } from './lib/telegram'
 
+// Внутри Telegram мостик первым стирает из адреса данные мини-приложения, до разбора метки и первой отрисовки
+initTelegram()
 captureSource()
 
 const root = createRoot(document.getElementById('root')!)

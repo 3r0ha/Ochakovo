@@ -10,6 +10,9 @@ export const btn = (text: string, action: string): Button => {
 
 export const link = (text: string, url: string): Button => ({ kind: 'link', text, url })
 
+/** Кнопка мини-приложения: в Telegram открывает страницу внутри мессенджера, в остальных каналах — ссылка */
+export const app = (text: string, url: string): Button => ({ kind: 'app', text, url })
+
 export const contactButton = (text: string): Button => ({ kind: 'contact', text })
 
 /** Разбить кнопки на ряды по n штук */

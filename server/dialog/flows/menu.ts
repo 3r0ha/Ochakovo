@@ -1,6 +1,6 @@
 import { paidPracticeInfo } from '@shared/content/practice'
 import { formatRub, maxEntryPay, minMonthlyPay } from '@shared/content/vacancies'
-import { reply, siteBase, siteLink, withImage, type Ctx } from '../context'
+import { playButton, reply, siteBase, siteLink, withImage, type Ctx } from '../context'
 import { photoJpeg } from '../images'
 import { isDone, listRu, progressText, shiftStatus, tasks } from '../progress'
 import { btn, link, menuRow, msg, rows } from '../ui'
@@ -13,8 +13,11 @@ import { applyOrStatus } from './status'
 const practicePay = () => `от ${minMonthlyPay.toLocaleString('ru-RU')} до ${formatRub(maxEntryPay)}`
 
 export function menuMessage(ctx: Ctx, lead = 'Выбери, с чего начать, или задай вопрос своими словами.'): OutMessage {
+  // В Telegram первым рядом — все игры сайта во весь экран (мини-приложение), в MAX — та же страница ссылкой
+  const games = playButton(ctx, 'Игры во весь экран')
   return msg(`${lead}\n\n${shiftStatus(ctx.session.progress, ctx.hasApplication)}`, {
     buttons: [
+      ...(games ? [[games]] : []),
       [btn('Практика', 'm:prac'), btn('Вакансии и зарплаты', 'm:vac')],
       [btn('Подобрать работу', 'm:quiz'), btn('Собери лето', 'm:money')],
       [btn('Поймай брак', 'm:game'), btn('Правда или миф', 'm:myth')],
@@ -63,7 +66,8 @@ export function progress(ctx: Ctx) {
   const base = siteBase(ctx)
   const toTask = (t: (typeof tasks)[number]) => (ctx.user.channel === 'web' ? link(t.label, `${base}/${t.anchor}`) : btn(t.label, t.action))
   const buttons = left.length ? rows(left.map(toTask), 2) : [[applyOrStatus(ctx)]]
-  return reply(msg(progressText(p), { buttons: [...buttons, menuRow()] }))
+  const games = left.length ? playButton(ctx, 'Пройти во весь экран') : null
+  return reply(msg(progressText(p), { buttons: [...buttons, ...(games ? [[games]] : []), menuRow()] }))
 }
 
 export const help = (ctx: Ctx) =>

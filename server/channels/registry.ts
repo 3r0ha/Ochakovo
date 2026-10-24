@@ -22,6 +22,8 @@ export type AdapterExtras = {
   verifyWebhook?(headers: Headers): boolean
   /** Исходящее сообщение пользователю: уведомления о статусе заявки */
   sendTo?(userId: string, messages: OutMessage[]): Promise<void>
+  /** Профиль бота в мессенджере (меню, описание, кнопка мини-приложения): ставится при каждом запуске */
+  configure?(): Promise<void>
 }
 
 export type Adapter = ChannelAdapter & AdapterExtras
@@ -109,6 +111,8 @@ export async function loadAdapters(env: NodeJS.ProcessEnv = process.env, opts: L
     failed: () => [...failed],
     start(engine, { publicUrl = envPublicUrl, signal }) {
       for (const [channel, { adapter, secret }] of loaded) {
+        // Профиль не мешает приёму сообщений: если мессенджер его не принял, бот всё равно работает
+        adapter.configure?.().catch((e) => log.warn(`[bots] ${channel}: профиль бота не обновлён: ${(e as Error).message}`))
         if (publicUrl) {
           const hook = `${publicUrl.replace(/\/$/, '')}/bots/${channel}`
           // Вебхук без секрета не ставим: такие запросы маршрут всё равно отклонит

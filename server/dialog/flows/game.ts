@@ -1,6 +1,6 @@
 import { PLANT_BOTTLES_PER_HOUR } from '@shared/content/production'
 import { formatRub, vacancyById } from '@shared/content/vacancies'
-import { reply, setState, siteBase, state, type Ctx } from '../context'
+import { playButton, reply, setState, siteBase, state, type Ctx } from '../context'
 import { gameRoundImage, type DefectKind } from '../images'
 import { shiftLine } from '../progress'
 import { btn, link, menuRow, msg, plural, rows } from '../ui'
@@ -33,12 +33,15 @@ const nameOf = (r: Round) => (r.subtle ? subtleName : defectName)[r.kind]
 /** Сколько бутылок прошло мимо за всю игру: сумма бутылок всех раундов */
 const bottlesSeen = (rounds: Round[]) => rounds.reduce((sum, r) => sum + (r.count ?? 4), 0)
 
-export function intro() {
+export function intro(ctx: Ctx) {
+  // В мессенджере есть и живая лента, как на сайте: 20 секунд, бутылки едут, брак ловят нажатием
+  const full = playButton(ctx, 'Живая лента во весь экран', 'game')
   return reply(
     msg(
       '**Поймай брак**\n\nПять раундов, в каждом одна бутылка с браком: без крышки, недолив или кривая этикетка. ' +
-        'В первых двух раундах четыре бутылки и брак видно сразу, дальше шесть бутылок, и брак тоньше. Нажми номер бутылки с браком.',
-      { buttons: [[btn('Начать', 'g:go')], menuRow()] },
+        'В первых двух раундах четыре бутылки и брак видно сразу, дальше шесть бутылок, и брак тоньше. Нажми номер бутылки с браком.' +
+        (full ? '\n\nМожно сыграть и на живой ленте, как на сайте: 20 секунд, бутылки едут сами.' : ''),
+      { buttons: [[btn('Начать', 'g:go')], ...(full ? [[full]] : []), menuRow()] },
     ),
   )
 }
@@ -47,7 +50,7 @@ export function intro() {
 function noImage(ctx: Ctx): DialogReply {
   return reply(
     msg('Картинки раундов сейчас не загружаются, а без них брак не разглядеть. Сыграть можно на сайте, там та же лента с бутылками.', {
-      buttons: [[link('Играть на сайте', `${siteBase(ctx)}/game?src=${ctx.user.channel}`)], menuRow()],
+      buttons: [[playButton(ctx, 'Играть во весь экран', 'game') ?? link('Играть на сайте', `${siteBase(ctx)}/game?src=${ctx.user.channel}`)], menuRow()],
     }),
   )
 }
@@ -98,7 +101,7 @@ export function scaleLine(seen: number) {
 export async function route(ctx: Ctx, parts: string[]) {
   if (parts[1] === 'go') return go(ctx)
   const s = state<GameState>(ctx, KEY)
-  if (!s) return intro()
+  if (!s) return intro(ctx)
 
   const round = Number(parts[1])
   const pickNumber = Number(parts[2])

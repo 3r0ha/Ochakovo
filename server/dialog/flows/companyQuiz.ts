@@ -9,7 +9,7 @@ import {
   companyQuizRound,
   type CompanyQuizQuestion,
 } from '@shared/content/companyQuiz'
-import { reply, setState, state, type Ctx } from '../context'
+import { playButton, reply, setState, state, type Ctx } from '../context'
 import { btn, menuRow, msg, rows } from '../ui'
 import type { Button } from '../types'
 import { remindRows } from './remind'
@@ -59,7 +59,9 @@ export function start(ctx: Ctx) {
   const round = companyQuizRound(ctx.random, COMPANY_QUIZ_ROUND)
   const s: CqState = { ids: round.map((q) => q.id), orders: round.map((q) => q.order), i: 0, score: 0 }
   setState<CqState>(ctx, KEY, s)
-  return reply([msg(`Ответь верно на ${COMPANY_QUIZ_PASS} из ${COMPANY_QUIZ_ROUND}, и получишь ${COMPANY_QUIZ_REWARD}. Результат попадёт в заявку.`), questionMessage(s)])
+  const full = playButton(ctx, 'Викторина во весь экран', 'company')
+  const promise = `Ответь верно на ${COMPANY_QUIZ_PASS} из ${COMPANY_QUIZ_ROUND}, и получишь ${COMPANY_QUIZ_REWARD}. Результат попадёт в заявку.`
+  return reply([msg(promise, full ? { buttons: [[full]] } : {}), questionMessage(s)])
 }
 
 function explain(q: CompanyQuizQuestion, correct: boolean) {

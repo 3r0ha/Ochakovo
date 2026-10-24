@@ -106,7 +106,7 @@ export function Message({ entry, active, onPress, onContact }: Props) {
             <div key={r} className="flex flex-wrap gap-2">
               {row.map((b, i) => {
                 const key = `${r}-${i}`
-                if (b.kind === 'link')
+                if (b.kind === 'link' || b.kind === 'app')
                   return (
                     <a
                       key={key}

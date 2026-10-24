@@ -23,6 +23,11 @@ export type DialogEvent =
 export type Button =
   | { kind: 'action'; text: string; action: string }
   | { kind: 'link'; text: string; url: string }
+  /**
+   * Игры сайта во весь экран. В Telegram — кнопка web_app: страница открывается внутри мессенджера как мини-приложение
+   * (нужен https). В MAX и в чате на сайте — обычная ссылка
+   */
+  | { kind: 'app'; text: string; url: string }
   /** Запрос номера телефона — в Telegram это reply-кнопка, в MAX — request_contact */
   | { kind: 'contact'; text: string }
 

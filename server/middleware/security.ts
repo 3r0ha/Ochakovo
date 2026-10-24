@@ -45,8 +45,14 @@ const METRIKA_SCRIPTS = [...METRIKA, 'https://yastatic.net']
 const METRIKA_WS = ['wss://mc.yandex.ru', 'wss://mc.yandex.com']
 const VK = ['https://top-fwz1.mail.ru', 'https://top-fragment.mail.ru']
 
-/** Политика CSP. Без счётчиков — только свой сайт; домены каждого счётчика — только при его ID */
-export function csp(analytics: AnalyticsIds | null = null) {
+/** Telegram Web открывает мини-приложение (игры /play и всё, куда из них переходят) во фрейме своей страницы */
+const TELEGRAM_WEB = 'https://web.telegram.org'
+
+/**
+ * Политика CSP. Без счётчиков — только свой сайт; домены каждого счётчика — только при его ID.
+ * telegramFrame — страницы кандидата можно встроить в Telegram Web; HR-панель и API не встраиваются никуда
+ */
+export function csp(analytics: AnalyticsIds | null = null, telegramFrame = false) {
   const ym = Boolean(analytics?.metrika)
   const vk = Boolean(analytics?.vk)
   const list = (...groups: (string[] | false)[]) => groups.flatMap((g) => (g ? g : [])).map((d) => ` ${d}`).join('')
@@ -64,7 +70,7 @@ export function csp(analytics: AnalyticsIds | null = null) {
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "frame-ancestors 'none'",
+    telegramFrame ? `frame-ancestors ${TELEGRAM_WEB}` : "frame-ancestors 'none'",
     ...(ym ? [`frame-src${list(METRIKA)}`] : []),
   ].join('; ')
 }
@@ -74,12 +80,16 @@ const shareable = (path: string) => path.startsWith('/og/') || path === '/apple-
 
 export function securityHeaders({ analytics = null, hsts }: Omit<SecurityOptions, 'allowedOrigins'>): MiddlewareHandler {
   const policy = csp(analytics)
+  const framed = csp(analytics, true)
   return async (c, next) => {
     await next()
     const h = c.res.headers
-    h.set('Content-Security-Policy', policy)
+    const path = c.req.path
+    const candidatePage = !path.startsWith('/hr') && !path.startsWith('/api') && !path.startsWith('/bots')
+    h.set('Content-Security-Policy', candidatePage ? framed : policy)
     h.set('X-Content-Type-Options', 'nosniff')
-    h.set('X-Frame-Options', 'DENY')
+    // X-Frame-Options не умеет разрешать один чужой сайт: для страниц кандидата встраивание задаёт frame-ancestors выше
+    if (!candidatePage) h.set('X-Frame-Options', 'DENY')
     h.set('Referrer-Policy', 'strict-origin-when-cross-origin')
     h.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()')
     h.set('Cross-Origin-Opener-Policy', 'same-origin')

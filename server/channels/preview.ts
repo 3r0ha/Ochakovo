@@ -96,7 +96,10 @@ const unesc = (s: string) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').repla
 
 const tgButtons = (markup: TgInlineMarkup | undefined): ViewButton[][] =>
   (markup?.inline_keyboard ?? []).map((row) =>
-    row.map((b): ViewButton => (b.url ? { text: b.text, kind: 'link', url: b.url } : { text: b.text, kind: 'action', action: b.callback_data })),
+    row.map((b): ViewButton => {
+      const url = b.url ?? b.web_app?.url
+      return url ? { text: b.text, kind: 'link', url } : { text: b.text, kind: 'action', action: b.callback_data }
+    }),
   )
 
 const tgReplyButtons = (markup: TgReplyMarkup, chat: TgChatState): ViewButton[][] =>

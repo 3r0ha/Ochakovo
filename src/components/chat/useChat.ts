@@ -14,6 +14,8 @@ export const CHAT_TIMEOUT_MS = 30_000
 export type ChatButton =
   | { kind: 'action'; text: string; action: string }
   | { kind: 'link'; text: string; url: string }
+  /** Кнопка мини-приложения Telegram: в чате на сайте это обычная ссылка */
+  | { kind: 'app'; text: string; url: string }
   | { kind: 'contact'; text: string }
 
 /** Чего бот ждёт в поле ввода после сообщения: имя, телефон или ник, любой текст (OutMessage.input в server/dialog/types.ts) */

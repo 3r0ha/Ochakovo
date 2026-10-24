@@ -17,7 +17,7 @@ export const PHONE_PLACEHOLDER = 'Телефон или @ник'
 /** Подпись отдельного сообщения со ссылками, когда под сообщением reply-клавиатура */
 export const TG_LINKS_TEXT = 'Ссылки:'
 
-export type TgInlineButton = { text: string; url?: string; callback_data?: string }
+export type TgInlineButton = { text: string; url?: string; callback_data?: string; web_app?: { url: string } }
 export type TgInlineMarkup = { inline_keyboard: TgInlineButton[][] }
 export type TgReplyButton = { text: string; request_contact?: boolean }
 export type TgReplyMarkup = { keyboard: TgReplyButton[][]; resize_keyboard: true; one_time_keyboard: true; input_field_placeholder?: string }
@@ -58,6 +58,8 @@ export function tgInlineKeyboard(rows: Button[][] | undefined, onSkip?: OnSkip):
     .map((row) =>
       row.flatMap((b): TgInlineButton[] => {
         if (b.kind === 'link') return [{ text: b.text, url: b.url }]
+        // Мини-приложение открывается внутри Telegram; web_app работает только в личном чате с ботом, как у нас
+        if (b.kind === 'app') return [{ text: b.text, web_app: { url: b.url } }]
         if (b.kind === 'action') {
           if (byteLength(b.action) > 64) {
             onSkip?.(b.action)
@@ -216,12 +218,13 @@ export type MaxBody = { text: string; format: 'html'; attachments: (MaxImage | M
 /** Клавиатура MAX: кнопки только inline, «Отправить контакт» — request_contact рядом с остальными; длинные ряды делятся */
 export function maxKeyboard(rows: Button[][] | undefined): MaxKeyboard | null {
   if (!rows?.length) return null
-  const laid = layoutRows(rows, MAX_ROW, MAX_ROW_NARROW, ['link', 'contact'])
+  const laid = layoutRows(rows, MAX_ROW, MAX_ROW_NARROW, ['link', 'app', 'contact'])
   const buttons = laid.map((row) =>
     row.map((b): MaxButton => {
       const text = b.text.slice(0, MAX_BUTTON_TEXT)
       if (b.kind === 'action') return { type: 'callback', text, payload: b.action }
-      if (b.kind === 'link') return { type: 'link', text, url: b.url }
+      // Мини-приложений Telegram в MAX нет: та же страница игр открывается ссылкой
+      if (b.kind === 'link' || b.kind === 'app') return { type: 'link', text, url: b.url }
       return { type: 'request_contact', text }
     }),
   )

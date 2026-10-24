@@ -18,6 +18,7 @@ const HrLogin = page(() => import('./pages/HrLogin'), 'HrLogin')
 const HrPass = page(() => import('./pages/HrPass'), 'HrPass')
 const HrPoster = page(() => import('./pages/HrPoster'), 'HrPoster')
 const NotFound = page(() => import('./pages/NotFound'), 'NotFound')
+const Play = page(() => import('./pages/Play'), 'Play')
 const Privacy = page(() => import('./pages/Privacy'), 'Privacy')
 
 export function App() {
@@ -35,6 +36,8 @@ export function App() {
         <Route path="vacancies" element={<Vacancies />} />
         <Route path="apply" element={<Apply />} />
         <Route path="game" element={<Game />} />
+        {/* Игры по одной на экран: мини-приложение Telegram, бот открывает его кнопкой */}
+        <Route path="play" element={<Play />} />
         {/* Анонимная анкета фокус-группы: ссылка и QR — из вкладки HR «Фокус-группа», в меню и карте сайта её нет */}
         <Route path="focus" element={<Focus />} />
         <Route path="privacy" element={<Privacy />} />

@@ -14,6 +14,7 @@ import { applicationNumber, useSentApplication } from './candidate/sent'
 import { CHAT_BAR_HEIGHT, lockPage, openKvasychChat, useOverlay } from './chat/bus'
 import { Chat } from './chat/Chat'
 import { startTypographer } from '../lib/typo'
+import { inTelegram } from '../lib/telegram'
 import { Loading } from './Loading'
 import { Logo } from './Logo'
 
@@ -35,6 +36,7 @@ const titles: Record<string, string> = {
   '/vacancies': 'Вакансии',
   '/apply': 'Заявка',
   '/game': 'Поймай брак',
+  '/play': 'Игры',
   '/focus': 'Анкета о слогане',
   '/consent': 'Согласие на обработку данных',
   '/privacy': 'Персональные данные',
@@ -122,7 +124,7 @@ export function Layout() {
   useDocumentTitle(pathname)
   const announce = useRouteFocus(pathname, hash)
   // Внизу экрана на телефоне — полоса чата; у подвала под неё оставлен отступ
-  const chatBar = !pathname.startsWith('/hr') && !pathname.startsWith('/game')
+  const chatBar = !inTelegram && !pathname.startsWith('/hr') && !pathname.startsWith('/game') && !pathname.startsWith('/play')
 
   useEffect(() => startSmoothScroll(), [])
   // Счётчики — только при ID от сервера и согласии в плашке; первый просмотр отправляет сам запуск, дальше — каждый переход
