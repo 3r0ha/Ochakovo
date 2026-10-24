@@ -617,6 +617,7 @@ sequenceDiagram
 | [hr.md](docs/hr.md) | HR-панель: заявки, собеседования, выгрузки, хранение данных |
 | [llm.md](docs/llm.md) | помощник Квасыч на GigaChat |
 | [roadmap.md](docs/roadmap.md) | что сделано и что дальше |
+| [teaser.md](docs/teaser.md) | тизер решения: краткое описание, технические особенности, уникальность |
 | [speech.md](docs/speech.md) | текст выступления по демо на 5 минут: что на экране и что говорить |
 | [demo.md](docs/demo.md) | подготовка к показу: вкладки, вопросы жюри, запасной план |
 | [quality-brief.md](docs/quality-brief.md) | правила текстов |
