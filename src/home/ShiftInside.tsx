@@ -5,17 +5,16 @@ import { useReveal } from '../lib/motion'
 import { Dash, payText, sectionTitle } from './kit'
 
 /**
- * Ролики и вакансии, о которых они. Оператор линии розлива и лаборант — роли оплачиваемой практики;
- * машинист работает на производстве углекислоты, такой практики нет — ролик без ссылки на вакансию
+ * Ролики и вакансии, о которых они: оператор линии розлива и лаборант — роли оплачиваемой практики.
+ * Ролик о машинисте не показываем: он работает на производстве углекислоты, такой практики нет и ссылку поставить некуда
  */
-const items: { id: ShiftVideoId; vacancy?: string }[] = [
+const items: { id: ShiftVideoId; vacancy: string }[] = [
   { id: 'bottling-operator', vacancy: 'bottling-operator' },
   { id: 'lab-assistant', vacancy: 'lab-chemist' },
-  { id: 'machinist' },
 ]
 
 /**
- * «Смена изнутри»: три ролика «Очаково» о профессиях — честное превью работы до заявки (кейс: «посмотри смену изнутри»,
+ * «Смена изнутри»: два ролика «Очаково» о профессиях — честное превью работы до заявки (кейс: «посмотри смену изнутри»,
  * это снижает отсев). Плеер — ShiftVideo: до нажатия грузится только постер, звук не включается сам, вне экрана — пауза,
  * одновременно играет один ролик
  */
@@ -28,12 +27,12 @@ export function ShiftInside() {
           Смена изнутри
         </h2>
 
-        <ul className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-x-6 gap-y-12 md:mt-12 lg:grid-cols-3">
+        <ul className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-x-6 gap-y-12 md:mt-12 md:grid-cols-2">
           {items.map((item) => {
-            const v = item.vacancy ? vacancyById(item.vacancy) : undefined
+            const v = vacancyById(item.vacancy)
             return (
               <li key={item.id} data-shift-video={item.id} className="flex flex-col">
-                <ShiftVideo id={item.id} quietCaption sizes="(min-width: 1024px) 440px, 100vw" className="mb-4" />
+                <ShiftVideo id={item.id} quietCaption sizes="(min-width: 768px) 50vw, 100vw" className="mb-4" />
                 {v && (
                   <Link
                     to={`/vacancies?open=${v.id}`}

@@ -78,10 +78,34 @@ export function scrollToTarget(target: string | HTMLElement, offset = 0) {
     window.addEventListener('scrollend', () => Math.abs(miss()) > 8 && window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior }), { once: true })
 }
 
+/** Где стояла страница, когда её заперли окном (чат, меню): туда же она встаёт, когда окно закрыли */
+let lockedAt: number | null = null
+
+/**
+ * Запереть прокрутку страницы под окном и отпереть обратно на то же место.
+ * Firefox, снимая overflow: hidden с html, может показать страницу с самого верха, а Lenis помнит старое место
+ * и прыгает туда при первом движении колеса. Поэтому место запоминаем сами, после снятия ставим страницу туда
+ * и сверяем с ним Lenis — сразу и ещё раз через кадр, когда браузер пересчитает прокрутку
+ */
 export function lockScroll(locked: boolean) {
-  if (locked) lenis?.stop()
-  else lenis?.start()
-  document.documentElement.style.overflow = locked ? 'hidden' : ''
+  const root = document.documentElement
+  if (locked) {
+    if (lockedAt === null) lockedAt = window.scrollY
+    lenis?.stop()
+    root.style.overflow = 'hidden'
+    return
+  }
+  const at = lockedAt
+  lockedAt = null
+  root.style.overflow = ''
+  lenis?.start()
+  if (at === null) return
+  const settle = () => {
+    if (Math.abs(window.scrollY - at) > 1) window.scrollTo({ top: at, behavior: 'instant' })
+    lenis?.scrollTo(at, { immediate: true, force: true })
+  }
+  settle()
+  requestAnimationFrame(settle)
 }
 
 export function scrollToTop() {

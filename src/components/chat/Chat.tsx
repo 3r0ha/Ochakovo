@@ -257,7 +257,7 @@ export function Chat() {
       {/* Компьютер: место вкладки зарезервировано всегда (по нему проверяем, что под ней), сама вкладка выезжает и уезжает.
           Кнопка не снимается со страницы, пока уезжает: она сразу inert, поэтому уезжающую вкладку нельзя нажать или найти Tab */}
       {desktop && !hiddenHere && (
-        <div ref={root} className="pointer-events-none fixed right-0 bottom-8 z-20 h-[112px] w-11">
+        <div ref={root} className="pointer-events-none fixed right-0 bottom-8 z-20 h-[156px] w-[112px]">
           <motion.button
             ref={launcher}
             type="button"
@@ -274,10 +274,19 @@ export function Chat() {
             initial={{ x: '130%' }}
             animate={{ x: visible ? 0 : '130%' }}
             transition={{ duration: 0.4, ease }}
-            className="pointer-events-auto absolute inset-0 flex flex-col-reverse items-center justify-center gap-2.5 bg-brand font-display text-[16px] font-extrabold tracking-[0.06em] text-white uppercase transition-colors hover:bg-white hover:text-brand"
+            className="group pointer-events-auto absolute inset-0 block"
           >
-            <LiveDot key={placedRound} />
-            <span className="rotate-180 [writing-mode:vertical-rl]">Квасыч</span>
+            {/* Квасыч выглядывает из-за правого края экрана: поза «выглядывает» отражена, край картинки совпадает с краем окна */}
+            <img
+              src={PEEK}
+              alt=""
+              draggable={false}
+              className="absolute right-[-14px] bottom-[34px] h-[120px] w-auto -scale-x-100"
+            />
+            <span className="absolute right-0 bottom-0 flex items-center gap-2 bg-night px-3 py-2 font-display text-[15px] leading-none font-extrabold tracking-[0.06em] text-white uppercase ring-1 ring-white/20 transition-colors ring-inset group-hover:bg-brand">
+              <LiveDot key={placedRound} className="text-brand transition-colors group-hover:text-white" />
+              Чат-бот
+            </span>
           </motion.button>
         </div>
       )}
@@ -314,11 +323,13 @@ export function Chat() {
               onTouchStart={() => void loadPanel()}
               aria-haspopup="dialog"
               aria-label="Спросить Квасыча"
-              className="flex min-w-0 flex-1 items-center justify-center gap-2.5 font-display text-[18px] font-extrabold tracking-[0.06em] uppercase active:bg-coal"
+              className="relative flex min-w-0 flex-1 items-center justify-center gap-2.5 font-display text-[18px] font-extrabold tracking-[0.06em] uppercase active:bg-coal"
               style={{ height: CHAT_BAR_HEIGHT }}
             >
+              {/* Над полосой у правого края выглядывает Квасыч: видно, что за кнопкой живой собеседник */}
+              <img src={PEEK} alt="" draggable={false} className="pointer-events-none absolute right-[-10px] bottom-full h-[78px] w-auto -scale-x-100" />
               <LiveDot className="text-brand" />
-              {applyInBar ? 'Квасыч' : 'Спросить Квасыча'}
+              {applyInBar ? 'Чат-бот' : 'Чат-бот Квасыч'}
             </button>
           </motion.div>
         )}
@@ -333,6 +344,9 @@ export function Chat() {
     </>
   )
 }
+
+/** Поза «выглядывает» (public/mascot, фон убран scripts/mascot-cutout.py) */
+const PEEK = '/mascot/kvasych-peek.webp'
 
 /**
  * Точка «на связи» — мигает три раза при появлении и замирает: вечная анимация отвлекала бы от чтения и тратила кадры.

@@ -119,9 +119,6 @@ export function Practice() {
                 className="block aspect-[84/55] w-full bg-[#5d5555] object-cover"
               />
             </picture>
-            <figcaption className="mt-3 text-[15px] leading-snug text-ink/75">
-              {nb('Цех розлива, пульт линии. На спине куртки надпись «Я делаю натуральные напитки». Кадр из ролика «Очаково».')}
-            </figcaption>
           </figure>
         </div>
 
