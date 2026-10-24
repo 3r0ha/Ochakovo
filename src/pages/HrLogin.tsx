@@ -135,7 +135,6 @@ export function HrLogin() {
                   <dt className="text-white/60">Пароль</dt>
                   <dd className="font-semibold select-all">{JURY.password}</dd>
                 </dl>
-                <p className="mt-2 text-[14px] text-white/55">В панели демо-данные, настоящих кандидатов нет.</p>
                 <button
                   type="button"
                   onClick={() => {
@@ -162,7 +161,6 @@ export function HrLogin() {
             <button type="submit" className={`${hrBtn.red} w-full sm:w-fit`} disabled={sending || !email || !password || wait > 0}>
               {sending ? 'Входим' : wait > 0 ? `Войти · ${wait} с` : 'Войти'}
             </button>
-            <p className="text-[15px] text-white/55">Не помнишь пароль? Новый задаст администратор панели.</p>
           </form>
         )}
 
