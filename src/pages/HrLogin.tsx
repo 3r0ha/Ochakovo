@@ -62,8 +62,12 @@ export function HrLogin() {
     }
   }, [navigate])
 
-  const submit = async (e: FormEvent) => {
+  const submit = (e: FormEvent) => {
     e.preventDefault()
+    void signIn(email, password)
+  }
+
+  const signIn = async (email: string, password: string) => {
     if (wait > 0) return
     setError('')
     setSending(true)
@@ -122,6 +126,30 @@ export function HrLogin() {
 
         {step === 'login' && (
           <form onSubmit={submit} className="flex max-w-md flex-col gap-8 self-end" noValidate>
+            {JURY && (
+              <div className="border-l-4 border-brand bg-white/[0.06] p-5">
+                <p className="font-display text-[17px] font-bold tracking-[0.08em] uppercase">Вход для жюри</p>
+                <dl className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-[17px]">
+                  <dt className="text-white/60">Почта</dt>
+                  <dd className="font-semibold break-all select-all">{JURY.email}</dd>
+                  <dt className="text-white/60">Пароль</dt>
+                  <dd className="font-semibold select-all">{JURY.password}</dd>
+                </dl>
+                <p className="mt-2 text-[14px] text-white/55">В панели демо-данные, настоящих кандидатов нет.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail(JURY.email)
+                    setPassword(JURY.password)
+                    void signIn(JURY.email, JURY.password)
+                  }}
+                  disabled={sending || wait > 0}
+                  className={`${hrBtn.red} mt-4 w-full sm:w-fit`}
+                >
+                  {sending ? 'Входим' : 'Войти как жюри'}
+                </button>
+              </div>
+            )}
             <div>
               <HrLabel htmlFor="hr-email">Рабочая почта</HrLabel>
               <HrInput id="hr-email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -135,23 +163,6 @@ export function HrLogin() {
               {sending ? 'Входим' : wait > 0 ? `Войти · ${wait} с` : 'Войти'}
             </button>
             <p className="text-[15px] text-white/55">Не помнишь пароль? Новый задаст администратор панели.</p>
-            {JURY && (
-              <div className="border-t border-white/15 pt-5 text-[15px] leading-relaxed text-white/75">
-                <p>
-                  Вход для жюри: почта <b className="font-semibold text-white">{JURY.email}</b>, пароль <b className="font-semibold text-white">{JURY.password}</b>
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail(JURY.email)
-                    setPassword(JURY.password)
-                  }}
-                  className="mt-2 py-2 font-semibold text-white underline decoration-white/50 underline-offset-4 hover:decoration-white"
-                >
-                  Подставить
-                </button>
-              </div>
-            )}
           </form>
         )}
 
