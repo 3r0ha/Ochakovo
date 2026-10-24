@@ -8,7 +8,7 @@
 
 Решение команды **группировка antihype** на кейс «Открой#Моспром» от АО МПБК «Очаково».
 
-[**Открыть сайт**](https://antihype.best) · [**Все материалы кейса**](https://antihype.best/materials) · [**Презентация**](https://antihype.best/materials/deck/index.html) · [**PDF презентации**](docs/brand/deck/ochakovo-smena.pdf) · [**HR-панель**](https://antihype.best/hr)
+[**Открыть сайт**](https://antihype.best) · [**Все материалы кейса**](https://antihype.best/materials) · [**Презентация**](https://antihype.best/materials/deck/index.html) · [**PDF презентации**](docs/brand/deck/ochakovo-smena.pdf) · [**Коротко за 3 минуты**](https://antihype.best/materials/deck/pitch.html) · [**HR-панель**](https://antihype.best/hr)
 
 Вход в HR-панель: почта `jury@antihype.best`, пароль `jury-antihype`
 
@@ -69,6 +69,7 @@
 | Все материалы кейса одной страницей | [antihype.best/materials](https://antihype.best/materials) | каждый пункт кейса с превью и ссылкой на макет в натуральную величину |
 | Презентация | [antihype.best/materials/deck](https://antihype.best/materials/deck/index.html) | 18 слайдов о решении и материалах и приложения с исследованиями и подробностями. Листать стрелками, F открывает во весь экран, справа в шапке название критерия |
 | PDF презентации | [ochakovo-smena.pdf](docs/brand/deck/ochakovo-smena.pdf) | то же для печати и пересылки |
+| Короткая презентация | [antihype.best/materials/deck/pitch.html](https://antihype.best/materials/deck/pitch.html), [PDF](docs/brand/deck/ochakovo-pitch.pdf) | 10 слайдов на 3 минуты выступления: проблема, исследование, решение, продукт, технологии, кампания, внедрение |
 | Вакансии | [antihype.best/vacancies](https://antihype.best/vacancies) | оплачиваемая практика в четырёх отделах и работа |
 | Заявка | [antihype.best/apply](https://antihype.best/apply) | анкета по кейсу, после отправки «Моя заявка» со статусом |
 | Все игры по одной на экран | [antihype.best/play](https://antihype.best/play) | шесть игр сайта; эту же страницу бот открывает в Telegram как мини-приложение |
@@ -618,7 +619,7 @@ sequenceDiagram
 | [llm.md](docs/llm.md) | помощник Квасыч на GigaChat |
 | [roadmap.md](docs/roadmap.md) | что сделано и что дальше |
 | [teaser.md](docs/teaser.md) | тизер решения: краткое описание, технические особенности, уникальность |
-| [speech.md](docs/speech.md) | текст выступления по демо на 5 минут: что на экране и что говорить |
+| [speech.md](docs/speech.md) | текст выступления на 3 минуты по короткой презентации |
 | [demo.md](docs/demo.md) | подготовка к показу: вкладки, вопросы жюри, запасной план |
 | [quality-brief.md](docs/quality-brief.md) | правила текстов |
 | [tech.md](docs/tech.md) | техническое описание: запуск, база, API, боты, защита |

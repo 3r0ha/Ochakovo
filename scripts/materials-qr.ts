@@ -29,6 +29,8 @@ const codes: [string, string][] = [
   ['deck/qr/site.svg', tagged('deck')],
   ['deck/qr/play.svg', `${siteBase(DEMO_SITE)}/play?src=deck`],
   ['deck/qr/materials.svg', `${siteBase(DEMO_SITE)}/materials`],
+  // Финал короткой презентации: подробная презентация для жюри
+  ['deck/qr/deck.svg', `${siteBase(DEMO_SITE)}/materials/deck/index.html`],
 ]
 
 for (const [rel, link] of codes) {

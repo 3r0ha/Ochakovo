@@ -2709,3 +2709,153 @@ h2 {
   width: 100%;
   height: auto;
 }
+
+/* ── Короткая презентация (pitch.html) ───────────────────────────────── */
+/* Проблематика: три крупные цифры столбиком */
+.pstats > div {
+  display: grid;
+  grid-template-columns: 22cqw minmax(0, 1fr);
+  align-items: baseline;
+  gap: 2cqw;
+  padding: 1.4cqw 0;
+  border-top: 0.16cqw solid var(--hair);
+}
+.pstats .num {
+  font-size: 7cqw;
+  line-height: 0.85;
+}
+.pstats p {
+  font-size: 1.6cqw;
+  line-height: 1.3;
+}
+/* Решение: путь от точки контакта до выхода на смену */
+.pflow {
+  display: flex;
+  align-items: stretch;
+  gap: 0.8cqw;
+}
+.pflow > div {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 1.1cqw 1.2cqw;
+  background: #f1f0ec;
+  border-top: 0.3cqw solid var(--ink);
+}
+.pflow > div:last-child {
+  border-top-color: var(--red);
+}
+.pflow b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.6cqw;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.pflow span:not(.arrow) {
+  display: block;
+  margin-top: 0.5cqw;
+  font-size: 1.1cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.pflow .arrow {
+  align-self: center;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 2.4cqw;
+  color: var(--red);
+}
+/* Продукт для кандидата: четыре телефона в ряд */
+.pphones {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.2cqw;
+}
+/* Технологии: четыре колонки стека */
+.pstack {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.2cqw;
+}
+.pstack .col {
+  padding: 1.3cqw 1.5cqw;
+  background: var(--night);
+  box-shadow: inset 0 0 0 0.1cqw var(--hair);
+}
+.pstack ul {
+  margin: 0.6cqw 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pstack li {
+  padding: 0.5cqw 0;
+  border-top: 0.1cqw solid var(--hair);
+  font-size: 1.35cqw;
+  line-height: 1.3;
+}
+/* Кампания: четыре карточки с картинками */
+.pcamp {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.6cqw;
+  flex: 1;
+}
+.pcamp figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  overflow: visible;
+}
+.pcamp figure > div {
+  aspect-ratio: 4 / 5;
+  background: #f1f0ec;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.pcamp figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.pcamp figcaption {
+  margin-top: 0.8cqw;
+  font-size: 1.15cqw;
+  line-height: 1.35;
+}
+.pcamp figcaption b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.7cqw;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+.pflow.big > div {
+  padding: 1.6cqw 1.5cqw;
+}
+.pflow.big b {
+  font-size: 2cqw;
+}
+.pflow.big span:not(.arrow) {
+  font-size: 1.3cqw;
+}
+.pflow.dark > div {
+  background: var(--night);
+  border-top-color: var(--hair);
+}
+.pflow.dark > div:nth-of-type(2) {
+  border-top-color: var(--red);
+}
+.pstack li {
+  font-size: 1.55cqw;
+  padding: 0.65cqw 0;
+}
+ul.plist li {
+  font-size: 1.4cqw;
+  line-height: 1.4;
+  padding-top: 0.25cqw;
+  padding-bottom: 0.25cqw;
+}

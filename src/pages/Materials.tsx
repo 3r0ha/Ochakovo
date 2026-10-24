@@ -288,7 +288,7 @@ const docs: [string, string][] = [
   ['docs/brand/focus-group.md', 'протокол фокус-группы и анкета'],
   ['docs/kvasych.md', 'маскот Квасыч: роль, позы, стикерпак'],
   ['docs/teaser.md', 'тизер решения: краткое описание, технические особенности, уникальность'],
-  ['docs/speech.md', 'текст выступления по демо на 5 минут: что на экране и что говорить'],
+  ['docs/speech.md', 'текст выступления на 3 минуты по короткой презентации'],
   ['docs/demo.md', 'подготовка к показу: вкладки, вопросы жюри, запасной план'],
   ['docs/hr.md', 'HR-панель: заявки, собеседования, первые недели, выгрузки'],
 ]
@@ -396,6 +396,9 @@ export function Materials() {
           {/* Презентация лежит статичными файлами в docs/brand/deck (плагин materials в vite.config.ts), поэтому здесь ссылка, без Link */}
           <a href={`${M}/deck/index.html`} className={`${btn} bg-brand text-white hover:bg-brand-deep`}>
             Презентация HR-бренда
+          </a>
+          <a href={`${M}/deck/pitch.html`} className={`${btn} border border-white/40 text-white hover:border-white`}>
+            Коротко за 3 минуты
           </a>
           <Link to="/" className={`${btn} border border-white/40 text-white hover:border-white`}>
             Открыть сайт

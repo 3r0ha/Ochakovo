@@ -9,7 +9,11 @@ import { chromium } from "playwright";
 import sharp from "sharp";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const decks = [["index.html", "ochakovo-smena.pdf"]];
+// Подробная презентация для жюри и короткая на 3 минуты для выступления
+const decks = [
+  ["index.html", "ochakovo-smena.pdf"],
+  ["pitch.html", "ochakovo-pitch.pdf"],
+];
 
 const browser = await chromium.launch();
 for (const [name, pdf] of decks) {
