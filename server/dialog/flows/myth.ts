@@ -49,7 +49,10 @@ export async function route(ctx: Ctx, parts: string[]) {
   const guess = parts[2] === 't'
   const correct = guess === m.truth
   const next: MythState = { ...s, i: s.i + 1, score: s.score + (correct ? 1 : 0), missed: correct ? s.missed : m.id }
-  const verdict = `${correct ? 'Верно' : 'Мимо'}: это ${m.truth ? 'правда' : 'миф'}.\n\n${m.explain}`
+  // У мифа сначала то, что на самом деле: иначе утверждение из вопроса остаётся в памяти как правда
+  const verdict = m.truth
+    ? `${correct ? 'Верно' : 'Мимо'}: это правда.\n\n${m.explain}`
+    : `${correct ? 'Верно' : 'Мимо'}: это миф. На самом деле: **${m.fact.replace(/\.$/, '')}**.\n\n${m.explain}`
 
   if (next.i < next.deck.length) {
     setState(ctx, KEY, next)

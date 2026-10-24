@@ -228,10 +228,22 @@ export function MythSection() {
                 <p className="font-display text-[17px] font-bold tracking-[0.08em] text-mute uppercase">
                   {wrong >= 0 ? 'Почему так' : 'Стоит запомнить'}
                 </p>
-                <p className="mt-2 font-display text-[clamp(26px,2.4vw,34px)] leading-[0.95] font-extrabold uppercase">{nb(keep.claim)}</p>
-                <p className="mt-2 text-[16px] leading-relaxed text-ink/80">
-                  <span className="font-semibold">{keep.truth ? 'Правда.' : 'Миф.'}</span> {nb(keep.explain)}
-                </p>
+                {/* Миф зачёркнут, крупно то, что на самом деле: иначе крупное утверждение читается как правда */}
+                {keep.truth ? (
+                  <p className="mt-2 font-display text-[clamp(26px,2.4vw,34px)] leading-[0.95] font-extrabold uppercase">
+                    <span className="text-leaf">Правда: </span>
+                    {nb(keep.claim)}
+                  </p>
+                ) : (
+                  <>
+                    <p className="mt-2 text-[17px] leading-snug text-ink/55">
+                      <span className="font-semibold text-brand">Миф: </span>
+                      <s className="decoration-brand decoration-2">{nb(keep.claim)}</s>
+                    </p>
+                    <p className="mt-2 font-display text-[clamp(26px,2.4vw,34px)] leading-[0.95] font-extrabold uppercase">{nb(keep.fact)}</p>
+                  </>
+                )}
+                <p className="mt-2 text-[16px] leading-relaxed text-ink/80">{nb(keep.explain)}</p>
               </div>
             </motion.div>
           )}
@@ -367,7 +379,14 @@ function MythCard({
       </div>
 
       <div className="flex flex-1 flex-col p-5 md:p-7">
-        <p ref={answer === null ? focusRef : undefined} tabIndex={-1} className="font-display text-[clamp(30px,3vw,40px)] leading-[0.95] font-extrabold uppercase outline-none">
+        {/* После ответа миф зачёркнут и приглушён, крупным ниже встаёт то, что на самом деле */}
+        <p
+          ref={answer === null ? focusRef : undefined}
+          tabIndex={-1}
+          className={`font-display leading-[0.95] font-extrabold uppercase outline-none ${
+            answer !== null && !card.truth ? 'text-[clamp(22px,2.2vw,28px)] text-white/45 line-through decoration-brand decoration-[3px]' : 'text-[clamp(30px,3vw,40px)]'
+          }`}
+        >
           <span className="sr-only">Факт {index + 1} из {total}: </span>
           {nb(card.claim)}
         </p>
@@ -396,11 +415,11 @@ function MythCard({
             transition={{ duration: 0.4, ease }}
             className="mt-4 outline-none md:mt-auto md:pt-5"
           >
-            <p className={`font-display text-[22px] font-extrabold tracking-[0.05em] uppercase ${correct ? 'text-white' : 'text-brand'}`}>
-              {correct ? 'Верно' : 'Неверно'}
-              <span className="sr-only">: это {card.truth ? 'правда' : 'миф'}.</span>
+            <p className={`font-display text-[22px] font-extrabold tracking-[0.05em] uppercase ${correct ? 'text-white' : 'text-brand-bright'}`}>
+              {correct ? 'Верно' : 'Неверно'}: это {card.truth ? 'правда' : 'миф'}
             </p>
-            <p className="mt-1.5 text-[16px] leading-relaxed text-white/80">{nb(card.explain)}</p>
+            {!card.truth && <p className="mt-2 font-display text-[clamp(26px,2.6vw,34px)] leading-[0.95] font-extrabold uppercase">{nb(card.fact)}</p>}
+            <p className="mt-2 text-[16px] leading-relaxed text-white/80">{nb(card.explain)}</p>
             <button
               onClick={onNext}
               className="mt-5 h-14 w-full bg-brand font-display text-[22px] font-extrabold tracking-[0.05em] uppercase transition-colors hover:bg-white hover:text-brand"
