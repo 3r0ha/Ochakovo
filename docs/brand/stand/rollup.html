@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ролл-ап 850 × 2000 мм</title>
+<link rel="stylesheet" href="stand.css">
+<script src="../print/bleed.js"></script>
+<style>
+  /*
+   * Ролл-ап: видимая часть 850 × 1850 мм, нижние 150 мм уходят в основание. Поле 40 мм.
+   * Раскладка по высоте от пола (верх листа на 2000 мм): знак и сумма на уровне глаз, 1500–1850 мм;
+   * QR 250 мм на 1050–1300 мм, чтобы навести телефон, не нагибаясь; фото наставника и новичка посередине.
+   * Ниже 700 мм только подробности для тех, кто подошёл вплотную. Координаты ниже считаются от верха листа: y = 2000 − высота.
+   */
+  :root {
+    --w: 850mm;
+    --h: 2000mm;
+    --view: 0.11;
+  }
+  @page {
+    size: 850mm 2000mm;
+    margin: 0;
+  }
+  /* #bleed: вылеты по 5 мм и поле 6 мм под метки реза, лист 872 × 2022 мм */
+  html.bleed {
+    --bleed: 5mm;
+  }
+  @page rollup-bleed {
+    size: 872mm 2022mm;
+    margin: 0;
+  }
+  @media print {
+    html.bleed .sheet {
+      page: rollup-bleed;
+    }
+  }
+  /* Под обрез: заливки и фото выходят за линию обреза на --bleed */
+  .top {
+    position: absolute;
+    left: calc(-1 * var(--bleed));
+    right: calc(-1 * var(--bleed));
+    top: calc(-1 * var(--bleed));
+    height: calc(640mm + var(--bleed));
+    background: var(--red);
+    color: #fff;
+  }
+  .top > * {
+    position: absolute;
+    left: calc(40mm + var(--bleed));
+  }
+  /* 1850–1795 мм от пола */
+  .top .logo {
+    top: calc(150mm + var(--bleed));
+    width: 360mm;
+    display: block;
+  }
+  .top .pictos {
+    left: auto;
+    right: calc(40mm + var(--bleed));
+    top: calc(140mm + var(--bleed));
+    display: flex;
+    gap: 8mm;
+  }
+  .top .pictos img {
+    width: 62mm;
+    height: 62mm;
+    filter: brightness(0) invert(1);
+  }
+  .top .kicker {
+    top: calc(262mm + var(--bleed));
+    font-weight: 650;
+    font-size: 26mm;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  /* Сумма на 1700–1450 мм от пола */
+  .top .pay {
+    top: calc(300mm + var(--bleed));
+    font-size: 150mm;
+    letter-spacing: -0.005em;
+  }
+  .top .per {
+    top: calc(570mm + var(--bleed));
+    font-weight: 600;
+    font-size: 28mm;
+    line-height: 1.2;
+  }
+  /* Середина: слева QR и заявка, справа фото */
+  .apply {
+    position: absolute;
+    left: 40mm;
+    top: 700mm;
+    width: 345mm;
+  }
+  .apply .qr {
+    margin: 0;
+    width: 250mm;
+    height: 250mm;
+  }
+  .apply .qr img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .apply .display {
+    margin-top: 34mm;
+    font-size: 74mm;
+    color: var(--red);
+  }
+  .apply p {
+    margin: 12mm 0 0;
+    font-size: 23mm;
+    font-weight: 600;
+    line-height: 1.18;
+    color: #222;
+  }
+  /* Фото на 1360–940 мм от пола, слоган под ним на 915–820 мм */
+  .photo {
+    position: absolute;
+    left: 425mm;
+    right: calc(-1 * var(--bleed));
+    top: 640mm;
+    height: 420mm;
+    overflow: hidden;
+    background: #222;
+  }
+  .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 60% 30%;
+    display: block;
+  }
+  .head {
+    position: absolute;
+    left: 425mm;
+    right: 30mm;
+    top: 1086mm;
+    font-size: 54mm;
+    color: var(--ink);
+  }
+  /* Подробности для тех, кто подошёл: 750–250 мм от пола */
+  .facts {
+    position: absolute;
+    left: 40mm;
+    right: 40mm;
+    top: 1250mm;
+  }
+  .fact {
+    display: grid;
+    grid-template-columns: 215mm 1fr;
+    gap: 16mm;
+    padding: 24mm 0 22mm;
+    border-top: 1.2mm solid #e1e1e1;
+    align-items: baseline;
+  }
+  .fact:last-child {
+    border-bottom: 1.2mm solid #e1e1e1;
+  }
+  .fact .k {
+    font-weight: 650;
+    font-size: 17mm;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--red);
+    line-height: 1.15;
+  }
+  .fact .v {
+    font-weight: 600;
+    font-size: 30mm;
+    line-height: 1.12;
+    color: #222;
+  }
+  /* Основание: на экране штриховка, при печати ничего нет */
+  .base {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 150mm;
+    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.06) 0 12mm, transparent 12mm 24mm);
+    border-top: 1mm dashed #bbb;
+    display: grid;
+    place-items: center;
+    font-size: 20mm;
+    color: #999;
+  }
+  /* Линейка высот рядом с макетом: только на экране */
+  .measure {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .ruler {
+    position: relative;
+    width: 150px;
+    height: calc(var(--h) * var(--view));
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 12px;
+    line-height: 1.25;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right;
+  }
+  .ruler span {
+    position: absolute;
+    right: 0;
+    padding-right: 10px;
+    transform: translateY(50%);
+  }
+  .ruler span::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    width: 7px;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  .ruler b {
+    display: block;
+    color: #fff;
+    font-weight: 600;
+  }
+  @media print {
+    .base,
+    .ruler {
+      display: none;
+    }
+  }
+  /* Телефон: макет мельче, чтобы линейка и лист помещались в ширину экрана */
+  @media screen and (max-width: 520px) {
+    :root {
+      --view: 0.072;
+    }
+    .measure {
+      gap: 10px;
+    }
+    .ruler {
+      width: 92px;
+      font-size: 11px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="notes">
+  <b>Ролл-ап 850 × 2000 мм</b> для стенда на&nbsp;ярмарке вакансий, в&nbsp;вузе и&nbsp;на&nbsp;дне найма. Видимая часть 850 × 1850 мм, нижние 150 мм уходят в&nbsp;основание. Знак и&nbsp;сумма стоят на&nbsp;уровне глаз, QR на&nbsp;высоте 1050–1300 мм от&nbsp;пола, а&nbsp;ниже 700 мм подробности для тех, кто подошёл вплотную.
+  На&nbsp;экране макет уменьшен. Печать из&nbsp;Chrome: «Сохранить как PDF», «Фон» включён; для типографии адрес с&nbsp;<code>#bleed</code> (вылеты по&nbsp;5 мм и&nbsp;метки реза).
+  Фото пока черновое, это кадр из&nbsp;ролика компании «Оператор линии розлива». Для тиража нужна съёмка наставника и&nbsp;новичка, исходник не&nbsp;меньше 3400 px по&nbsp;ширине. QR демонстрационный и ведёт на&nbsp;демо-адрес <code>season.ochakovo.ru/?src=fair-mgupp</code>, код с&nbsp;меткой своей ярмарки скачивают в&nbsp;HR-панели, вкладка «Источники».
+</div>
+<div class="stage">
+  <div>
+    <div class="measure">
+      <div class="ruler" aria-hidden="true">
+        <span style="bottom:calc(1850mm * var(--view))"><b>1850 мм</b>верх видимой части</span>
+        <span style="bottom:calc(1500mm * var(--view))"><b>1500–1850</b>глаза: знак и сумма</span>
+        <span style="bottom:calc(1175mm * var(--view))"><b>1050–1300</b>QR, фото</span>
+        <span style="bottom:calc(700mm * var(--view))"><b>700 мм</b>ниже подробности</span>
+        <span style="bottom:calc(150mm * var(--view))"><b>150 мм</b>основание</span>
+      </div>
+      <div class="view">
+        <section class="sheet" aria-label="Ролл-ап">
+          <div class="trim">
+            <div class="top">
+              <img class="logo" src="../../../public/brand/logo-wordmark-white.svg" alt="ОЧАКОВО">
+              <div class="pictos" aria-hidden="true">
+                <img src="../../../public/brand/pictograms/control.svg" alt="">
+                <img src="../../../public/brand/pictograms/kettle.svg" alt="">
+                <img src="../../../public/brand/pictograms/pet-bottle.svg" alt="">
+              </div>
+              <div class="kicker">Оплачиваемая практика</div>
+              <div class="pay display">от&nbsp;56&nbsp;000<br>до&nbsp;70&nbsp;000&nbsp;₽</div>
+              <div class="per">в&nbsp;месяц до&nbsp;вычета налога</div>
+            </div>
+            <div class="apply">
+              <figure class="qr"><img src="qr/fair-mgupp.svg" alt="QR-код: заявка на сайте с меткой ярмарки"></figure>
+              <div class="display">Заявка<br>за&nbsp;2&nbsp;минуты</div>
+              <p>Наведи камеру на&nbsp;QR. Работа, стажировка и&nbsp;практика с&nbsp;18&nbsp;лет</p>
+            </div>
+            <div class="photo"><img src="../print/img/mentor.jpg" alt="Наставник и новичок у пульта линии розлива"></div>
+            <div class="head display">Квас делают<br><span class="red">люди</span></div>
+            <div class="facts">
+              <div class="fact"><div class="k">Наставник</div><div class="v">у&nbsp;каждого новичка, его учили в&nbsp;Учебном центре</div></div>
+              <div class="fact"><div class="k">Смены</div><div class="v">по&nbsp;12 часов: <span class="nb">8:00–20:00</span> или <span class="nb">20:00–8:00</span></div></div>
+              <div class="fact"><div class="k">Общежитие</div><div class="v">для студентов 3&nbsp;400&nbsp;₽ <span class="nb">за койко-место</span></div></div>
+              <div class="fact"><div class="k">Дорога</div><div class="v">корпоративный автобус от&nbsp;м.&nbsp;«Озёрная»</div></div>
+            </div>
+            <div class="base">Основание: не&nbsp;видно</div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <p class="caption">850 × 2000 мм, на&nbsp;экране уменьшен. Слева высота от&nbsp;пола</p>
+  </div>
+</div>
+</body>
+</html>

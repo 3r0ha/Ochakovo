@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Табличка на стол A4</title>
+<link rel="stylesheet" href="stand.css">
+<script src="../print/bleed.js"></script>
+<style>
+  /* Табличка-домик: лист A4 сгибается пополам поперёк. Верхняя половина перевёрнута и смотрит на HR, нижняя на посетителя */
+  :root {
+    --w: 210mm;
+    --h: 297mm;
+    --view: 0.7;
+  }
+  /* Телефон: лист целиком в ширину экрана */
+  @media screen and (max-width: 700px) {
+    :root {
+      --view: 0.42;
+    }
+  }
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  /* #bleed: вылеты по 3 мм и поле 6 мм под метки реза, лист 228 × 315 мм */
+  html.bleed {
+    --bleed: 3mm;
+  }
+  @page tent-bleed {
+    size: 228mm 315mm;
+    margin: 0;
+  }
+  @media print {
+    html.bleed .sheet {
+      page: tent-bleed;
+    }
+  }
+  .face {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 148.5mm;
+    padding: 12mm 12mm 11mm;
+  }
+  .face.hr {
+    top: 0;
+    transform: rotate(180deg);
+    background: #fff;
+  }
+  .face.guest {
+    bottom: 0;
+    background: #141414;
+    color: #fff;
+  }
+  .fold {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 148.5mm;
+    border-top: 0.3mm dashed #bbb;
+  }
+  .logo {
+    width: 40mm;
+    display: block;
+  }
+  /* Лицевая: носки за вопросы */
+  .guest .grid {
+    display: grid;
+    grid-template-columns: 1fr 52mm;
+    gap: 8mm;
+    margin-top: 9mm;
+    height: 108mm;
+  }
+  .guest .display {
+    font-size: 21mm;
+  }
+  .guest .display span {
+    color: var(--red);
+  }
+  .guest p {
+    margin: 6mm 0 0;
+    font-size: 4.4mm;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .guest small {
+    display: block;
+    margin-top: 4mm;
+    font-size: 3mm;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .guest .side {
+    display: flex;
+    flex-direction: column;
+    gap: 5mm;
+    align-items: stretch;
+  }
+  .guest .socks {
+    width: 52mm;
+    height: 52mm;
+    display: block;
+  }
+  .guest .qr {
+    margin: 0;
+    display: flex;
+    gap: 3mm;
+    align-items: flex-end;
+  }
+  .guest .qr img {
+    width: 34mm;
+    height: 34mm;
+    display: block;
+    flex: none;
+  }
+  .guest .qr figcaption {
+    font-size: 2.9mm;
+    font-weight: 600;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.75);
+  }
+  /* Обратная: шпаргалка для сотрудника на стенде */
+  .hr .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .hr .display {
+    font-size: 12mm;
+  }
+  .hr ol {
+    margin: 7mm 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .hr li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 9mm 1fr;
+    padding: 2.6mm 0;
+    border-top: 0.25mm solid #e1e1e1;
+    font-size: 3.6mm;
+    line-height: 1.32;
+  }
+  .hr li::before {
+    content: counter(step);
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 6mm;
+    line-height: 0.9;
+    color: var(--red);
+  }
+  .hr li b {
+    font-weight: 650;
+  }
+</style>
+</head>
+<body>
+<div class="notes">
+  <b>Табличка на стол A4</b>, домик на&nbsp;стенде ярмарки. Лист сгибается пополам по&nbsp;пунктиру: нижняя половина смотрит на&nbsp;посетителя, на&nbsp;верхней перевёрнутая шпаргалка для сотрудника HR. Печать из&nbsp;Chrome: «Сохранить как PDF», A4, «Фон» включён; для типографии адрес с&nbsp;<code>#bleed</code>.
+  QR ведёт на&nbsp;контрольные вопросы: <code>/game?t=quiz&amp;src=fair-&lt;вуз&gt;</code>. В&nbsp;макете стоит демо-код на&nbsp;демо-адрес <code>season.ochakovo.ru/game?t=quiz&amp;src=fair-mgupp</code>; метку своей ярмарки заводят в&nbsp;HR-панели, вкладка «Источники». Носки за&nbsp;вопросы предлагает команда, утверждает их&nbsp;компания (<code>docs/brand/merch.md</code>).
+</div>
+<div class="stage">
+  <div>
+    <div class="view">
+      <section class="sheet" aria-label="Табличка A4">
+        <div class="trim">
+          <div class="face hr" aria-label="Сторона для сотрудника">
+            <div class="row">
+              <div class="display">Как вести<br>у&nbsp;стенда</div>
+              <img class="logo" src="../../../public/brand/logo-red.svg" alt="ОЧАКОВО">
+            </div>
+            <ol>
+              <li><span>Предложи <b>7 вопросов о&nbsp;заводе</b> по&nbsp;QR на&nbsp;табличке. Это около трёх минут, к&nbsp;каждому ответу есть объяснение.</span></li>
+              <li><span>За&nbsp;ответы <b>без ошибок</b> дай носки, с&nbsp;ошибками дай наклейку. За&nbsp;заявку мерч не&nbsp;выдаём.</span></li>
+              <li><span><b>Заявку</b> подают по&nbsp;QR ролл-апа с&nbsp;меткой ярмарки, около 2&nbsp;минут. Только с&nbsp;18&nbsp;лет.</span></li>
+              <li><span><b>Деньги</b>: оплачиваемая практика от&nbsp;56&nbsp;000 до&nbsp;70&nbsp;000&nbsp;₽ в&nbsp;месяц до&nbsp;вычета налога. Не&nbsp;округляй вверх.</span></li>
+              <li><span><b>Быт</b>: общежитие для студентов 3&nbsp;400&nbsp;₽ за&nbsp;койко-место, корпоративный автобус от&nbsp;м.&nbsp;«Озёрная», наставник у&nbsp;каждого новичка.</span></li>
+              <li><span>Если <b>не&nbsp;знаешь ответа</b>, скажи честно и&nbsp;предложи спросить Квасыча в&nbsp;боте: вопрос попадёт в&nbsp;HR-панель.</span></li>
+            </ol>
+          </div>
+          <div class="fold"></div>
+          <div class="face guest" aria-label="Сторона для посетителя">
+            <img class="logo" src="../../../public/brand/logo-wordmark-white.svg" alt="ОЧАКОВО">
+            <div class="grid">
+              <div>
+                <div class="display">7 вопросов<br>о&nbsp;заводе<br><span>кваса</span></div>
+                <p>Ответь без ошибок и&nbsp;получи носки с&nbsp;пиктограммами завода.</p>
+                <small>Вопросы про историю и&nbsp;работу «Очаково»: с&nbsp;какого года завод, что такое двойное брожение, кто учит новичков. Носки выдаём, пока они есть на&nbsp;стенде.</small>
+              </div>
+              <div class="side">
+                <img class="socks" src="../merch/art/socks.svg" alt="Носки: жаккард с пиктограммами завода">
+                <figure class="qr"><img src="qr/quiz-fair-mgupp.svg" alt="QR-код: контрольные вопросы с меткой ярмарки"><figcaption>Наведи камеру на&nbsp;QR</figcaption></figure>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <p class="caption">A4, на&nbsp;экране уменьшена. Сгиб по&nbsp;пунктиру: нижняя половина смотрит на&nbsp;посетителя, верхняя перевёрнута, это шпаргалка для сотрудника за&nbsp;столом</p>
+  </div>
+</div>
+</body>
+</html>

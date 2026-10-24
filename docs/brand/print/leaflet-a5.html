@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Листовка A5 «Оплачиваемая практика»</title>
+<link rel="stylesheet" href="print.css">
+<script src="bleed.js"></script>
+<style>
+  /* Лицевая: фото на два модуля, красный модуль со слоганом, белое поле с суммой */
+  .front .photo {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: calc(var(--bleed) + 108mm);
+    background: #444 url(img/mentor.jpg) 62% 30% / cover no-repeat;
+  }
+  .front .band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--bleed) + 108mm);
+    height: var(--module);
+    padding: 6.5mm calc(var(--bleed) + var(--field)) 0;
+  }
+  .front .band .display {
+    font-size: 19.2mm;
+  }
+  .front .bottom {
+    position: absolute;
+    left: var(--field);
+    right: var(--field);
+    top: calc(108mm + var(--module) + 6mm);
+    bottom: var(--field);
+    display: grid;
+    grid-template-columns: 1fr 30mm;
+    column-gap: 4mm;
+  }
+  .front .sum {
+    margin-top: 1.6mm;
+    font-size: 13.4mm;
+    color: var(--ink);
+  }
+  .front .per {
+    margin-top: 1.4mm;
+    font-size: 3.1mm;
+    font-weight: 500;
+  }
+  .front .facts {
+    margin-top: 3.2mm;
+    font-size: 2.75mm;
+    line-height: 1.45;
+    color: #555;
+  }
+  .front .side {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .front .age {
+    font-size: 8mm;
+    color: var(--red);
+    text-align: right;
+  }
+  .front .age small {
+    display: block;
+    font-family: var(--text);
+    font-size: 2.3mm;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #555;
+    text-transform: uppercase;
+    margin-top: 1mm;
+  }
+
+  /* Оборот: роли и деньги, что даёт компания, как попасть. Текст идёт потоком, красный модуль «Как попасть» внизу */
+  .back .flow {
+    position: absolute;
+    left: var(--field);
+    right: var(--field);
+    top: var(--field);
+    bottom: calc(var(--module) + 4mm);
+    display: flex;
+    flex-direction: column;
+  }
+  .back .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6mm;
+  }
+  .back h2 {
+    margin: 0 0 2.4mm;
+    font-size: 9.6mm;
+  }
+  .role {
+    display: grid;
+    grid-template-columns: 10mm 1fr 25mm;
+    column-gap: 3mm;
+    align-items: start;
+    padding: 1.8mm 0;
+    border-top: 0.25mm solid #e1e1e1;
+  }
+  .role .picto {
+    margin-top: 0.3mm;
+  }
+  .role .dep {
+    font-size: 2.3mm;
+    font-weight: 650;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+  .role .name {
+    font-weight: 650;
+    font-size: 3.1mm;
+  }
+  .role .what {
+    color: #555;
+  }
+  .role .pay {
+    font-size: 5.6mm;
+    text-align: right;
+    color: var(--ink);
+    padding-top: 0.6mm;
+  }
+  .role .pay small {
+    display: block;
+    font-family: var(--text);
+    text-transform: none;
+    font-size: 2.2mm;
+    font-weight: 500;
+    color: #666;
+    margin-top: 0.8mm;
+  }
+  .role.nopicto {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .footnote {
+    padding-top: 1.8mm;
+    border-top: 0.25mm solid #e1e1e1;
+    font-size: 2.4mm;
+    color: #666;
+  }
+  .gives {
+    margin-top: auto;
+  }
+  .gives h3 {
+    margin: 0 0 1.6mm;
+    font-size: 6.2mm;
+  }
+  .gives ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    columns: 2;
+    column-gap: 6mm;
+  }
+  .gives li {
+    break-inside: avoid;
+    padding: 0.7mm 0 0.7mm 3.2mm;
+    position: relative;
+    line-height: 1.32;
+  }
+  .gives li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 2.2mm;
+    width: 1.4mm;
+    height: 0.5mm;
+    background: var(--red);
+  }
+  .how {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(var(--module) + var(--bleed));
+    padding: 6mm calc(var(--field) + var(--bleed)) calc(var(--bleed) + 5mm);
+    align-items: start;
+    display: grid;
+    grid-template-columns: 28mm 1fr;
+    column-gap: 6mm;
+  }
+  .how ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .how li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 7mm;
+    margin-bottom: 1.6mm;
+    font-size: 3mm;
+    line-height: 1.3;
+  }
+  .how li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: -0.6mm;
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 5.4mm;
+    line-height: 1;
+  }
+  .how .contacts {
+    margin-top: 2.6mm;
+    font-size: 2.35mm;
+    line-height: 1.45;
+    opacity: 0.92;
+  }
+</style>
+</head>
+<body>
+<div class="notes">
+  <b>Листовка A5 «Оплачиваемая практика»</b>, макет для согласования. Лицевая и оборот, 148 × 210 мм.
+  На лицевой пока стоит кадр из ролика «Оператор линии розлива», для тиража нужна новая съёмка по фотостилю «кто».
+  QR демонстрационный и ведёт на&nbsp;демо-адрес <code>season.ochakovo.ru/?src=fair-mgupp</code> (ярмарка МГУПП). Перед тиражом код с&nbsp;меткой своей точки скачивают в&nbsp;HR-панели, вкладка «Источники». Тексты, сетка и&nbsp;правила описаны в&nbsp;<code>docs/brand/visuals.md</code>.
+</div>
+<div class="sheets">
+
+  <!-- ЛИЦЕВАЯ -->
+  <section class="sheet front" aria-label="Лицевая сторона">
+    <div class="photo" role="img" aria-label="Наставник и новичок у пульта линии розлива"></div>
+    <div class="band fill-red">
+      <div class="display">Квас делают<br>люди</div>
+    </div>
+    <div class="trim">
+      <div class="bottom">
+        <div>
+          <div class="kicker red">Оплачиваемая практика</div>
+          <div class="display sum">от 56&nbsp;000 до 70&nbsp;000&nbsp;₽</div>
+          <div class="per">в&nbsp;месяц до&nbsp;вычета налога</div>
+          <div class="facts">
+            Лаборатория, цех розлива, технологический цех, склад.<br>
+            С&nbsp;начала марта или апреля до&nbsp;конца июля или середины августа.
+          </div>
+        </div>
+        <div class="side">
+          <div class="display age">С&nbsp;18&nbsp;лет</div>
+          <img class="logo" src="../../../public/brand/logo-red.svg" alt="ОЧАКОВО, натуральные напитки" style="width:27mm">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ОБОРОТ -->
+  <section class="sheet back" aria-label="Оборотная сторона">
+    <div class="trim">
+     <div class="flow">
+      <div class="head">
+        <img class="logo" src="../../../public/brand/logo-line-red.svg" alt="ОЧАКОВО, натуральные напитки" style="width:42mm">
+        <div class="kicker red">Оплачиваемая практика</div>
+      </div>
+
+      <div class="roles">
+        <h2 class="display">Роли и&nbsp;деньги</h2>
+        <div class="role">
+          <img class="picto" src="../../../public/brand/pictograms/control.svg" alt="">
+          <div><div class="dep">Лаборатория</div><div class="name">Лаборант</div><div class="what">Анализы и&nbsp;контроль качества</div></div>
+          <div class="display pay">от 60&nbsp;000&nbsp;₽<small>с&nbsp;ночными больше</small></div>
+        </div>
+        <div class="role">
+          <img class="picto" src="../../../public/brand/pictograms/pet-bottle.svg" alt="">
+          <div><div class="dep">Цех розлива</div><div class="name">Оператор линии розлива</div><div class="what">Этикетировщик, упаковка, выдувная машина, паллетайзер</div></div>
+          <div class="display pay">от 70&nbsp;000&nbsp;₽</div>
+        </div>
+        <div class="role">
+          <img class="picto" src="../../../public/brand/pictograms/kettle.svg" alt="">
+          <div><div class="dep">Технологический цех</div><div class="name">Оператор технологического цеха</div><div class="what">Цех варки, сырьё: сахар, сироп</div></div>
+          <div class="display pay">от 70&nbsp;000&nbsp;₽</div>
+        </div>
+        <div class="role">
+          <span class="picto" aria-hidden="true"></span>
+          <div><div class="dep">Складской комплекс</div><div class="name">Оператор склада</div><div class="what">Программа, документы, накладные</div></div>
+          <div class="display pay">от 60&nbsp;000&nbsp;₽<small>с&nbsp;ночными больше</small></div>
+        </div>
+        <div class="role nopicto">
+          <span class="picto" aria-hidden="true"></span>
+          <div><div class="name">Кладовщик</div><div class="what">Накладные, комплектовщики</div></div>
+          <div class="display pay">от 56&nbsp;000&nbsp;₽<small>с&nbsp;ночными больше</small></div>
+        </div>
+        <div class="footnote">Суммы в&nbsp;месяц до&nbsp;вычета налога. Смены по&nbsp;12&nbsp;часов: 8:00–20:00 и&nbsp;20:00–8:00, график составляет руководитель.</div>
+      </div>
+
+      <div class="gives">
+        <h3 class="display">Что даёт компания</h3>
+        <ul>
+          <li>Наставник у&nbsp;каждого новичка, его учили в&nbsp;Учебном центре</li>
+          <li>Без испытательного срока: вместо него практика</li>
+          <li>Срочный договор по&nbsp;ТК&nbsp;РФ, потом можно перейти на&nbsp;постоянную работу</li>
+          <li>Койко-место в&nbsp;общежитии студентам за&nbsp;3&nbsp;400&nbsp;₽</li>
+          <li>Половину стоимости обеда платит компания</li>
+          <li>Спецодежда и&nbsp;медосмотр за&nbsp;счёт компании</li>
+          <li>Зарплата 12-го и&nbsp;27-го</li>
+          <li>Про экзамен скажи заранее, и&nbsp;смену не&nbsp;поставят</li>
+        </ul>
+      </div>
+     </div>
+    </div>
+
+    <div class="how fill-red">
+      <figure class="qr"><img src="qr/fair-mgupp.svg" alt="QR-код: заявка на сайте с меткой ярмарки"><figcaption>season.ochakovo.ru</figcaption></figure>
+      <div>
+        <ol>
+          <li>Наведи камеру на&nbsp;QR</li>
+          <li>Заявка займёт около 2&nbsp;минут: ФИО, дата рождения, телефон, вакансия, когда можешь выйти, вуз или колледж</li>
+          <li>HR позвонит и&nbsp;пригласит на&nbsp;собеседование</li>
+        </ol>
+        <div class="contacts">
+          Отдел подбора: 8&nbsp;800&nbsp;100-77-77, доб. 1155 · ул.&nbsp;Рябиновая,&nbsp;44<br>
+          От&nbsp;м.&nbsp;«Озёрная» ходит корпоративный автобус · Берём с&nbsp;18&nbsp;лет
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

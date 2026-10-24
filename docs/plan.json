@@ -1,0 +1,2374 @@
+{
+ "plan": {
+  "summary": "План: 25 пакетов в две волны. Внутри волны каждый файл правит один пакет. В волне 1 (12 пакетов) сначала идут контракты: миграция 012 со всеми новыми полями заявок для обеих волн, общие типы, слоты маршрутов API и вкладок HR для волны 2, тесты и сценарии e2e, которые подключаются отдельными файлами. Затем все P0: вопросы кейса и живая речь офлайн-Квасыча, вопрос посреди заявки, секрет вебхуков, факты по источнику, первый экран со словами кейса, бутылка «КВАС», демо-база для показа, README и стратегия без противоречий. Волна 2 (13 пакетов) строит на этом путь кандидата в HR: оформление, итог сезона, согласие, пару по приглашению. В неё же входят реестр меток с QR и плакатом, самозапись, ответы HR для Квасыча, предпросмотр ботов и рассылка, права кандидата и сценарий показа для жюри. Номера миграций закреплены за пакетами. Спорные поправки судей решены в docs/plan.md.",
+  "packages": [
+   {
+    "id": "w1-platform-core",
+    "owner": "platform",
+    "wave": 1,
+    "files": [
+     "shared/applications.ts",
+     "shared/applicationInput.ts",
+     "shared/siteConfig.ts",
+     "shared/phone.ts",
+     "server/db/index.ts",
+     "server/db/migrations/012_candidate_fields.sql",
+     "server/api/public.ts",
+     "server/api/index.ts",
+     "server/api/hr-sources.ts",
+     "server/api/hr-bots.ts",
+     "server/api/hr-broadcast.ts",
+     "server/api/hr-kb.ts",
+     "server/api/hr-content.ts",
+     "server/api/hr-account.ts",
+     "server/api/booking.ts",
+     "server/candidate/",
+     "server/middleware/rate-limit.ts",
+     "server/middleware/client-ip.ts",
+     "scripts/test-all.mjs",
+     "scripts/e2e.ts",
+     "scripts/e2e/_harness.ts",
+     "scripts/tests/_db.ts",
+     "scripts/tests/core-*.test.ts",
+     "scripts/server-test.ts",
+     "package.json",
+     "pnpm-lock.yaml"
+    ],
+    "tasks": [
+     {
+      "key": "w1-core-1",
+      "title": "Тесты и сценарии e2e подключаются отдельными файлами (делается первой)",
+      "what": "test-all.mjs после скриптов test:* гоняет scripts/tests/*.test.ts через tsx и пропускает файлы с _ в начале. scripts/tests/_db.ts: withTestDb(name, fn) создаёт базу ochakovo_t_<name>_<случайное>, применяет migrate() и удаляет базу. e2e.ts после встроенных сценариев импортирует scripts/e2e/*.ts (по алфавиту, без _): export default async (h: E2eHarness) => Scenario[]. Тип E2eHarness в scripts/e2e/_harness.ts: browser, baseUrl, sql, Scenario, open, expect, MOBILE, DESKTOP, TAB, isWebkit, doMoney, doQuiz, doMyth, doGame, overflow, unnamedControls, contrastProblems.",
+      "acceptance": "Временный scripts/tests/x.test.ts с process.exit(1) роняет pnpm test, после удаления всё зелёное. Пробный сценарий из scripts/e2e/ проходит на том же сервере и в той же одноразовой базе. Старые проверки не изменились и проходят.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-core-2",
+      "title": "Миграция 012 и типы новых полей для обеих волн",
+      "what": "012_candidate_fields.sql. В applications: consent_at, consent_version, consent_source; ref_code (уникальный индекс, где не null); practice_school, wants_to_stay; suspected_spam; onboarding_at, first_shift_at, shift_kind, onboarding_note; season_outcome, season_leave_reason, reserve; bot_channel, bot_user_id, bot_link_hash, bot_link_expires_at. В interviews: attended ('', yes, no) с check, attended_at, attended_by, self_booked. Старым строкам: consent_version='0', источник по каналу (web → site_form, telegram, max, hr → none). В shared/applications.ts те же поля в camelCase в Application и HrApplication, InterviewSlot.attended и selfBooked, константы CONSENT_VERSION='1', consentSources с подписями, seasonLeaveReasons (учёба, график 12 часов, дорога, деньги, личные обстоятельства, другое), ShiftKind. toApplication маппит кандидатские поля, а поля HR маппит w1-hr-desk в toHr.",
+      "acceptance": "Миграция проходит на пустой базе и на копии демо-базы. У старых строк заполнен источник согласия. pnpm typecheck зелёный. Имена полей совпадают с таблицей в docs/plan.md.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-core-3",
+      "title": "Слоты маршрутов API для волны 2",
+      "what": "Создать заглушки server/api/hr-sources.ts, hr-bots.ts, hr-broadcast.ts, hr-kb.ts, hr-content.ts, hr-account.ts, booking.ts: export function routes(deps: ApiDeps): Hono { return new Hono() }. ApiDeps = { storage, repo, engine, bots, env } экспортируется из server/api/index.ts. Смонтировать все в createApi. Проверки доступа во второй волне берутся из requireHr в server/auth/session.ts.",
+      "acceptance": "Сервер стартует, typecheck зелёный, неизвестные пути под /api/hr отвечают 404, старые маршруты работают.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-core-4",
+      "title": "Сборка заявки в shared/applicationInput.ts",
+      "what": "Перенести normalizeApplication и normalizeProfile в shared/applicationInput.ts как normalizeApplicationInput(raw). server/db/index.ts реэкспортирует её под старым именем. Телефон через shared/phone.ts. Новые поля: consent, consentVersion, consentSource, refCode (^[a-z2-9]{6}$, алфавит бота), practiceSchool, wantsToStay, ловушка website. Контракт для memoryStorage (w1-bot).",
+      "acceptance": "scripts/tests/core-input.test.ts: одинаковый ввод даёт одинаковый ApplicationInput для формы, бота и memoryStorage (кроме канала). Телефон в виде +7XXXXXXXXXX.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-core-5",
+      "title": "Согласие проверяется и хранится сервером (consent-152)",
+      "what": "POST /api/applications без consent:true или с неизвестной версией → 422 {error:'validation', errors:{consent}}. saveApplication пишет consent_at=now(), версию и источник (site_form для формы; бот передаёт site_chat, telegram или max). Сохранение из бота без согласия отклоняется. Ручное добавление HR передаёт источник hr_verbal, job_board или none и проверку согласия не проходит.",
+      "acceptance": "curl без согласия → 422; с согласием в базе время, версия и источник; заявка бота без consent не сохраняется; проверки в scripts/server-test.ts.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-core-6",
+      "title": "Приём на ярмарке: лимиты по человеку, повторы, ловушка (fair-intake, серверная часть)",
+      "what": "Потолки по IP: заявки — 30 подряд и 10 в минуту, /api/dialog — 400 в минуту. Вход в HR остаётся строгим. TRUST_PROXY=1 означает один доверенный прокси: берётся правый адрес X-Forwarded-For, в журнал идёт предупреждение. Внутри маршрута заявок: повтор нормализованного телефона или ника за 10 минут → 409 {error:'already_applied'} без номера и токена; больше 3 заявок в час → 429 {error:'phone_limit', retryAfter} и Retry-After. Скрытое поле website помечает заявку suspected_spam=true и сохраняет её. У каждого 429 есть Retry-After.",
+      "acceptance": "server-test с defaultRules: 30 заявок с разными телефонами с одного IP за 10 минут — все 201; повтор за 10 минут — 409 без id и statusToken; четвёртая за час — 429; подставленный X-Forwarded-For при TRUST_PROXY=1 не меняет ключ; ловушка → заявка с пометкой.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-core-7",
+      "title": "GET /api/config — имена ботов во время работы (bots-visible, шаг 1)",
+      "what": "Ответ SiteConfig из shared/siteConfig.ts: {bots:{telegram, max}, assistant}. Имя отдаётся, только если адаптер в bots.active() и задан TELEGRAM_BOT_USERNAME или MAX_BOT_NICK. Кэш 60 с. Сайт перестаёт зависеть от VITE_TELEGRAM_BOT и VITE_MAX_BOT.",
+      "acceptance": "Без токенов оба null; при активном адаптере и заданном имени — имя; секретов нет; тест в server-test.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-core-8",
+      "title": "Личный код приглашения закрепляется заявкой (friend-ref)",
+      "what": "refCode из тела сохраняется в ref_code. При коллизии уникальности заявка принимается, код не записывается. Ответ 201 возвращает refCode, если он записан.",
+      "acceptance": "Тест: две заявки с одним кодом — обе 201, код у первой; без кода всё как раньше.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-platform-ops",
+    "owner": "platform",
+    "wave": 1,
+    "files": [
+     "server/app.ts",
+     "server/index.ts",
+     "server/middleware/security.ts",
+     "server/middleware/logging.ts",
+     "docker-compose.yml",
+     "Dockerfile",
+     ".env.example",
+     ".github/workflows/ci.yml",
+     "index.html",
+     "public/robots.txt",
+     "public/og/",
+     "public/apple-touch-icon.png",
+     "scripts/og.mjs",
+     "docs/deploy.md",
+     "scripts/tests/ops-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-ops-1",
+      "title": "Честное описание и свои метатеги страниц (link-preview)",
+      "what": "index.html: описание «Летняя работа и оплачиваемая практика на заводе «Очаково» в Москве: от N ₽ в месяц, с 18 лет, без опыта, официально. Задания на пару минут и заявка без резюме», title с ёлочками, общие og-теги. Сервер готовит свой вариант index.html для /, /vacancies, /game, /apply: title, description, og:title, og:description, og:image (абсолютный от SITE_URL), og:locale ru_RU, twitter:card summary_large_image. Подстановка — в той же замене, что убирает data-home-only, тест предзагрузки не ломается. Сумма из minMonthlyPay.",
+      "acceptance": "curl по четырём адресам отдаёт свои og:title, og:description и абсолютный og:image; в index.html нет «квест» и «пропуск в сезон»; scripts/tests/ops-meta.test.ts через app.request.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ops-2",
+      "title": "Картинки превью 1200×630 и иконка",
+      "what": "scripts/og.mjs запускается вручную: Playwright рендерит шаблон шрифтами сайта. Главная — кадр excursion, «Работа на лето в «Очаково»», вилка из shared. /game — лента, «Поймай брак · 20 секунд». /vacancies — число вакансий и вилка. PNG кладутся в public/og/. apple-touch-icon 180×180 — из текущего знака в public/brand.",
+      "acceptance": "Три PNG 1200×630, каждый до 300 КБ, суммы совпадают с shared; картинки отвечают 200; проверка глазами.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ops-3",
+      "title": "robots.txt и sitemap.xml",
+      "what": "public/robots.txt с Disallow для /hr и /api. /sitemap.xml отдаёт сервер, публичные страницы строятся от SITE_URL.",
+      "acceptance": "/robots.txt — 200 и запрет /hr; /sitemap.xml — 200 с абсолютными адресами.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ops-4",
+      "title": "Честная готовность и проверка настроек при старте (ops-readiness)",
+      "what": "server/index.ts импортирует движок диалогов статически. /api/health/ready отдаёт 503, если engine=null или включённый адаптер упал (registry.failed() от w1-channels). В production без SITE_URL или с SITE_URL не на https (кроме http://localhost и 127.0.0.1) — выход с кодом 1 и сообщением. Если адаптер не поднялся, сервер не падает. При старте в журнал идёт одна строка-сводка, что включено.",
+      "acceptance": "NODE_ENV=production без SITE_URL → код 1; заданный токен и упавший адаптер → ready 503; e2e на http://localhost проходит.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-ops-5",
+      "title": "docker-compose для сервера",
+      "what": "Порт 127.0.0.1:${APP_PORT:-8787}:8787. DATABASE_URL через ${APP_DATABASE_URL:-…@db…}. Сервис db в профиле local-db, depends_on с required:false. У POSTGRES_PASSWORD нет значения по умолчанию, при отсутствии — понятное сообщение. .env.example обновлён.",
+      "acceptance": "docker compose config с APP_DATABASE_URL показывает этот адрес у app и не требует db; порт только на 127.0.0.1; без POSTGRES_PASSWORD compose пишет сообщение. Контейнеры для проверки не поднимать.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ops-6",
+      "title": "CI: задание сквозных проверок",
+      "what": "Задание e2e в .github/workflows/ci.yml: PostgreSQL, Chromium из Playwright, E2E_PG_URL, отчёт и снимки артефактом.",
+      "acceptance": "В ci.yml три задания (check, e2e, docker); синтаксис проверен глазами; команды совпадают с README.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ops-7",
+      "title": "docs/deploy.md по факту",
+      "what": "Описать новый compose, APP_DATABASE_URL, профиль local-db, RETENTION_MONTHS и журнал удалений; убрать «Автоматического удаления пока нет»; секреты вебхуков создаются сами при PUBLIC_URL.",
+      "acceptance": "grep «Автоматического удаления» пуст; команды в документе совпадают с compose.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-channels",
+    "owner": "bot-assistant",
+    "wave": 1,
+    "files": [
+     "server/channels/",
+     "server/api/dialog.ts",
+     "scripts/channels-test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-ch-1",
+      "title": "Вебхуки только с секретом и от владельца чата (webhook-secret)",
+      "what": "В registry.ts до вызова фабрики: если задан PUBLIC_URL и токен, а секрета нет, сгенерировать его (32 байта, base64url). Секрет уходит в setWebhook (secret_token) и в подписку MAX (secret). Без PUBLIC_URL маршруты /bots/* отвечают 403. Без секрета — 403. Сравнение через timingSafeEqual. Только Telegram: отбрасывать апдейты, где chat.type !== 'private' или chat.id !== from.id (у callback_query — message.chat.id); телефон из контакта принимать, только если contact.user_id === from.id. MAX отвечает по sender.user_id, проверку chat.id там не ставить. Лимит частоты — только на запросы, не прошедшие проверку секрета. Журнал: «секрет вебхука сгенерирован» без значения.",
+      "acceptance": "channels-test с фейковым API: POST без заголовка — 403 и при пустых *_WEBHOOK_SECRET; с верным — 200; setWebhook получает secret_token не короче 32 символов; апдейт from=111, chat=999 не вызывает движок и sendMessage.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-ch-2",
+      "title": "«Печатает…» в Telegram и MAX (gigachat-ready)",
+      "what": "Для текстовых сообщений перед engine.handle: в Telegram sendChatAction typing с повтором раз в 4 с до ответа, в MAX POST /chats/{chat_id}/actions {action:'typing_on'} в chat_id из recipient. Ошибка записывается в журнал и не мешает ответу.",
+      "acceptance": "channels-test: sendChatAction уходит раньше sendMessage; сбой typing_on не отменяет ответ.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ch-3",
+      "title": "/api/dialog: очередь по чату, лимит, заявка в ответе (my-application-anywhere, fair-intake)",
+      "what": "Запросы веб-чата идут последовательно по user.id через ChatQueue, как у адаптеров. Свой счётчик: 40 нажатий в минуту на id чата → 429 с Retry-After. Поле application из DialogReply (контракт w1-bot) отдаётся сайту. Принимается refCode в теле и передаётся в HandleMeta.refCode (^[a-z2-9]{6}$).",
+      "acceptance": "Два одновременных a:ok — одна заявка (вместе с w1-bot); 100 нажатий в минуту из одного чата → 429; 10 чатов с одного IP раз в 6 с за 3 минуты — ни одного 429.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ch-4",
+      "title": "Подсказка поля ввода в Telegram (apply-step-questions)",
+      "what": "При OutMessage.input === 'phone' ставить input_field_placeholder «Телефон или @ник» вместе с reply-клавиатурой. На шаге имени inline-клавиатура, там подсказки нет. MAX не трогать.",
+      "acceptance": "channels-test сверяет payload шага телефона.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ch-5",
+      "title": "registry.failed() для проверки готовности",
+      "what": "Реестр хранит включённые, но не поднявшиеся адаптеры и отдаёт их через failed(). Контракт для w1-platform-ops.",
+      "acceptance": "Модульная проверка: упавшая фабрика → failed() содержит канал.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-bot",
+    "owner": "bot-assistant",
+    "wave": 1,
+    "files": [
+     "server/dialog/",
+     "scripts/dialog-test.ts",
+     "scripts/bot-sim.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-bot-1",
+      "title": "Вопрос внутри заявки не становится именем, заявку открывают словами (apply-step-questions)",
+      "what": "На шагах name и phone (и на months, vacancy, portfolio) распознавать вопрос осторожно. Признаки: «?», вопросительное слово в начале, тема помощника целым словом при двух и больше словах, больше 5 слов без «?». Сначала срезать «меня зовут», «я». На вопрос — ask.answer, вторым сообщением «Вернёмся к заявке: …» с теми же кнопками, шаг не меняется. «без телефона», «не хочу номер» → как в askPhone: «ник в Telegram или MAX, например @kvas_fan». OutMessage.input?: 'name'|'phone'|'free'. Фразы «хочу откликнуться», «оставить заявку», «запиши меня», «где заявку оставить» по вхождению после нормализации → m:apply, после statusIntent.",
+      "acceptance": "dialog-test: a:start → «а сколько платят?»: имя пустое, шаг name, второе сообщение «Вернёмся к заявке». «Анна-Мария», «Иванов Иван Иванович», «меня зовут Аня» сохраняются как имя. «можно без телефона?» → ответ про ник, шаг phone. «хочу откликнуться» → первое сообщение «Заявка на сезон». «моя заявка» → статус.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-bot-2",
+      "title": "18+ и согласие в боте (consent-152)",
+      "what": "Сразу: submit передаёт adult:true, consent:true, consentVersion=CONSENT_VERSION, consentSource (site_chat для web, telegram, max); телефон через shared/phone. Затем: первый шаг заявки — «Тебе есть 18?»; на «нет» — «На завод берут с 18 лет», данные не собираются. На шаге «Проверь заявку» — кнопки-ссылки «Текст согласия» (/consent) и «Политика» (/privacy), кнопка отправки «Даю согласие, отправить».",
+      "acceptance": "dialog-test: после a:ok adult === true, телефон +7XXXXXXXXXX, согласие с версией. На «нет» заявка не начинается. bot:sim показывает ссылки. Строки в HR без «не хватает: 18+».",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-bot-3",
+      "title": "Заявка из чата на сайте видна в «Моей заявке» (my-application-anywhere)",
+      "what": "После заявки в канале web DialogReply.application = {id, token, name, phone, contact, vacancyId, friend}. memoryStorage нормализует через normalizeApplicationInput из shared (контракт w1-platform-core), как PostgreSQL.",
+      "acceptance": "dialog-test: заявка через веб-чат → «Моя заявка» начинается с «Заявка №»; в ответе есть application с токеном.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-bot-4",
+      "title": "Бот называет вещи как сайт (bot-naming)",
+      "what": "«Путь кваса» вместо «Экскурсия по заводу»: menu, tour (в том числе финал tour.ts:17 и «Вернуться к пути кваса» вместо tour.ts:42), myth, ask, apply. «экскурсия по заводу» остаётся синонимом, «путь кваса» добавлен в menuLabels. Брак: «Без крышки», «Недолив», «Кривая этикетка», для тонкого брака — «этикетка чуть съехала». btn('Позвать друга','m:friend') отдельной строкой в итогах «Поймай брак» и «Правда или миф». Фраза о настоящих экскурсиях с экскурсоводами остаётся.",
+      "acceptance": "«путь кваса» текстом → «Путь кваса · 1 из 8»; grep «Экскурсия по заводу» по server/dialog находит только синоним; в итогах двух заданий есть «Позвать друга»; dialog-test и bot-sim проходят.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-bot-5",
+      "title": "«Правда или миф» в боте из общей колоды (myths-work)",
+      "what": "Колода из buildDeck (контракт w1-content). id карточек хранятся в состоянии, кнопки my:<id>:t|f, «Сыграть ещё раз» даёт новую колоду. Картинка необязательна. Вместо «Про завод знаешь больше многих новичков» — fact последней карточки с ошибкой (или общий итог «N из 5»).",
+      "acceptance": "dialog-test с детерминированным rng: колода по id; старые кнопки после повтора не указывают на чужую карточку; фразы «больше многих новичков» нет.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-bot-6",
+      "title": "Цифры и тексты в боте из shared",
+      "what": "money.ts: строка «≈ N ₽ на руки за смену» из shiftPay и кнопка «Позвать друга». vacancies.ts: вводный текст об ориентирах строится из данных (estimateNote). apply.ts: срок ответа через responsePromise. Портфолио — по shared asksPortfolio, экскурсовод его не видит (обновить dialog-test:477). game.ts: «За … мимо прошло K бутылок. Завод разливает до 70 000 бутылок в час» из PLANT_BOTTLES_PER_HOUR, без «20 секунд» (в боте 5 раундов выбора).",
+      "acceptance": "dialog-test: заявка экскурсовода без шага портфолио; «Собери лето» в боте показывает сумму за смену; grep «двух рабочих» по server/dialog пуст.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-bot-7",
+      "title": "Ошибки сценария без личных данных, картинки без sharp (ops-readiness)",
+      "what": "engine.ts:221 пишет в журнал только канал, тип события и action, без текста и телефона. images.ts загружает sharp лениво; без него бот отвечает текстом без картинки.",
+      "acceptance": "Ошибка в сценарии заявки не пишет текст сообщения в журнал (тест перехватом console/log). Подмена импорта sharp на ошибку → ответ текстом.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-bot-8",
+      "title": "Друг и практика в боте (friend-ref, practice-flags)",
+      "what": "Убрать шаг контакта друга, «Иду с другом» остаётся с необязательным именем. Для web friend.inviteLink берёт HandleMeta.refCode, если он есть. На экране проверки заявки — переключатели «Практика от вуза» и «Хочу остаться после сезона», без новых шагов. Поля уходят в ApplicationInput.",
+      "acceptance": "dialog-test: заявка с другом без телефона друга; переключатели меняют practiceSchool и wantsToStay; ссылка веб-чата содержит код браузера.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-assistant",
+    "owner": "bot-assistant",
+    "wave": 1,
+    "files": [
+     "server/llm/",
+     "server/assistant/",
+     "scripts/assistant-test.ts",
+     "scripts/fixtures/assistant-eval.tsv",
+     "scripts/tests/assistant-eval.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-as-1",
+      "title": "Квасыч отвечает на вопросы кейса: практика, после сезона, первая смена (kvasych-case-questions)",
+      "what": "Два намерения в offline.ts после period. Практика: практика, дневник, договор с вузом, преддипломная, учебная. После сезона: штат, постоянная работа, карьера, рост, перспективы, остаться (узко: «остаться в общаге» не сюда). Ответ — через faqAnswer() (контракт w1-content) плюс кнопки практик и «Откликнуться». Вопрос пишется в пробелы базы с темой. monthsFrom: «после лета» и «до лета» — не лето. Наставника не обещать.",
+      "acceptance": "10 формулировок из предложения в чате и bot:sim получают ответ по теме в первом предложении, без «Тут не подскажу», «Точного ответа в моих данных нет», «Под эти условия вакансий сейчас нет», «Да, на июнь». Ответ про практику называет «Помощник аппаратчика брожения». Все десять — в assistant-test. Тест сверяет тексты faq.ts с ответами бота. Старые ответы базы не перехвачены.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-as-2",
+      "title": "Офлайн-Квасыч понимает живую речь (offline-live-speech, ядро)",
+      "what": "По порядку отдачи, assistant-test после каждого шага. Приветствие, «спасибо», «ок» в начале отрезаются, ответ на остаток; при склейке выбрасываются части offtopic, short и unknown; «Да» в начале только для вопроса «да или нет». WORK дополняется: уволи, уйти раньше, квас, тяжел, нагрузк, телефон, сидеть, развод, отзыв, развозк. ДМС уже отвечается. Словарь сленга: зп, зпшка, чо, че, собес, удалёнка, постоянка. Намерения: в час и за смену (shiftPay), длина смены (2/2 — 12 часов, практики — 5/2), на выходных, должности нет в списке («Вакансии «мастер смены» нет. Ближе всего: …» через matchProfile), удалённо (из schedule, гибрид), «это развод?» (только АО МПБК «Очаково», ул. Рябиновая, 44, договор с первого дня), «кто такой Квасыч» (бот-помощник), младше 18 («Нет, берут с 18 лет»). Контекст неполного вопроса — из request.messages. Первый абзац — не больше двух предложений, в списке не больше трёх пунктов и «ещё N».",
+      "acceptance": "«привет, сколько платят?» начинается с суммы; «зп белая?» — с «Да, официально»; «сколько получает мастер смены» без «107 000» в первой фразе; «а на складе?» после вопроса о зарплате начинается с «На складе платят от 102 000 ₽»; ни один вопрос с рабочим словом не получает «Тут не подскажу»; на одно «привет» — приветствие; ответ про медкнижку до 400 символов; повторов абзацев нет.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-as-3",
+      "title": "Набор проверки, опечатки, составные вопросы",
+      "what": "scripts/fixtures/assistant-eval.tsv: 60–80 вопросов (вопросы проверок, kb_gaps, сленг и опечатки, составные, мимо темы), у каждого ожидаемое начало и запреты. Около 20 % помечены отложенными и при настройке не используются. scripts/tests/assistant-eval.test.ts печатает долю и падает ниже 90 %. Опечатки: слово от 6 букв на расстоянии Дамерау — Левенштейна 1 только к словам WORK, PLACES и названиям вакансий, только при единственном кандидате, числа не трогать. Составные: деление по запятой при вопросительном слове в каждой части, часть без темы берёт тему соседней, поиск по базе только при 3+ значимых словах.",
+      "acceptance": "Офлайн-режим проходит не меньше 90 % всего набора и не меньше 85 % отложенной части; тест в pnpm test.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-as-4",
+      "title": "Факты по источнику в помощнике (facts-by-source)",
+      "what": "Убрать «корпоративный автобус» из offline.ts:298 и 689, tools.ts (transport), assistant.ts:34, knowledge.ts:58 и 134; текст — contacts.route. В регулярку на offline.ts:683 добавить развоз|служебн. ДМС и общежитие — без усиления; «его дают» (offline.ts:644) убрать. assistant-test:283 обновить.",
+      "acceptance": "«есть развозка?», «как добраться от метро», «автобус до завода» дают один ответ с номерами маршрутов; «есть ДМС?», «медстраховка будет?», «общага бесплатная?» — ответ по существу с отсылкой к HR; grep «корпоративн» по server/ пуст.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-as-5",
+      "title": "Ответы в лад с сайтом: график, деньги за смену, вакансии, мифы, названия",
+      "what": "Общий ответ на «какой график» (без места) — scheduleSummary из shared, ответы по конкретной вакансии не трогать. Суммы за смену и в час добавить в baseAmounts guard или отдавать из calc_earnings. Тексты об ориентирах — по estimate. Убрать обход asksPortfolio на offline.ts:528. offline.ts:808 — «Путь кваса». offline.ts:716 — responsePromise. knowledge.ts берёт у мифов поле fact вместо explain.",
+      "acceptance": "Ответ чата на «какой график» совпадает с «Условиями»; «сколько бутылок в час» без «В десять раз больше»; guard пропускает суммы из shiftPay; assistant-test зелёный.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-as-6",
+      "title": "Тема вопроса в «Вопросах к Квасычу» (kb-answers, п. 6)",
+      "what": "Тема для сводки берётся из escalate_to_hr или словаря намерений офлайн-режима, а не из первых четырёх слов (offline.ts:846).",
+      "acceptance": "Три формулировки про дневник практики попадают в одну тему; тест.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-content",
+    "owner": "content-docs",
+    "wave": 1,
+    "files": [
+     "shared/content/",
+     "shared/candidateStatus.ts",
+     "shared/hhVacancy.ts",
+     "README.md",
+     "docs/strategy.md",
+     "docs/roadmap.md",
+     "docs/concept-brief.md",
+     "docs/home-brief.md",
+     "archive/docs/",
+     "docs/llm.md",
+     "docs/hr.md",
+     "docs/kvasych.md",
+     "scripts/tests/content-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-ct-1",
+      "title": "Факты о компании по источнику (facts-by-source)",
+      "what": "Сначала сверить ochakovo.ru/kontakty и /rabota (WebFetch) и поискать вакансии «Очаково» на hh.ru про транспорт. contacts.address, contacts.route (дословно: 610 и 807 от м. «Озёрная» до «Рябиновая, 65»; 259 и 275 до «Пищекомбината» — откуда именно, только как на сайте; платформа Мещерская и 15 минут пешком), contacts.routeShort. Номер 622 не писать. perks: «Полис ДМС для сотрудников. Действует ли он на сезонной работе и практике — скажет HR», общежитие — «Можно жить в общежитии компании рядом с заводом. Свободные места и стоимость — у HR». faq 'where' и 'dorm' переписать. content.ts:16 — «По словам компании, больше такого не было нигде в мире». production.ts:21 — только по цитате («Рожь и пшеницу для кваса проращивают на собственной солодовне»). production.ts:49 — «Все линии завода вместе — до 70 000 бутылок напитков в час», константа PLANT_BOTTLES_PER_HOUR. Этап «Склад» — не silos (driver, если подходит по смыслу, иначе фото, которого нет на главной). hhVacancy.ts:74 — маршрут. Комментарий с URL и цитатой — только у спорных фактов.",
+      "acceptance": "grep «корпоративн.. автобус», «за счёт компании», «дают общежитие», «его дают», «первые в СССР» по shared/ пуст; предпросмотр вакансии для hh.ru содержит маршрут; у транспорта, ДМС, общежития и истории есть комментарий с источником.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-ct-2",
+      "title": "Новые вопросы FAQ и faqAnswer (kvasych-case-questions)",
+      "what": "Добавить id: practice («Есть оплачиваемая практика: <названия>. Как оформить договор с вузом и дневник, скажет отдел персонала — укажи вуз и сроки практики в заявке»), after-season («Компания готова растить кадры из студентов; о переходе в штат говорят на собеседовании. Напиши об этом в комментарии к заявке»), first-shift (медкомиссия, договор, инструктаж, учат на месте, обед в столовой; спецодежда — «по санитарным правилам выдаёт работодатель»; наставника не обещать), medbook, clothes, study, interview-bring, quit (одно предложение со ст. 80 и ст. 71/296 ТК и «какой будет договор, скажет HR»). Тексты — как уже отвечает бот, не длиннее двух предложений. Порядок: первые 8 — самые нужные кандидату. faqAnswer(id).",
+      "acceptance": "Тест: у каждого ответа не больше двух предложений, нет «!», дат и обещаний наставника и дневника; faqAnswer возвращает текст по id.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-ct-3",
+      "title": "Колода «Правда или миф» про завод и работу (myths-work)",
+      "what": "Тип MythCard {id, topic, claim, truth, explain, fact, takeaway, photo?, figure?}. История — 5 нынешних карточек с полем fact (например, «Московский завод выпускает до 70 000 бутылок напитков в час»). Работа — 5–6 карточек только из shared и ТК, правды и мифы вперемешку: «На линию берут только с опытом» (миф), «Зарплату платят раз в месяц» (миф), «Смена на линии — 12 часов» (правда, 2/2, бывают ночные, около 15 смен — примерно), «Работать можно только весь сезон» (миф, «точный срок обсуждают на собеседовании»), «Без резюме не возьмут» (миф), «До завода только на машине» (миф, городские автобусы от метро). Без «с 16 лет» и без выдуманного про медкнижку. buildDeck(rng): 3 карточки про работу и 2 про историю, не меньше 2 правд и 2 мифов. FAQ по колоде не прятать.",
+      "acceptance": "Тест: 10 прогонов с разными rng дают разные колоды с нужным составом; числа в карточках сверены с vacancies.ts и faq.ts; у каждой карточки есть fact.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ct-4",
+      "title": "Данные вакансий и общие помощники (honest-schedule, vacancy-data, money-shift)",
+      "what": "scheduleLine(v) → «2/2, смены по 12 часов · бывают ночные смены» по hasNightShifts. scheduleSummary — текст с offline.ts:126: «На линии, складе, в магазине и на экскурсиях — 2/2 по 12 часов, около 15 смен в месяц. Практики, стажировки и мерчандайзер — пятидневка. Можно выйти только на лето». shiftPay(v) — только 2/2 с суммой с hh.ru: за смену = netPay(месяц) ÷ 15,2, в час = ÷ 12, иначе null. Мерчандайзер: 70 000 без ориентира только после проверки живой вакансии работодателя 871 на hh.ru (ссылка в комментарии), иначе ориентир. Механик: ориентир, hot снять. Правило: hot не стоит вместе с estimate. asksPortfolio исключает tour-guide. estimateNote — текст сноски «ориентир помечен у суммы, точную назовут на собеседовании». faq.ts:15 переписать под это.",
+      "acceptance": "Тест: у всех hot нет estimate; scheduleLine помечает ночи у трёх вакансий; shiftPay(оператор) ≈ 6 100 ₽ на руки за смену; для цели 150 000 ₽ выходит около 25 смен; asksPortfolio(экскурсовод) = false.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ct-5",
+      "title": "Срок ответа HR из одного места (content-editor, этап 1)",
+      "what": "В shared/candidateStatus.ts экспортировать RESPONSE_WORKDAYS, RESPONSE_WORDS и responsePromise('call'|'message') → «HR позвонит в течение двух рабочих дней» и «HR напишет в мессенджер …». steps в content.ts строится из RESPONSE_WORKDAYS. Внутренний SLA HR (24 ч) не трогать.",
+      "acceptance": "После правок всех пакетов волны grep «двух рабочих» находит только candidateStatus.ts.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ct-6",
+      "title": "README, стратегия и брифы без противоречий (docs-strategy, tasks-funnel)",
+      "what": "README: порядок и длительность заданий как на сайте, верные пути и таблицы (11 миграций), разделы «Дальше» и «Согласовать» по roadmap, вместо «сортировки по смене» — «фильтр по заданиям». strategy.md: убрать бонус за 4/4 и сортировку («задания заполняют заявку, HR видит, сколько пройдено, срез — в «Воронке»»); «запись на собеседование через QR» → «заявка за минуту, время назначает HR»; одно определение «вышел на смену» (первая смена отработана) в §1, §8; у каждой метрики экран продукта; §9 — маркировка рекламы через ОРД и erid, реестр РКН для каналов от 10 тыс. подписчиков (3–4 строки), без дегустаций и промо пива; «первые в СССР Pepsi и Fanta» → «завод, где одновременно разливали Pepsi и Fanta»; транспорт по источнику. Один список «Согласовать» в README, roadmap и strategy: суммы практик, срок ответа, ДМС и общежитие для сезонных, транспорт, политика и согласие, бонус за друга, переход в штат, договор о практике и дневник. concept-brief.md и home-brief.md — в archive/docs/ с пометкой «устарело», ссылки поправить. llm.md — убрать «HR дописывает базу».",
+      "acceptance": "grep по README и docs/ не находит «рассмотрит заявку первой» (кроме таблицы «Что было»), «src/data/», «таблицы рекордов», «лучшие 10», «все проверены», «сортировк» по смене; список «Согласовать» одинаков в трёх местах; дат нет.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-ct-7",
+      "title": "Стратегия: деньги пилота и то, что продукт уже умеет",
+      "what": "Раздел «Пилот: деньги»: смета по статьям §5 вилкой, у каждой цифры источник или «допущение»; обратный расчёт от цели 400 выходов на смену (цель кампании, не данные компании); цели по каналам (ярмарки — сканы и заявки, таргет — показы × CTR как допущение); формула «₽ за выход на смену ниже текущей стоимости найма сезонника» с пустой клеткой для данных «Очаково». Абзац о возможностях продукта: «Моя заявка» и напоминание против неявок, «Вопросы к Квасычу» как темы постов, импорт hh.ru для сравнения цены.",
+      "acceptance": "Есть итог «пилот стоит от … до … ₽» с пометками; нет цен, выданных за данные компании; дат нет.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-ct-8",
+      "title": "Проверка путей в документах",
+      "what": "scripts/tests/content-docs-paths.test.ts без базы: пути в обратных кавычках с «/» и расширением или известной папкой из README и docs/*.md должны существовать; маршруты (/vacancies) и переменные окружения пропускаются.",
+      "acceptance": "Тест зелёный; подставленный несуществующий путь роняет тест.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-home-hero",
+    "owner": "home",
+    "wave": 1,
+    "files": [
+     "src/home/Hero.tsx",
+     "src/home/HeroBelt.tsx",
+     "src/home/kit.tsx",
+     "src/home/FinalBand.tsx",
+     "src/pages/Home.tsx",
+     "src/lib/motion.ts",
+     "src/lib/useOffscreenPause.ts",
+     "src/index.css",
+     "src/fonts.css",
+     "src/fonts/",
+     "scripts/fonts-subset.py",
+     "scripts/perf.mjs"
+    ],
+    "tasks": [
+     {
+      "key": "w1-hh-1",
+      "title": "Первый экран: слова кейса и читаемый заголовок на ноутбуках (hero-case-words)",
+      "what": "Под суммой строка фактов. На ноутбуке: «Сезонная работа и оплачиваемая практика · студентам и выпускникам с 18 лет · март — сентябрь». На 390 — короткая «Сезонная работа и оплачиваемая практика · с 18 лет · март — сентябрь», сезон виден. Заголовок и кнопки не меняются. На md+ фото под текстом затемнено: горизонтальный градиент rgba(12,12,12,0.75) → 0 примерно до 60 %, нижний 0,9 с середины; лица справа светлые; «в «Очаково»» — brand-bright #ff3d5e или в тёмной зоне. Ограничение кегля min(…, 21svh) — отдельное необязательное свойство FitLine только для Hero, без бесконечного measure() в ResizeObserver. @media (max-height: 800px): object-position 62% 12%, pt-16. Замер контраста — разовым скриптом в scratchpad, не в e2e.",
+      "acceptance": "На 390×844 и 1440×900 без прокрутки видны «практика», «18», «март — сентябрь», «Откликнуться» в первом экране на 390. На 1024×768, 1280×720, 1366×768, 1440×900, 1536×864 и 1920×1080 у строк «Сезон…», «Работа на лето», «в «Очаково»» не больше 5 % пикселей букв ниже 3:1, первый экран по высоте окна, подпись ленты видна целиком, буквы не пересекают лица (скриншоты в отчёте). 390 и 768×1024 не хуже прежнего; FinalBand, Vacancies и NotFound не изменились.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-hh-2",
+      "title": "Бутылки «Смены» цвета кваса (brand-bottle)",
+      "what": "ShiftBottle — силуэт BottleShape из src/game/Bottle.tsx (контракт w1-game), налив KVASS_TOP → KVASS_BOTTOM вместо var(--color-brand); на красной финальной полосе — белым. Надпись при h-6 не нужна.",
+      "acceptance": "На скриншотах 1440 и 390 шапка «Смены» наливается янтарём; на красной полосе бутылки белые.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-hh-3",
+      "title": "Сумма и «Откликнуться» с первым кадром, без GSAP (hero-first-frame)",
+      "what": "Сумма, «на руки», обе кнопки и строка сезона рисуются сразу, без opacity и сдвига. Масштаб фото на transform и выезд заголовка не дольше 0,4 с — CSS @keyframes, отключены при reduced motion, обёртки overflow-hidden у .hero-line остаются. Параллакс — useScroll и useTransform из motion. Lenis: autoRaf false, свой цикл стартует от wheel, touchstart, keydown, scroll и от lenis.scrollTo (scrollToTarget, jumpTo по хешу), останавливается, когда прокрутки нет. На pointer: coarse Lenis не создаётся. Импортов gsap в Hero и motion.ts нет. Зерно в покое и при reduced motion статично. В scripts/perf.mjs — замер видимости суммы rAF-выборкой и трасса покоя на #faq.",
+      "acceptance": "perf, медиана 5 прогонов: сумма и «Откликнуться» видны (opacity ≥ 0,95) не позже 100 мс после FCP; обычный режим и reduced motion расходятся меньше чем на 150 мс; 8 с покоя на /#faq при CPU×4 — нет вечных циклов rAF; шаг e2e «ширина заголовка не меняется» проходит; прокрутка колесом на ноутбуке ощущается как раньше; переходы по якорям работают.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hh-4",
+      "title": "Знак ₽ и стрелки фирменным шрифтом (rub-glyph)",
+      "what": "Сразу: 'Onest Variable' в --font-display перед 'Arial Narrow'. Затем в fonts-subset.py дополнение 'Sofia Sans Extra Condensed Variable' с unicode-range U+20BD, U+2190, U+2192, начертания 800 и 900 через instancer. ₽ — «Р» (разобрать составной глиф) плюс перекладина толщиной горизонтального штриха. Стрелки — контуры onest-arrows, сжатые TransformPen до высоты цифр. Рядом файл лицензии OFL, своё имя в таблице name. Сравнить глазами на 1× и 2× в Hero, Money и FinalBand и оставить лучший вариант.",
+      "acceptance": "CSS.getPlatformFontsForNode у цены первого экрана, «≈ … ₽» и стрелки в #final — только свои шрифты, без STIX Two Math и Arial Narrow; дополнение до 4 КБ; на 2× толщина перекладины и стрелки совпадает со штрихом цифр.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hh-5",
+      "title": "«Позвать друга» до заявки и с личным кодом (friend-ref)",
+      "what": "useInvite использует inviteUrl() из src/lib/ref.ts (контракт w1-pages-chat). Кнопка «Позвать друга» видна в первом экране и в финальной полосе и до заявки.",
+      "acceptance": "До заявки кнопка видна; в скопированной ссылке src=ref_ и 6 символов алфавита бота.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hh-6",
+      "title": "Движение под контролем (a11y-hr-motion, часть сайта)",
+      "what": "Ticker при reduced motion — статичный список с переносом строк; в обычном режиме пауза при наведении, фокусе и по текстовой кнопке «Пауза». HeroBelt: пауза при наведении и фокусе и маленькая текстовая кнопка «Пауза» в подписи ленты (класс hb-paused), брак ловится и на стоящей ленте. Зерно статично при reduced motion.",
+      "acceptance": "/vacancies на 390 с reduced motion — все 5 фактов видны целиком; после «Пауза» в document.getAnimations() нет запущенных hb-roll и belt-roll; вид первого экрана проверен глазами.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hh-7",
+      "title": "Шов-лента между секциями и общий хук появления (home-craft)",
+      "what": "BeltSeam — полоса 10 px как у ленты первого экрана, рёбра двигаются только от прокрутки через CSS-переменную, при reduced motion статична. Ставится в Home.tsx между одноцветными соседями («Путь кваса» → игра, вакансии → миф), отступы в этих парах py-16. useReveal<T>() в src/lib/motion.ts: IntersectionObserver, один раз, transform из маски 0,9 с, класс ставит только JS (без JS видно), при reduced motion сразу.",
+      "acceptance": "На 1440 и 390 между этими парами нет пустой зоны выше 140 px; в простое швы не дают кадров; CLS = 0.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-home-sections",
+    "owner": "home",
+    "wave": 1,
+    "files": [
+     "src/home/Money.tsx",
+     "src/home/Conditions.tsx",
+     "src/home/VacancyList.tsx",
+     "src/home/BotBlock.tsx",
+     "src/home/ProductionPath.tsx",
+     "src/home/MythSection.tsx",
+     "src/home/QuizSection.tsx",
+     "src/home/GameSection.tsx",
+     "src/home/Faq.tsx",
+     "src/home/tasks.ts",
+     "scripts/e2e/home-sections.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-hs-1",
+      "title": "«Вопросы» на главной: не меньше 8 пунктов (kvasych-case-questions)",
+      "what": "Faq.tsx показывает первые 8 вопросов из shared/content/faq.ts, остальные свёрнуты под «Ещё». Тексты только из shared.",
+      "acceptance": "На 390 видно не меньше 8 пунктов; «Ещё» раскрывает остальные; тексты совпадают с faq.ts.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-hs-2",
+      "title": "Практика в блоке вакансий главной (hero-case-words)",
+      "what": "В VacancyList заменить tour-guide на lab-chemist с EstimateNote. store-worker и marketing-intern остаются. Обновить комментарий над featuredIds.",
+      "acceptance": "В блоке вакансий главной есть «Оплачиваемая практика» с пометкой «ориентир»; видны все три формата.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-hs-3",
+      "title": "«Условия» честно: адрес, маршрут, график, ДМС и общежитие (facts-by-source, honest-schedule)",
+      "what": "Крупно «Рябиновая, 44» и «2/2 или 5/2»; маршрут текстом из contacts.route без слова «корпоративный»; текст графика — scheduleSummary; ДМС и общежитие — тексты perks. GSAP убрать, появление через useReveal.",
+      "acceptance": "grep «корпоративн» и «за счёт компании» по src/home пуст; текст графика совпадает с ответом чата на «какой график».",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-hs-4",
+      "title": "Каждое фото на главной один раз (brand-bottle)",
+      "what": "В «Собери лето» вместо фото — большая бутылка (BottleShape): уровень = выбранные месяцы ÷ 7, 7 рисок «мар…сен», налив 0,6 с, при reduced motion сразу. На 390 узкая бутылка слева от суммы, aria-hidden. Карточка мифа про 70 000 — число вместо cans-line. «Лаборатория» в «Пути кваса» — Duo в тоне mono и не шире 1,5 своих размеров.",
+      "acceptance": "Скрипт собирает currentSrc всех img главной по всем этапам и карточкам: имена не повторяются, силосов нет; уровень бутылки меняется вместе с суммой, озвучка суммы прежняя.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-hs-5",
+      "title": "Ночные смены рядом с 107 000 ₽ (honest-schedule)",
+      "what": "VacancyList, Money и итог QuizSection выводят график через scheduleLine(v).",
+      "acceptance": "На 390 и 1440 у всех показанных вакансий с hasNightShifts есть «бывают ночные» в списке, в «Собери лето» и в итоге подбора.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hs-6",
+      "title": "«Собери лето»: деньги за смену и в час, «После сессии», «Поделиться расчётом» (money-shift)",
+      "what": "Под суммой: «≈ N ₽ на руки за смену, ≈ M ₽ в час — при 15 сменах в месяц по 12 часов» из shiftPay, только для трёх должностей 2/2. У ориентиров — «ориентир». Третья кнопка «После сессии» — июль и август. Лето по умолчанию не менять. После «Готово» — «Поделиться расчётом» (navigator.share или копирование): текст с суммами с экрана и ссылкой inviteUrl('/#money'). Поле «Коплю на» — только если не перегружает 390.",
+      "acceptance": "Для трёх должностей цифры совпадают с ответом чата; «После сессии» отмечает июль и август; текст «Поделиться» совпадает с экраном и открывает /#money; на 390 нет горизонтальной прокрутки.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hs-7",
+      "title": "«Правда или миф» снимает страхи о работе (myths-work)",
+      "what": "MythSection берёт колоду из buildDeck, «Сыграть ещё раз» даёт новую. У карточек про работу вместо фото крупное число («12 часов», «2 раза в месяц») или типографика. Подзаголовок «Пять фактов о заводе и работе». Итоговые фразы (MythSection.tsx:15-21) обновлены. Словарь takeaway по тексту claim заменить полем карточки.",
+      "acceptance": "На 390 карточка читается целиком; «N из 5» считается как раньше; повтор — другая колода; e2e-шаг «Правда или миф» проходит.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hs-8",
+      "title": "«Спросить Квасыча»: кнопки ботов из сервера и фрагмент разговора (bots-visible, home-craft)",
+      "what": "Кнопки Telegram и MAX — по useSiteConfig() (контракт w1-pages-chat), диплинк start=<profile.source, очищенный до [A-Za-z0-9_-]{1,64}, или site>. Вместо серого абзаца — фрагмент переписки в стиле Message.tsx: два вопроса и ответы офлайн-движка, захардкожены и сверяются тестом scripts/tests/home-botblock.test.ts с offlineProvider. Поле «Напиши вопрос» вызывает openKvasychChat(question). Три готовых вопроса-кнопки.",
+      "acceptance": "Без ботов кнопок нет, с /api/config — есть; на /?src=fair-mgupp ссылка ведёт на t.me/<имя>?start=fair-mgupp; реплики совпадают с офлайн-ответом; вопрос из поля открывает чат и уходит.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hs-9",
+      "title": "«Условия» таблицей и появление заголовков (home-craft)",
+      "what": "«Условия» — одна таблица во всю ширину между двойными линейками (2 px и 1 px, зазор 3 px). Строка: метка | факт крупно (Sofia 900) | подробность цветом ink. Пять строк, тексты фактов прежние. На 390 метка над фактом. h2 секций появляются через useReveal; HeroBelt, Hero и MythSection со своей анимацией не трогать.",
+      "acceptance": "В «Условиях» нет абзацев text-mute и text-ink/75; каждый h2 появляется один раз, при reduced motion всё видно сразу; CLS = 0; e2e проходят.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-game",
+    "owner": "game",
+    "wave": 1,
+    "files": [
+     "src/game/",
+     "src/pages/Game.tsx",
+     "src/store/profile.ts",
+     "src/lib/sfx.ts",
+     "public/favicon.svg",
+     "scripts/tests/game-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-gm-1",
+      "title": "Бутылка с этикеткой «КВАС» вместо абстрактного знака (brand-bottle)",
+      "what": "Bottle.tsx: этикетка — белая полоса, «КВАС» красным шрифтом сайта (font-display 900), двойная тонкая линейка, мелкое «ОЧАКОВО» только из public/brand/logo-wordmark-*.svg; ниже 70 px — только «КВАС». ПЭТ-силуэт: рёбра на плечах, крышка с насечками, блик, мениск с пеной #e7b77a, градиент KVASS_TOP → KVASS_BOTTOM. Брак «кривая этикетка» — та же этикетка под углом; брак отличается заметнее. Экспорт BottleShape, KVASS_TOP, KVASS_BOTTOM для ShiftBottle. favicon.svg — упрощённый силуэт бутылки без круга и рамки. Тесты держатся на data-kind.",
+      "acceptance": "В Bottle.tsx и favicon.svg нет <circle> и квадратной рамки на этикетке; на скриншотах 1440 и 390 (первый экран, игра, легенда) читается «КВАС»; брак на скриншоте ленты виден глазом; e2e игры проходят; pnpm perf не хуже.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-gm-2",
+      "title": "Честный итог при нажатиях подряд (game-honest-challenge)",
+      "what": "Точность = пойманный брак ÷ (весь брак + лишние нажатия). Предложение стать оператором — при точности от 0,85 и не больше 2 лишних. Если лишних больше половины пойманного, разбор начинается с «Снято N нормальных бутылок: в контроле это тоже ошибка — нормальная бутылка уходит в брак». Строка итога «Поймано 14 из 14 · лишних 0 · лучший 330», без ошибок — «Без единой ошибки». Текст «Поделиться» содержит «лишних нажатий N». verdict() — чистая функция.",
+      "acceptance": "Прогон с нажатием на каждую бутылку на 390: предложения работы нет, первая фраза про снятые нормальные бутылки, в «Поделиться» «лишних нажатий 12» (или фактическое число); идеальный прогон — «Без единой ошибки»; scripts/tests/game-verdict.test.ts на {caught 15, total 15, mistakes 12}.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-gm-3",
+      "title": "Масштаб настоящей линии в итоге",
+      "what": "«За N секунд мимо тебя проехало K бутылок. Завод разливает до 70 000 бутылок в час — до M за те же N секунд. Большинство процессов автоматизированы, операторы следят, чтобы линия не вставала». N и K из фактического раунда, 70 000 из PLANT_BOTTLES_PER_HOUR.",
+      "acceptance": "grep «70 000» и «70000» по src/game находит только импорт константы; на главной (короткий раунд) и на /game числа свои.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-gm-4",
+      "title": "Рекорд только растёт, счёт в заявке — отдельный флаг",
+      "what": "profile.ts: conveyorBest только растёт; новое поле attachScore (по умолчанию true) и setAttachScore; миграция persist-версии. Галочку «Показать результат в заявке» с /game убрать, переключатель будет в /apply (w1-pages-chat).",
+      "acceptance": "Рекорд 300, раунд 350, флаг снят, затем раунд 320 → не «Новый рекорд», на заставке 350.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-gm-5",
+      "title": "/game ведёт к работе (link-preview, п. 4)",
+      "what": "Над игрой строка «Летняя работа на этом заводе — от {minMonthlyPay} в месяц» и кнопка «Откликнуться».",
+      "acceptance": "На 390 первый экран /game показывает сумму и «Откликнуться» (скриншот).",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-gm-6",
+      "title": "«Поделиться» с личным кодом (friend-ref)",
+      "what": "InlineGame:453 — ссылка inviteUrl('/game') вместо /game?src=share.",
+      "acceptance": "Ссылка содержит src=ref_ и 6 символов; метки share больше не создаются.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-pages-chat",
+    "owner": "pages-chat",
+    "wave": 1,
+    "files": [
+     "src/pages/Apply.tsx",
+     "src/pages/Vacancies.tsx",
+     "src/pages/Privacy.tsx",
+     "src/pages/NotFound.tsx",
+     "src/pages/Consent.tsx",
+     "src/pages/HrPoster.tsx",
+     "src/App.tsx",
+     "src/main.tsx",
+     "src/components/Layout.tsx",
+     "src/components/candidate/",
+     "src/components/chat/",
+     "src/components/ui.tsx",
+     "src/components/Mascot.tsx",
+     "src/components/Photo.tsx",
+     "src/components/Loading.tsx",
+     "src/lib/api.ts",
+     "src/lib/source.ts",
+     "src/lib/ref.ts",
+     "src/lib/config.ts",
+     "src/lib/typo.ts",
+     "src/lib/season.ts",
+     "src/store/activities.ts",
+     "scripts/e2e/pages-chat.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-pc-1",
+      "title": "Контракты для других пакетов (делается первой)",
+      "what": "src/lib/api.ts: экспортировать внутренний помощник как request<T>(path, init), поведение прежнее. src/lib/ref.ts: myRefCode() — 6 символов из алфавита бота abcdefghjkmnpqrstuvwxyz23456789, в localStorage в try/catch; inviteUrl(pathAndHash = '/') → `${origin}${path}?src=ref_<код>${hash}`. src/lib/config.ts: useSiteConfig() — кэшированный GET /api/config, при ошибке и в demoLocal null. bus.ts: openKvasychChat(question?) открывает чат и отправляет вопрос. src/pages/HrPoster.tsx — заглушка (null), маршрут /hr/poster без Layout.",
+      "acceptance": "typecheck зелёный; функции доступны другим пакетам с сигнатурами из docs/plan.md.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-pc-2",
+      "title": "Согласие на сайте отдельно от 18+ (consent-152)",
+      "what": "В форме две обязательные отметки: «Мне есть 18 лет» и «Даю согласие на обработку персональных данных» со ссылкой на /consent; ссылка на политику отдельно. В заявку уходят consent:true и consentVersion. Страница /consent (Consent.tsx): оператор, цели, перечень данных, действия, кому поручена обработка (SMS-сервис и Яндекс 360 — только если подключены, через /api/privacy), срок «сезон и ещё 12 месяцев», как отозвать, номер версии. Privacy.tsx: все поля формы и анкеты (фамилия, отчество, гражданство, медкнижка, смены, портфолио, практика, «хочу остаться»), раздел «Откуда ещё данные» (работные сайты, рекомендации), абзац о переписке через Telegram и MAX; про друга — без контакта друга.",
+      "acceptance": "На /apply без любой из отметок заявка не уходит; /consent открывается без входа и содержит пункты ч. 4 ст. 9 152-ФЗ и версию; каждое поле формы и анкеты упомянуто в политике; e2e-шаг заявки обновлён в scripts/e2e/pages-chat.ts.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-pc-3",
+      "title": "Подвал без «прототипа» и автобуса (facts-by-source, link-preview)",
+      "what": "Layout.tsx:529 — contacts.address и contacts.routeShort. Layout.tsx:559 — «Решение команды на кейс «Открой#Моспром» для АО МПБК «Очаково». Не официальный сайт компании · фото с ochakovo.ru». Заголовки страниц с ёлочками.",
+      "acceptance": "grep «Прототип», «корпоративн» по src/components пуст; подвал на 390 и 1440 без переполнения.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-pc-4",
+      "title": "Приглашение друга на сайте (friend-ref)",
+      "what": "captureSource: ref_<свой код> не засчитывается. При источнике friend-* под шапкой строка «Тебя позвали на летнюю работу в «Очаково». Если идёте вместе — отметь «Иду с другом»». В форме «Иду с другом» уже отмечено с подписью «по приглашению». Поле телефона или ника друга убрано, необязательное имя осталось. refCode = myRefCode() уходит с заявкой. На экране успеха — «Позвать друга» с inviteUrl. Слово «бонус» нигде.",
+      "acceptance": "Браузер A получает ссылку с src=ref_ и 6 символами; браузер B по ней видит строку и отмеченное «Иду с другом»; свою ссылку A не засчитывает; в форме нет поля контакта друга.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-pc-5",
+      "title": "Понятные ответы формы на лимиты и повторы (fair-intake)",
+      "what": "submitApplication отличает 429 (rate_limited, phone_limit, retryAfter) и 409 (already_applied). Тексты: «С этой сети сейчас много заявок. Подожди N секунд или напиши в WhatsApp» и «Заявка с этого номера уже принята, с тобой свяжутся». Скрытое поле website (вне фокуса, aria-hidden).",
+      "acceptance": "С подменой ответа сервера через page.route форма показывает оба текста с N из Retry-After; ловушку не видно и Tab на неё не попадает.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-pc-6",
+      "title": "Форма: счёт игры, практика, срок ответа",
+      "what": "Переключатель «Показать результат игры» в блоке «Смена» (attachScore из profile, контракт w1-game). Необязательные отметки в «Рассказать подробнее»: «Практика от вуза: нужен договор и дневник — HR скажет, получится ли» и «Хочу остаться после сезона». Месяцы практики отдельно не спрашивать. Обещание срока один раз у кнопки отправки, текст из responsePromise.",
+      "acceptance": "Снятый переключатель — в заявке нет счёта; отметки попадают в базу; grep «двух рабочих» по src/pages пуст.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-pc-7",
+      "title": "Вакансии и анкета по данным (vacancy-data)",
+      "what": "Сноска на /vacancies — estimateNote, верна для каждой строки. VacancyRow: «Срочный набор» не показывается при estimate. questionnaire.ts использует shared asksPortfolio вместо проверки по отделу. NextSteps.tsx — срок из responsePromise.",
+      "acceptance": "В /apply с экскурсоводом нет полей GitHub и Behance; ни у одного ориентира нет «Срочного набора».",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-pc-8",
+      "title": "Чат на сайте: подсказки, заявка, таймаут, доступность",
+      "what": "Placeholder поля ввода по message.input («Имя», «Телефон или @ник», иначе «Напиши вопрос»), inputmode=tel на шаге телефона. После ответа с application — rememberSent (поля SentApplication, которых нет, необязательны). Таймаут запроса 30 с через свой AbortController, отличать от отмены при новом send, затем кнопка «Повторить». В запрос — refCode. <header> панели чата → <div>. Точка у Квасыча мигает три раза. Проверку наложения чата делать по scroll и resize вместо setInterval 500 мс.",
+      "acceptance": "После заявки через чат шапка показывает «Моя заявка», /apply — статус; зависший /api/dialog через 30 с даёт «Повторить»; на 390 на шаге имени в поле написано «Имя»; второго landmark banner нет; в покое нет опроса раз в 500 мс.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-hr-desk",
+    "owner": "hr",
+    "wave": 1,
+    "files": [
+     "src/components/hr/Candidates.tsx",
+     "src/components/hr/CandidateDrawer.tsx",
+     "src/components/hr/BulkBar.tsx",
+     "src/components/hr/ScheduleView.tsx",
+     "src/components/hr/SlotForm.tsx",
+     "src/components/hr/overlay.tsx",
+     "src/components/hr/FilterBar.tsx",
+     "src/components/hr/toasts.tsx",
+     "src/components/hr/ui.tsx",
+     "src/components/hr/hrUtils.ts",
+     "src/components/hr/ImportDialog.tsx",
+     "src/components/hr/AddCandidate.tsx",
+     "src/components/hr/DuplicatesView.tsx",
+     "src/components/hr/SourcesView.tsx",
+     "src/components/hr/BotsView.tsx",
+     "src/components/hr/BroadcastView.tsx",
+     "src/pages/Hr.tsx",
+     "src/pages/HrPass.tsx",
+     "src/lib/hr/desk.ts",
+     "server/api/hr.ts",
+     "server/db/workflow.ts",
+     "server/hr/actions.ts",
+     "server/notify/",
+     "server/jobs/",
+     "server/db/jobs.ts",
+     "shared/hrFilter.ts",
+     "shared/workdays.ts",
+     "scripts/hr-test.ts",
+     "scripts/e2e/hr-desk.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-hd-1",
+      "title": "Поля HR и слоты вкладок для волны 2 (делается первой)",
+      "what": "toHr в workflow.ts отдаёт onboardingAt, firstShiftAt, shiftKind, onboardingNote, seasonOutcome, seasonLeaveReason, reserve, suspectedSpam, interview.attended, interview.selfBooked. Заглушки SourcesView.tsx, BotsView.tsx, BroadcastView.tsx: export const ready = false и компонент ({user}) => null. Hr.tsx показывает вкладки «Источники», «Боты», «Рассылка» (последняя только админу), когда ready. В funnelSheet() (hr.ts) передавать весь отчёт: { title, ...report }.",
+      "acceptance": "typecheck; вкладок-заглушек не видно; выгрузка Excel не изменилась.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-hd-2",
+      "title": "Режим обзвона (dial-mode)",
+      "what": "Одна кнопка «Обзвон · N» по текущему отбору, не в readOnly и не в демо без сервера. Список id запоминается при старте и передаётся в Hr.tsx; в шапке карточки «12 из 47». Переход к следующей после «Не дозвонились», сохранённого «Перезвонить…», сохранённого приглашения или отказа и «Дальше →». После «Дозвонились» остаёмся. При notify 'call' карточку не уводить. Клавиши по e.code: KeyL — «Дозвонились», KeyY — «Не дозвонились», ArrowRight — следующая. Не срабатывают с модификаторами, в input, textarea, select, contenteditable, при открытом окне и пока идёт запрос. Пропускать заявки, изменённые другим. В конце итог «дозвонились N, недозвон M».",
+      "acceptance": "10 недозвонов подряд — 10 нажатий; счётчик и порядок совпадают со списком на момент старта; в поле заметки клавиши не срабатывают; «Отменить» в тосте откатывает нужную заявку; сценарий в scripts/e2e/hr-desk.ts.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hd-3",
+      "title": "Явка на собеседование и фамилия до проходной (interviews-attendance, ядро)",
+      "what": "PATCH явки пишет interviews.attended, attended_at, attended_by и историю. В «Графике» и карточке у прошедшего слота — «Явка» и «Неявка». «Неявка» = отказ no_show с выбором «не отправлять сообщение кандидату». Кнопки не печатаются на /hr/pass. Плитка «Итог не отмечен: N» вместо «время назначено», клик открывает этот отбор. В окне приглашения (карточка и «Разложить по норме») — «Нет фамилии у N — охрана не найдёт в списке» и поле фамилии, приглашение не блокируется. Новые вызовы — в src/lib/hr/desk.ts.",
+      "acceptance": "На демо-базе плитка равна числу прошедших собеседований без отметки (после w1-hi-1 — 3); отметки уменьшают счётчик и пишутся в историю, «Отменить» возвращает; фамилия из окна сохраняется в анкете; scripts/hr-test.ts.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hd-4",
+      "title": "Фокус в окнах HR и пустые ссылки (a11y-hr-motion, HR)",
+      "what": "Общий хук: Tab и Shift+Tab по кругу внутри окна (как ChatPanel.tsx:79-90); при закрытии фокус на кнопке с именем, открывшей окно, если строки нет — на заголовок списка. Подключить в CandidateDrawer и Dialog (overlay.tsx). inert не ставить на тосты; окно из карточки — стеком, карточка под ним не inert. tel: — только при наличии телефона, иначе контакт текстом или «—».",
+      "acceptance": "/hr: Enter на имени, 100 Tab и 100 Shift+Tab не выводят фокус из #hr-card; после Esc activeElement — та же кнопка; то же для «+ Кандидат»; у кандидата без телефона нет пустой ссылки; unnamedControls на /hr и в карточке пуст.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hd-5",
+      "title": "Список выдерживает 3000+ заявок (hr-scale)",
+      "what": "GET /api/hr/applications: ETag по хешу ответа, при If-None-Match — 304; обезличенные строки не отдаются. Клиент опрашивает с If-None-Match (src/lib/hr/desk.ts). Строки порциями по 100 с «Показать ещё»; счётчики, «выбрать все найденные» и выгрузка — по всему отбору с учётом лимитов массовых действий. Поиск с задержкой 150 мс. Отдачу «только изменённых» и «текущий сезон» не делать.",
+      "acceptance": "Опрос без изменений меньше 5 КБ; плитки и «Найдено: N из M» совпадают с полной загрузкой; на 5000 синтетических заявок (page.route) первая отрисовка меньше 1 с, отклик поиска меньше 100 мс — замер разовым скриптом, отчёт со скриншотом.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hd-6",
+      "title": "Задания в списке заявок (tasks-funnel, п. 3)",
+      "what": "HrFilter.tasks: 'none' | 'some' | 'all' (0, 1–3, 4 из 4), в адресе, на сервере и в выгрузке. Рядом с именем метка «Смена N/4». Сортировки по очкам нет.",
+      "acceptance": "Фильтр «4 из 4» сохраняется после перезагрузки, его число совпадает со строкой блока «Задания и наём» (w1-hr-insights); проверка в hr-test.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hd-7",
+      "title": "Раздача заявок поровну и при импорте (hh-import-team, малая часть)",
+      "what": "В массовом «Назначить» — «Поровну между…» с выбором сотрудников. В окне импорта — ответственный: «я», «без ответственного», «поровну между…».",
+      "acceptance": "300 строк поровну на троих — 100/100/100; импорт с «без ответственного» не назначает импортирующего; hr-test.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w1-hr-insights",
+    "owner": "hr",
+    "wave": 1,
+    "files": [
+     "src/components/hr/FunnelView.tsx",
+     "src/components/hr/Breakdown.tsx",
+     "src/lib/hr/insights.ts",
+     "server/db/hr.ts",
+     "server/db/funnel.ts",
+     "server/db/demo.ts",
+     "shared/demo.ts",
+     "shared/hr.ts",
+     "server/export/xlsx.ts",
+     "server/export/xlsxWriter.ts",
+     "server/integrations/sync.ts",
+     "scripts/tests/hr-insights.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w1-hi-1",
+      "title": "Демо-база для показа (jury-pack, код)",
+      "what": "clearAll удаляет и kb_gaps. «Демо-данные» добавляют правдоподобные вопросы без ответа (дневник практики, работа после сезона, скидка сотрудникам, прописка) — без ответов. У заявок статуса new created_at за последние 2–20 часов, 1–2 просроченные оставить; 14-дневный разброс — только у продвинутых статусов. Три прошедших собеседования без отметки, остальные в будущем. У веб-заявок есть посетитель, у которого события task_done и application с тем же visitor; задания согласованы с game.activities. Имён probe, test, jury нет. Демо — только при demoOnly.",
+      "acceptance": "После «Очистить базу» и «Демо-данные» в списке, «Воронке» и «Вопросах к Квасычу» нет probe, test, jury; у большинства строк нет «ждёт» дольше 2 дней; таблица «задание → заявка» не нулевая; scripts/tests/hr-insights.test.ts.",
+      "priority": "P0"
+     },
+     {
+      "key": "w1-hi-2",
+      "title": "Срез «Задания и наём» в «Воронке» (tasks-funnel)",
+      "what": "Блок: строки «0 заданий», «1–3», «4 из 4», «Добавлены HR» (в том числе импорт hh); колонки — заявки, собеседование, неявка (no_show), к оформлению, на смене, % до смены; считается stageCounts. Сверху доля заявок с 4/4 и цель 30 % из стратегии. Таблица «Какое задание ведёт к заявке» по funnel_events: для каждого из четырёх заданий — сколько прошли и доля отправивших заявку, рядом доля у не проходивших; подписи «только сайт» и «Связь, без доказательства причины: кто заинтересован, тот чаще проходит задания». Тот же блок на листе «Воронка» в Excel (через FunnelSheet от w1-hr-desk). Новые вызовы — в src/lib/hr/insights.ts.",
+      "acceptance": "На демо-данных сумма строк блока равна плитке «Заявка» за тот же период (сверка с выгрузкой JSON); в таблице заданий четыре строки с долей «→ заявка»; лист Excel показывает те же числа; тест групп в hr-insights.test.ts.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hi-3",
+      "title": "Названия источников без сырых кодов (sources-registry, шаг 1)",
+      "what": "sourceName(src, names?): сначала словарь names (реестр волны 2), потом разбор fair-<x> → «Ярмарка · x», vk-, tg-, max- так же; незнакомая метка подсвечена в «Воронке». Старые friend и share — в группе «Приглашения друзей» с пометкой «без кода».",
+      "acceptance": "В «Воронке» на демо нет строк «friend», «Ссылка от друга» и сырых vk-mgupp; тест разбора меток.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hi-4",
+      "title": "Отчёт по неделям (weekly-report)",
+      "what": "Переключатель «по неделям» в «Воронке» и лист «Недели» в существующем «Заявки.xlsx» (выгрузка и Яндекс Диск). Колонки: заявки, медиана первого ответа, доля ответов за 24 ч, собеседование, к оформлению, на смене, отказы по причинам, план и факт. Недели по дате заявки, подписи в рантайме. Без ФИО и контактов. Страницы A4 и разбивки по сотрудникам нет.",
+      "acceptance": "Сумма счётчиков по неделям равна итогам «Воронки» за тот же период (медианы и доли не суммируются); лист есть в файле с Диска на имитации; тест.",
+      "priority": "P1"
+     },
+     {
+      "key": "w1-hi-5",
+      "title": "Расчёты воронки в отдельном модуле",
+      "what": "Вынести funnel() и referrerNames() в server/db/funnel.ts; HrRepo.funnel делегирует, ответы API прежние. В волне 2 funnel.ts принадлежит hr-insights, а hr.ts — hr-pipeline.",
+      "acceptance": "hr-test и e2e без изменений проходят.",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-hr-pipeline",
+    "owner": "hr",
+    "wave": 2,
+    "files": [
+     "src/components/hr/CandidateDrawer.tsx",
+     "src/components/hr/Candidates.tsx",
+     "src/components/hr/BulkBar.tsx",
+     "src/components/hr/ScheduleView.tsx",
+     "src/components/hr/SlotForm.tsx",
+     "src/components/hr/overlay.tsx",
+     "src/components/hr/FilterBar.tsx",
+     "src/components/hr/toasts.tsx",
+     "src/components/hr/ui.tsx",
+     "src/components/hr/hrUtils.ts",
+     "src/components/hr/ImportDialog.tsx",
+     "src/components/hr/AddCandidate.tsx",
+     "src/components/hr/DuplicatesView.tsx",
+     "src/components/hr/PlanView.tsx",
+     "src/components/hr/TemplatesView.tsx",
+     "src/components/hr/notifyText.ts",
+     "src/pages/Hr.tsx",
+     "src/pages/HrPass.tsx",
+     "src/lib/hr/desk.ts",
+     "src/lib/hr/pipeline.ts",
+     "server/api/hr.ts",
+     "server/db/workflow.ts",
+     "server/db/hr.ts",
+     "server/hr/actions.ts",
+     "server/notify/",
+     "server/jobs/",
+     "server/db/jobs.ts",
+     "server/import/",
+     "shared/applications.ts",
+     "shared/hrFilter.ts",
+     "shared/hrPlan.ts",
+     "shared/hrImport.ts",
+     "shared/notifyText.ts",
+     "shared/workdays.ts",
+     "shared/candidateStatus.ts",
+     "server/db/migrations/013_hr_pipeline.sql",
+     "scripts/hr-test.ts",
+     "scripts/e2e/hr-pipeline.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-hp-1",
+      "title": "От «К оформлению» до первой смены (onboarding, ядро)",
+      "what": "В карточке «К оформлению»: дата оформления или медкомиссии, дата первой смены, день или ночь, заметка (вместо чек-листа). Задача shift_reminder с ключом shift:<id>:<дата>: накануне в бот, перед отправкой проверка, что статус hired и дата прежняя. Без бота и SMS — задача «напомнить звонком». Шаблоны shift_reminder и sms_shift_reminder в 013 и templateKeys. Причина отказа no_show_shift «Неявка на первую смену». candidateStatus() возвращает firstShift (дата, «не раньше <первый месяц>» или «срок обсудят на собеседовании») и prepare при «Собеседовании» и «К оформлению»: о чём спросят и зачем; «обычно нужны паспорт, СНИЛС, документ об образовании, трудовая (если есть), военный билет (для военнообязанных); точный список назовёт HR»; для ЕАЭС — «HR скажет, что ещё нужно»; медкнижка — только у needsMedBook. Пропуск и спецодежду кандидату не обещать. Демо — через w2-hr-insights.",
+      "acceptance": "Заявке «К оформлению» поставлена первая смена; кандидат из бота накануне получает напоминание, в истории видно отправку; при смене даты старое не уходит; заявка с месяцами июль — август без даты показывает «не раньше июля»; «Как подготовиться» нет при «Новой»; строка о медкнижке только у needsMedBook; hr-test.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-2",
+      "title": "План найма от месяца первой смены",
+      "what": "hrPlan: если первая смена задана, человек закрывает только её месяц, иначе — указанные месяцы. Обновить проверки hr-test 1115–1131.",
+      "acceptance": "Кандидат с первой сменой в июле не закрывает март; без даты поведение прежнее.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-3",
+      "title": "Итог сезона и кадровый резерв (season-outcome)",
+      "what": "Только для «На смене»: «Сезон отработан», «Уход до конца сезона» с причиной (учёба, график 12 часов, дорога, деньги, личные обстоятельства, другое), отметка «Звать в штат / резерв» — внутренняя, кандидату не видна. В карточке и массово. При уходе со статуса started итог очищается. Фильтр «Причина отказа» (несколько значений) в HrFilter, filterToParams/paramsToFilter и на сервере. Вид «Резерв»: отказы no_slots и schedule, отметки резерва, wantsToStay; без anonymizedAt и duplicateOf. Из вида — массовое сообщение с готовым текстом (без нового шаблона) и «Вернуть в работу»: статус contacted без уведомления, decline_reason сбрасывается.",
+      "acceptance": "Двое «Сезон отработан», один «Уход» с причиной «учёба» — w2-hr-insights показывает «Отработали сезон 2», 67 %; вид «Резерв» на демо показывает ровно нужные заявки; фильтр в адресе и выгрузке; бот и «Моя заявка» не меняются (тест).",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-4",
+      "title": "Практика от вуза и «хочет остаться» в HR (practice-flags)",
+      "what": "Фильтры «Практика от вуза», «Хочет остаться», «Формат». В «Плане найма» — свод «учебное заведение → человек → месяцы» с нормализацией (регистр, ё, кавычки, сокращения из demoUniversities), раскрытием строки со списком заявок и строкой «Учёба не указана». Метки в карточке.",
+      "acceptance": "Заявка с отметкой с сайта и из bot:sim видна в HR с меткой; фильтр оставляет только их; свод показывает, например, «РХТУ им. Менделеева — N человек, июнь — август»; e2e-сценарий.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-5",
+      "title": "Согласие в HR (consent-152)",
+      "what": "В карточке «Согласие: где, версия, когда». В «+ Кандидат» и импорте обязательное «Основание»: устно (hr_verbal, кто и когда отметил), отклик на работном сайте (job_board), рекомендация — согласия нет (none). При none — плашка «При первом звонке скажи, откуда номер, и получи согласие» и подтверждение перед «Пригласить» и SMS по образцу allowUnderage.",
+      "acceptance": "Ручного кандидата без согласия нельзя пригласить без подтверждения; строка согласия видна у заявок с сайта и из ботов; hr-test.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-6",
+      "title": "Пара по приглашению в HR (friend-ref)",
+      "what": "referrals() ищет код и в applications.ref_code, и в сессиях ботов. В обеих карточках: «По приглашению: <имя>, заявка № …» и «Приглашённые: <имя> · статус». Фильтр «Идут вдвоём». Своя ссылка не засчитывается. «Выделить пару» — P2.",
+      "acceptance": "Сквозной тест: A приглашает, B подаёт — в карточке B «По приглашению: A», у A «Приглашённые: B · статус»; фильтр показывает обе заявки.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-7",
+      "title": "Заявка с сайта получает ответы HR в боте (site-to-messenger, HR)",
+      "what": "notify botFor для канала web использует botChannel и botUserId; isBot и noBotHint учитывают привязку; в карточке «Бот в Telegram, привязан с сайта». Слияние дублей (workflow.ts:377) не теряет привязку.",
+      "acceptance": "dialog-test и hr-test: привязанная заявка при «Собеседовании» ставит сообщение в очередь бота, а не в SMS и не в звонок.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-8",
+      "title": "Самозапись: сторона HR (self-booking)",
+      "what": "Кнопка «Предложить выбрать время» в карточке и в массовых действиях вызывает POST /api/hr/booking/offer (контракт w2-booking). Пометка «самозапись» у слота в «Графике» и карточке. Кандидат только с сайта без SMS — в карточке прямо сказано, что он узнает о предложении на «Моей заявке» или по звонку.",
+      "acceptance": "Предложение уходит одной кнопкой; самозаписанный слот помечен; hr-test.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-9",
+      "title": "Метка источника из реестра в ручном добавлении и импорте (sources-registry)",
+      "what": "«+ Кандидат» и импорт выбирают метку из useSources() (контракт w2-hr-sources) вместо общего fair; старое значение fair подписано.",
+      "acceptance": "Ручной кандидат с fair-misis попадает в строку «Ярмарка МИСИС» «Воронки».",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hp-10",
+      "title": "Остальное по явке, оформлению и команде",
+      "what": "«Остальным — неявка» у прошедшего дня с предпросмотром и «не отправлять сообщение»; плитка «В оформлении дольше 7 дней»; слой «Выходы на смену» в «Графике» и список на проходную на день (ФИО, вакансия, смена, время, без телефонов); «Выделить пару» → одно собеседование; внутренние должности для плана и импорта (id pos:…, сайт их не видит); вызов logAccess на выгрузках (контракт w2-platform).",
+      "acceptance": "Каждая часть проверена в hr-test; список на проходную без телефонов и паспортных данных.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-hp-c1",
+      "title": "Новые поля кейса в списке, карточке, фильтре и ручном добавлении",
+      "what": "Подробно — docs/case-delta.md, задача w2-hp-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-hp-c2",
+      "title": "Наставник и чек-лист документов по практике",
+      "what": "Подробно — docs/case-delta.md, задача w2-hp-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-hr-insights",
+    "owner": "hr",
+    "wave": 2,
+    "files": [
+     "src/components/hr/FunnelView.tsx",
+     "src/components/hr/Breakdown.tsx",
+     "src/lib/hr/insights.ts",
+     "server/db/funnel.ts",
+     "server/db/demo.ts",
+     "shared/demo.ts",
+     "shared/hr.ts",
+     "server/export/xlsx.ts",
+     "server/export/xlsxWriter.ts",
+     "scripts/tests/hr-insights.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-hi-1",
+      "title": "Новые поля во всех выгрузках",
+      "what": "XLSX, CSV, JSON и CSV для 1С: согласие (где, версия, когда), практика от вуза, хочет остаться, дата оформления, «Дата приёма» (первая смена, ДД.ММ.ГГГГ), смена, итог сезона и причина, резерв. В 1С новые колонки в конце, кодировка прежняя.",
+      "acceptance": "Тест: выгрузки содержат новые колонки, старые на своих местах, 1С открывается в cp1251.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hi-2",
+      "title": "Воронка до конца сезона, явка, приглашения, расходы",
+      "what": "После «Вышли на смену» — «Отработали сезон» и «В штате или резерве» с % от вышедших и по меткам; причины ухода рядом с причинами отказа. «Явка на собеседование, %»: знаменатель — прошедшие слоты с отметкой. Одна группа «Приглашения друзей» и «Приглашения, дошедшие до смены» (кто позвал, кого, вышел ли на смену), без «месяца работы». Колонки «Расход», «₽ за заявку», «₽ за выход на смену» и строка «Итого» из sourceCosts (контракт w2-hr-sources), при нуле выходов — «—». То же в Excel и в листе «Недели».",
+      "acceptance": "Двое из трёх вышедших отработали сезон → 67 %; при расходе 30 000 ₽ и двух выходах — 15 000 ₽ за выход; за период без расхода — «—»; Excel совпадает; тесты.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hi-3",
+      "title": "Демо-данные для новых разделов",
+      "what": "Итоги сезона у части «На смене», резерв, даты оформления у «К оформлению», практика у практикантов, источники согласия, пара по приглашению с сайта, wants_to_stay, самозапись у пары собеседований. Если таблица уже есть: реестр меток с расходом (014), подписчики напоминаний (018). Ответы HR для Квасыча не выдумывать.",
+      "acceptance": "После «Демо-данные» все новые вкладки, срезы и виды не пустые; probe, test, jury нет; тест сида.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hi-4",
+      "title": "События игры в воронке (tasks-funnel, п. 4)",
+      "what": "Строки «Нажали «Играть»», «Поделились», «Пришли по ссылке → заявки» по событиям game_start и share (w2-platform и w2-game).",
+      "acceptance": "При событиях в базе строки считаются; без них блок скрыт.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-hi-c1",
+      "title": "Новые поля кейса во всех выгрузках",
+      "what": "Подробно — docs/case-delta.md, задача w2-hi-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-hi-c2",
+      "title": "Метрики кейса рядом с базовыми цифрами компании",
+      "what": "Подробно — docs/case-delta.md, задача w2-hi-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-hr-sources",
+    "owner": "hr",
+    "wave": 2,
+    "files": [
+     "src/components/hr/SourcesView.tsx",
+     "src/components/hr/sourcesCache.ts",
+     "src/pages/HrPoster.tsx",
+     "src/lib/hr/sources.ts",
+     "shared/qr.ts",
+     "shared/sources.ts",
+     "server/db/sources.ts",
+     "server/api/hr-sources.ts",
+     "server/db/migrations/014_sources.sql",
+     "scripts/tests/hr-sources-*.test.ts",
+     "scripts/fixtures/qr/",
+     "src/pages/HrFlyer.tsx"
+    ],
+    "tasks": [
+     {
+      "key": "w2-src-1",
+      "title": "Реестр меток источников (sources-registry)",
+      "what": "Таблица hr_sources: метка [a-z0-9-] до 40 символов, название, тип (ярмарка, вуз, VK, Telegram, MAX, работный сайт, амбассадор, экскурсия), заметка. Начальные данные — нынешний словарь shared/hr.ts. Проверка дублей и символов как в cleanSource. Правит администратор. Незнакомые метки из заявок и сессий — список с кнопкой «Дать название». useSourceNames() и useSources() для других экранов; sourceName(src, names). Вкладка «Источники»: ready = true.",
+      "acceptance": "Создать «Ярмарка МИСИС» с fair-misis — в «Воронке», карточке и списке видно название; роль hr не правит; тест.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-src-2",
+      "title": "Ссылки и QR для каждой метки",
+      "what": "Готовые ссылки: /?src=<метка>; t.me/<бот>?start= и max.ru/<бот>?start= — только при известном имени бота, без заглушек. Свой кодировщик shared/qr.ts: байтовый режим, уровень M, версии 1–10, без пакетов. Эталонные матрицы получить один раз внешним генератором (Python-библиотека, если есть, или другой надёжный способ) и хранить в scripts/fixtures/qr/. SVG для печати и PNG 1024 px.",
+      "acceptance": "Тест сверяет матрицы с эталонами; распечатка 3×3 см читается камерами iOS и Android и открывает /?src=fair-misis (проверка живым телефоном, фото в отчёте).",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-src-3",
+      "title": "Плакат для стенда A3",
+      "what": "/hr/poster?src=<метка>: «Работа на сезон в «Очаково»», вилка зарплат из shared, у ориентиров «ориентир» и «до вычета НДФЛ», «Поймай брак за 20 секунд», крупный QR с меткой, адрес и маршрут из contacts.route. Стиль сайта, @page A3, кнопка «Печать» (PDF из браузера). Без дат. PNG плаката не нужен.",
+      "acceptance": "Печать в PDF A3 на одной странице; QR читается с 1,5 м; цифры совпадают с shared.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-src-4",
+      "title": "Расход по метке",
+      "what": "source_costs: метка, сумма, комментарий, необязательный период. Вносит администратор, роль hr только видит. server/db/sources.ts: sourceCosts(sql, from, to) — расходы, период которых пересекается с выбранным, без деления. Выход на смену — статус started.",
+      "acceptance": "Роль hr получает 403 на изменение; sourceCosts считает расход за пересекающийся период; тест.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-src-c1",
+      "title": "Типы источников для всех инициатив компании",
+      "what": "Подробно — docs/case-delta.md, задача w2-src-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-src-c2",
+      "title": "Листовка A5 с QR на метку",
+      "what": "Подробно — docs/case-delta.md, задача w2-src-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-hr-admin",
+    "owner": "hr",
+    "wave": 2,
+    "files": [
+     "src/components/hr/SettingsView.tsx",
+     "src/components/hr/UsersView.tsx",
+     "src/components/hr/VacanciesView.tsx",
+     "src/pages/HrLogin.tsx",
+     "src/lib/hr/admin.ts",
+     "server/api/hr-content.ts",
+     "server/api/hr-account.ts",
+     "server/auth/",
+     "server/content/",
+     "server/db/migrations/015_admin.sql",
+     "shared/content/vacancies.ts",
+     "shared/content/faq.ts",
+     "scripts/tests/hr-admin-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-ad-1",
+      "title": "Раздача новых заявок по очереди (hh-import-team)",
+      "what": "Переключатель «Раздавать новые заявки по очереди» в «Сотрудниках». При включении новая заявка без ответственного — с сайта, из ботов, из импорта без явного выбора — получает следующего активного рекрутера. Триггер в базе (015) и строка состояния очереди; чужие файлы не трогаются. Группы вакансий не делать.",
+      "acceptance": "Три рекрутера, 9 заявок — по 3; выключено — ответственный пуст; импорт с явным выбором сохраняет выбор; тест.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-ad-2",
+      "title": "Пароли сотрудников и сессии (data-rights)",
+      "what": "must_change_password в hr_users (015): при создании и сбросе пароля при входе его нужно сменить (HrLogin). POST /api/hr/me/password в server/api/hr-account.ts. В UsersView окно вместо window.prompt. Сессия живёт не дольше 7 дней. Задержка растёт после неверных паролей с пары «почта + IP», почту с любых IP не блокировать.",
+      "acceptance": "Новый сотрудник обязан сменить пароль; сессия старше 7 дней — 401; серия неверных паролей с одного IP замедляет ответы, вход с другого IP работает; тест.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-ad-3",
+      "title": "Срок ответа HR в настройках (content-editor, этап 1)",
+      "what": "В «Рабочем времени» — срок ответа (рабочих дней), хранится в настройках, доходит до /api/config (w2-platform), «Моей заявки» и бота (через WorkSettings — согласовать с w2-hr-pipeline). Старые заявки сохраняют обещанный им срок.",
+      "acceptance": "Срок 1 день → сайт, «Моя заявка», бот и чат пишут «в течение одного рабочего дня».",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-ad-4",
+      "title": "Правки вакансий без программиста (content-editor, этап 2)",
+      "what": "Таблица vacancy_overrides: открыта или закрыта, зарплата от и до, ориентир, «Срочный набор», период; правка в истории с именем сотрудника. Раздел «Вакансии» у администратора. shared/content/vacancies.ts: applyVacancyOverrides() меняет объекты на месте, производные (maxEntryPay, minMonthlyPay) — export let с пересчётом, ответы faq — геттеры. Сервер применяет правки при старте и после сохранения, вызывает rebuildKnowledge() (w2-assistant). Клиент получает правки при старте с таймаутом (w2-pages-chat). Закрытая вакансия скрыта из /vacancies, формы и бота. Метка «предложение команды» — только в панели.",
+      "acceptance": "Сумма оператора 110 000 без перезапуска видна на главной, в «Собери лето», на /vacancies, у Квасыча и в bot:sim; закрытая вакансия пропала из подбора и списка; без API сайт показывает встроенные данные; правка в истории.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-ad-5",
+      "title": "«Состояние» и журнал выгрузок у администратора",
+      "what": "Блок «Состояние» по расширенному /api/health (w2-platform): проваленные задачи, последняя выгрузка на Диск и ошибка, последнее удаление по сроку, последнее обновление от ботов. Список выгрузок из access_log: кто, роль, формат, сколько строк, фильтр. Роль hr журнал не видит.",
+      "acceptance": "Задача с тремя неудачами видна; после выгрузки Excel в журнале строка «<имя> · Excel · N заявок»; роль hr — 403.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-ad-c1",
+      "title": "Тесты безопасности входа HR и медиа",
+      "what": "Подробно — docs/case-delta.md, задача w2-ad-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-ad-c2",
+      "title": "Редактор вакансий понимает типы практики",
+      "what": "Подробно — docs/case-delta.md, задача w2-ad-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-booking",
+    "owner": "hr",
+    "wave": 2,
+    "files": [
+     "server/booking/",
+     "server/api/booking.ts",
+     "server/dialog/flows/booking.ts",
+     "server/db/migrations/017_booking.sql",
+     "src/lib/hr/booking.ts",
+     "scripts/tests/booking-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-bk-1",
+      "title": "Предложение выбрать время и запись (self-booking)",
+      "what": "Таблица предложений (заявка, кто, срок, использовано). availableHours: до 6 ближайших свободных часов — только рабочие дни и часы из shared/workdays, не выше нормы на час с учётом назначенных, не раньше чем через N часов. book: транзакция с блокировкой часа в PostgreSQL; ставит «Собеседование», слот, адрес и «что взять» из interviewDefaults через существующие действия server/hr/actions.ts, напоминание накануне; interviews.self_booked = true. Перенос и отмена кандидатом освобождают место. «Ни одно время не подходит — позвоните» создаёт задачу «перезвонить». API: POST /api/hr/booking/offer {ids}; GET/POST/DELETE /api/applications/:id/booking и POST …/booking/none с x-status-token. Без действия HR выбора нет, срок ответа не меняется.",
+      "acceptance": "Сквозной тест: HR предлагает → кандидат с сайта видит часы → после выбора у заявки статус и слот, в «Графике» в этом часе +1, напоминание в очереди; час с заполненной нормой не предлагается; два одновременных выбора последнего места — второй получает «Это время уже заняли, выбери другое»; отмена освобождает место.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-bk-2",
+      "title": "Выбор времени в боте",
+      "what": "flows/booking.ts: route(ctx, parts) для действий b:list, b:<час>, b:none, b:cancel; offerMessage(app) → OutMessage с кнопками часов для уведомления. Маршрутизацию b: в engine.ts делает w2-bot.",
+      "acceptance": "bot:sim и dialog-test: кандидат из бота видит часы кнопками и записывается; занятый час — сообщение и новый список.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-bk-3",
+      "title": "День найма",
+      "what": "Особая дата с адресом, часами и вместимостью в час; ссылка с меткой и start=hiringday; после заявки кандидат сам выбирает час. Оформление в тот же день не обещать.",
+      "acceptance": "День с двумя часами по два места: пятый кандидат видит «мест нет».",
+      "priority": "P2"
+     }
+    ]
+   },
+   {
+    "id": "w2-assistant",
+    "owner": "bot-assistant",
+    "wave": 2,
+    "files": [
+     "server/llm/",
+     "server/assistant/",
+     "src/components/hr/KbGapsView.tsx",
+     "src/lib/hr/kb.ts",
+     "server/api/hr-kb.ts",
+     "server/db/migrations/016_kb_answers.sql",
+     "scripts/assistant-test.ts",
+     "scripts/fixtures/assistant-eval.tsv",
+     "scripts/tests/assistant-*.test.ts",
+     "docs/llm.md"
+    ],
+    "tasks": [
+     {
+      "key": "w2-as-1",
+      "title": "HR отвечает на «Вопросы к Квасычу», ответ попадает в базу (kb-answers)",
+      "what": "«Ответить» у вопроса: короткий ответ и необязательные формулировки. Проверка: без «!», без дат, телефоны, почта и ФИО вычищаются тем же фильтром, что вопросы; нейтральный род — подсказкой. Таблица kb_answers (вкл/выкл, правка), вопрос помечается «Разобрано». Маленький отдельный индекс ответов HR проверяется до основного BM25, общий индекс не трогается. setHrAnswerSource(fn) задаёт server/api/hr-kb.ts при создании. В промпт GigaChat — раздел «Ответы отдела персонала», кэш промпта и knowledgeText сбрасываются по версии. guard считает суммы из одобренных ответов HR разрешёнными. docs/llm.md описывает новый путь, папки docs/kb нет.",
+      "acceptance": "hr-test или свой тест: вопрос без ответа → пробел → ответ HR → тот же вопрос через /api/dialog возвращает текст HR, escalated=false, нового пробела нет; перефразированный вопрос тоже; выключенный ответ снова даёт «спроси в отделе персонала»; guard режет сумму, которой нет ни в данных, ни в ответах HR; на 390 форма без горизонтальной прокрутки; assistant-test и dialog-test не поплыли.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-as-2",
+      "title": "GigaChat готов к живому ключу: срок ответа и guard (gigachat-ready)",
+      "what": "Общий срок вместе с очередью: 25 с для ботов, 20 с для сайта; AbortSignal в ChatRequest прерывает fetch, паузы backoff и снимает запрос из очереди; повтор внутри срока — один. Очередь длиннее N — сразу офлайн, source='fallback', в журнал «таймаут». guard отклоняет: время суток («8:00», «с 8 до 20»), интервалы («каждые N минут»), проценты кроме «13 %», «бесплатн», «за счёт компании|завода», «оплачива* (завод|компани)» рядом с общежитием, медкнижкой, автобусом, формой и обедом (белый список: «часть стоимости обеда оплачивает завод», текст ДМС из shared), числа месяца для выплат.",
+      "acceptance": "fetchImpl с ответом через 30 с → офлайн-ответ быстрее срока; 5 вопросов одновременно при concurrency 1 укладываются в срок; «Автобус ходит каждые 15 минут», «Смена с 8:00 до 20:00», «Медкнижку оплачивает завод», «Доплата за ночь 20 %», «Общежитие бесплатное», выплаты 10-го и 25-го → source='guard'; «2/2», «5/2», «12 часов», «с 18 лет», «до 2 рабочих дней», «70 000 бутылок в час», «НДФЛ 13 %» и каждая фраза базы проходят.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-as-3",
+      "title": "Доделать живую речь офлайн-Квасыча",
+      "what": "Если в волне 1 не закрыто: опечатки, составные вопросы, отложенная часть набора.",
+      "acceptance": "pnpm test: набор ≥ 90 %, отложенная часть ≥ 85 %.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-as-4",
+      "title": "Пересборка базы при правке вакансий и метрики",
+      "what": "rebuildKnowledge(): пересборка фрагментов, enum вакансий в tools и кэша промпта после правок (w2-hr-admin). Средняя задержка и доля запасных ответов — для /api/health.",
+      "acceptance": "После правки суммы Квасыч называет новую без перезапуска.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-as-c1",
+      "title": "База знаний и офлайн-ответы по справочнику студента",
+      "what": "Подробно — docs/case-delta.md, задача w2-as-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     }
+    ]
+   },
+   {
+    "id": "w2-bot",
+    "owner": "bot-assistant",
+    "wave": 2,
+    "files": [
+     "server/dialog/engine.ts",
+     "server/dialog/context.ts",
+     "server/dialog/types.ts",
+     "server/dialog/ui.ts",
+     "server/dialog/progress.ts",
+     "server/dialog/storage.ts",
+     "server/dialog/images.ts",
+     "server/dialog/flows/apply.ts",
+     "server/dialog/flows/ask.ts",
+     "server/dialog/flows/friend.ts",
+     "server/dialog/flows/game.ts",
+     "server/dialog/flows/menu.ts",
+     "server/dialog/flows/money.ts",
+     "server/dialog/flows/myth.ts",
+     "server/dialog/flows/quiz.ts",
+     "server/dialog/flows/status.ts",
+     "server/dialog/flows/tour.ts",
+     "server/dialog/flows/vacancies.ts",
+     "server/dialog/flows/remind.ts",
+     "server/db/index.ts",
+     "server/db/migrations/018_bot_remind.sql",
+     "scripts/dialog-test.ts",
+     "scripts/bot-sim.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-bt-1",
+      "title": "Заявка с сайта получает ответы в Telegram или MAX (site-to-messenger)",
+      "what": "PostgresStorage.createBotLink(appId): одноразовый токен до 64 символов, в базе хеш и срок 24 ч, диплинки start=app_<токен> для подключённых ботов. В engine start=app_… разбирается до sourceFromPayload и в источник не попадает. Привязка пишет bot_channel и bot_user_id; channel='web' и source не меняются. Ответ «Заявка N у HR. Сообщения о ней придут сюда», без имени и телефона. Повторный, чужой или просроченный токен — нейтральный ответ. Сравнение через timingSafeEqual. latestApplicationFor видит привязанные заявки. /stop отвязывает.",
+      "acceptance": "dialog-test: заявка с сайта → start app_<токен> → latestApplicationFor(telegram, id) возвращает её; повторный токен не срабатывает и ничего не раскрывает; /stop снимает привязку.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-bt-2",
+      "title": "Подписка «Напомнить о наборе» в боте (recruit-reminder)",
+      "what": "Кнопка в меню и после заданий, если заявки нет: выбор направления, текст «Напишу, когда откроется набор на сезон и когда до конца приёма останется неделя. Отписаться — кнопка «Не присылать»». start=remind и remind-<метка> разбираются до источника, исходная метка сохраняется. 018: remind_at, remind_source, remind_dept, remind_off_at, last_broadcast_at в bot_users. «Не присылать» — одной кнопкой. Обезличивание по сроку подписку не включает обратно.",
+      "acceptance": "bot:sim: подписка и отписка одной кнопкой меняют флаг; start=remind-fair-mgupp оставляет источник fair-mgupp; тексты без дат, род нейтральный.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-bt-3",
+      "title": "Самозапись в боте: маршрутизация",
+      "what": "engine.ts передаёт действия b: в flows/booking.ts (пакет w2-booking).",
+      "acceptance": "dialog-test: действие b:list доходит до сценария записи.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-bt-4",
+      "title": "«Удалить мои данные» в боте (data-rights)",
+      "what": "/delete и кнопка в «Моей заявке» с подтверждением. Стирают заявки, сессию и запись аудитории через eraseBotUser (w2-platform).",
+      "acceptance": "В имитации бота команда стирает заявку и сессию, отчёт аудитории не меняется.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-bt-5",
+      "title": "Подготовка и первая смена в ответе о заявке",
+      "what": "status.ts выводит firstShift и prepare из candidateStatus (контракт w2-hr-pipeline). Пустые поля не показываются.",
+      "acceptance": "dialog-test: при статусе «К оформлению» с датой ответ содержит дату и «Как подготовиться».",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-bt-c1",
+      "title": "Заявка в боте собирает поля кейса с проверкой 18+",
+      "what": "Подробно — docs/case-delta.md, задача w2-bt-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-bt-c2",
+      "title": "Бот сохраняет заявку через acceptApplication",
+      "what": "Подробно — docs/case-delta.md, задача w2-bt-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-bt-c3",
+      "title": "Контрольные вопросы и практика в боте",
+      "what": "Подробно — docs/case-delta.md, задача w2-bt-c3.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-channels",
+    "owner": "bot-assistant",
+    "wave": 2,
+    "files": [
+     "server/channels/",
+     "server/api/dialog.ts",
+     "server/api/hr-bots.ts",
+     "server/api/hr-broadcast.ts",
+     "src/components/hr/BotsView.tsx",
+     "src/components/hr/BroadcastView.tsx",
+     "src/lib/hr/bots.ts",
+     "server/db/migrations/019_broadcast.sql",
+     "scripts/channels-test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-cn-1",
+      "title": "Чистые сборщики запросов к мессенджерам",
+      "what": "Из telegram.ts и max.ts вынести функции, которые превращают OutMessage в тело запроса API: разметка, раскладка кнопок, разбиение длинных текстов, картинки. Адаптеры, тесты и предпросмотр используют их же.",
+      "acceptance": "channels-test сверяет payload через эти функции; поведение адаптеров прежнее.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-cn-2",
+      "title": "Вкладка «Боты»: состояние каналов и предпросмотр (bots-visible)",
+      "what": "Состояние из настоящего окружения: сайт работает; Telegram — «работает», если адаптер поднят, иначе «адаптер готов, токен не задан»; MAX — «адаптер готов, нужна регистрация бота на самозанятого, ИП или компанию». Одна лента с переключателем Telegram/MAX без логотипов и копирования интерфейса мессенджеров. Отдельный createEngine с memoryStorage (TTL, лимит сессий) и offlineProvider, logGap не пишет в базу. Поле «/start метка», раскрывающийся блок с телом запроса после сборщика. Подпись «Имитация доставки: тот же движок, в мессенджер ничего не уходит». BotsView: ready = true.",
+      "acceptance": "Без токенов в ленте проходится /start fair-mgupp → «Поймай брак» с картинками → заявка; раскладка кнопок совпадает с адаптерами (тест); запросов к api.telegram.org и MAX нет; в базе и воронке нет записей из предпросмотра.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-cn-3",
+      "title": "Вкладка «Рассылка» (recruit-reminder)",
+      "what": "Только администратор. Состояние набора: закрыт, открыт, срок окончания. Сегменты: все подписавшиеся, по направлению, подписались и прошли задания без заявки. Предпросмотр. Отправка пачками в пределах лимитов Telegram и MAX через адаптеры. Не чаще раза в неделю на человека (last_broadcast_at). В каждом сообщении кнопка «Не присылать». Журнал в 019: доставлено, бот заблокирован, отписался. «До конца приёма неделя» — только при заданном сроке. Подписчики из веб-чата рассылку не получают, это написано в интерфейсе. BroadcastView: ready = true.",
+      "acceptance": "Фейковый адаптер: трое подписаны, один отписан — уходит двоим, журнал «2 доставлено»; после «Не присылать» человек не попадает в следующую рассылку; повтор раньше недели блокируется; тем, кто не подписывался, ничего не уходит; тексты без дат.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-cn-4",
+      "title": "«Исходящие» в предпросмотре",
+      "what": "Приглашение и напоминание от HR так, как их увидит кандидат в Telegram и MAX: renderTemplate из server/notify и сборщики из w2-cn-1.",
+      "acceptance": "Текст и кнопки совпадают с тем, что уходит в очереди уведомлений.",
+      "priority": "P2"
+     }
+    ]
+   },
+   {
+    "id": "w2-pages-chat",
+    "owner": "pages-chat",
+    "wave": 2,
+    "files": [
+     "src/pages/Apply.tsx",
+     "src/pages/Vacancies.tsx",
+     "src/pages/Privacy.tsx",
+     "src/pages/NotFound.tsx",
+     "src/pages/Consent.tsx",
+     "src/App.tsx",
+     "src/main.tsx",
+     "src/components/Layout.tsx",
+     "src/components/candidate/",
+     "src/components/chat/",
+     "src/components/ui.tsx",
+     "src/components/Mascot.tsx",
+     "src/components/Photo.tsx",
+     "src/components/Loading.tsx",
+     "src/lib/api.ts",
+     "src/lib/source.ts",
+     "src/lib/ref.ts",
+     "src/lib/config.ts",
+     "src/lib/typo.ts",
+     "src/lib/season.ts",
+     "src/lib/analytics.ts",
+     "src/store/activities.ts",
+     "src/store/profile.ts",
+     "scripts/e2e/pages-chat.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-pc-1",
+      "title": "Отозвать согласие и удалить заявку (data-rights)",
+      "what": "На «Моей заявке» «Отозвать согласие и удалить заявку» с подтверждением → POST /api/applications/:id/withdraw (w2-platform). После этого копия в localStorage стёрта, шапка снова «Откликнуться».",
+      "acceptance": "e2e: после отзыва GET статуса — 404, в HR «удалено по запросу кандидата»; с чужим токеном — 404.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pc-2",
+      "title": "«Получать ответ HR в Telegram/MAX» (site-to-messenger)",
+      "what": "На экране «Заявка отправлена» и в «Моей заявке» — кнопки, только если бот подключён (useSiteConfig). POST /api/applications/:id/bot-link → диплинк. После привязки — «Ответ придёт в Telegram». Рядом строка «Сообщения о заявке придут в этот чат, отвязать — /stop».",
+      "acceptance": "На 390 кнопка видна на экране успеха без прокрутки; без бота кнопок нет.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pc-3",
+      "title": "Выбор времени собеседования на «Моей заявке» (self-booking)",
+      "what": "При предложении HR — до 6 часов кнопками, выбор, перенос, отмена, «Ни одно время не подходит — позвоните»; API w2-booking. После выбора — слот, карта, .ics, как при назначении HR.",
+      "acceptance": "e2e: HR предлагает → кандидат выбирает → «Собеседование» со временем; занятое время — «Это время уже заняли, выбери другое».",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pc-4",
+      "title": "«Как подготовиться» и дата первой смены (onboarding)",
+      "what": "ApplicationStatus выводит prepare и firstShift из candidateStatus; пустые поля не показываются; нейтральный род.",
+      "acceptance": "При «К оформлению» с датой видна дата; при «Новой» раздела нет; строка о медкнижке только у needsMedBook.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pc-5",
+      "title": "Яндекс Метрика и пиксель VK Рекламы (analytics-metrika, клиент)",
+      "what": "src/lib/analytics.ts читает метатег analytics (w2-platform). Если ID нет, нет ни запросов, ни плашки. Если ID есть — плашка в подвале «Разрешить / Не надо», выбор в localStorage (try/catch); счётчики загружаются только после согласия, Вебвизор выключен. trackEvent дублирует visit, task_done, apply_open, application в ym reachGoal и _tmr: только тип события, задание и src. В demoLocal целей нет. /privacy: раздел «Аналитика» только когда счётчики включены (/api/privacy).",
+      "acceptance": "С тестовыми ID и согласием Playwright (page.route) видит запросы к mc.yandex.ru и пикселю VK; после игры — task_done, после заявки — application, без имени и телефона; без ID ни одного внешнего запроса.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pc-6",
+      "title": "Режим планшета на стенде (fair-intake, P2)",
+      "what": "/?src=fair-<вуз>&stand=1: хранилища profile, activities и sent — в памяти, метка не пишется в профиль. Крупно задания и короткая форма. После отправки «Заявка принята, номер N» и QR «Продолжить на своём телефоне» — на бота с меткой, без токена. Сброс по «Следующий» и через 90 с без действий.",
+      "acceptance": "После двух заявок подряд в localStorage нет ochakovo.application, ochakovo.profile и ochakovo.activities; имени первого нет ни на одном экране; заявки видны в «Воронке» в строке метки; 390 и 1024 px.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-pc-7",
+      "title": "Ссылка на заявку для другого устройства (my-application-anywhere, п. 5)",
+      "what": "Одна кнопка «Сохранить ссылку на заявку» на экране успеха: /apply#app=<id>.<token>, share или копирование, подсказка «Ссылка открывает статус — не публикуй её». При открытии заявка записывается без имени и телефона, фрагмент убирается через replaceState. Неверный токен — «Ссылка не подошла» и контакты; существующая last не затирается.",
+      "acceptance": "Браузер A копирует ссылку, чистый браузер B видит тот же номер и статус, фрагмента в адресе нет; неверный токен — сообщение.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-pc-8",
+      "title": "События игры и правки вакансий при старте",
+      "what": "trackEvent принимает 'game_start' и 'share' с видом (game, money, invite) для w2-game. main.tsx при старте получает правки вакансий с таймаутом 800 мс и применяет их (контракт w2-hr-admin), при ошибке — встроенные данные.",
+      "acceptance": "typecheck; без сервера сайт рендерится как раньше; LCP не хуже.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-pc-c1",
+      "title": "Форма заявки по кейсу: ФИО, дата рождения 18+, готовность выйти, вуз или колледж",
+      "what": "Подробно — docs/case-delta.md, задача w2-pc-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-pc-c2",
+      "title": "Страница вакансий: оплачиваемая практика, бесплатная практика, ролики «Посмотреть смену»",
+      "what": "Подробно — docs/case-delta.md, задача w2-pc-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-pc-c3",
+      "title": "«Моя заявка»: что взять и куда ехать по справочнику",
+      "what": "Подробно — docs/case-delta.md, задача w2-pc-c3.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-home",
+    "owner": "home",
+    "wave": 2,
+    "files": [
+     "src/home/",
+     "src/pages/Home.tsx",
+     "src/lib/motion.ts",
+     "src/lib/useOffscreenPause.ts",
+     "src/index.css",
+     "src/fonts.css",
+     "src/fonts/",
+     "scripts/fonts-subset.py",
+     "src/components/home/"
+    ],
+    "tasks": [
+     {
+      "key": "w2-hm-1",
+      "title": "«Напомнить о наборе» на сайте (recruit-reminder)",
+      "what": "В «Спросить Квасыча» рядом с кнопками ботов — «Напомнить о наборе» по диплинку start=remind-<метка>, только при известном имени бота. «Откликнуться» остаётся главной кнопкой.",
+      "acceptance": "Без бота кнопки нет; ссылка содержит remind- и исходную метку.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hm-2",
+      "title": "Контроль качества в «Пути кваса» (brand-bottle, п. 4)",
+      "what": "На этапе «Контроль качества» — фрагмент нарисованной линии с бракованной бутылкой (Bottle) и кнопкой «Попробовать в «Поймай брак»». Нарисованные паллеты на «Складе» — только если макет одобрен глазом, иначе не делать.",
+      "acceptance": "На 390 и 1440 фрагмент читается, кнопка ведёт в игру; повторов фото нет.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hm-3",
+      "title": "Единая шкала кеглей (home-craft, п. 5)",
+      "what": "В @theme index.css 7 ступеней заголовков (240/160/104/72/48/32/24 px на 1440 через clamp) и 5 текстовых (13/15/17/20/24). Перенос пофайлово со скриншотами до и после. FitLine — исключение.",
+      "acceptance": "grep text-[clamp и text-[NNpx] по src/home, src/pages, src/game — не больше трёх произвольных размеров; скриншоты 390 и 1440 без поломок.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-hm-4",
+      "title": "Латиница шрифтов и пререндер первого экрана (load-speed)",
+      "what": "Срез латиницы в fonts-subset.py (U+0020–007E, пробелы, кавычки, тире, №, нужные фичи), остальной Latin-1 — отдельным @font-face; дополнение с ₽ сохраняется. Если первый экран пришёл готовой разметкой (w2-platform), вступление не повторяется, место под «Моей заявкой» держится visibility:hidden до монтирования.",
+      "acceptance": "transferredKB главной ниже минимум на 24 КБ; ₽ и стрелки свои; при пререндере нет мигания и CLS = 0.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-hm-c1",
+      "title": "Блок оплачиваемой практики с официальными фактами",
+      "what": "Подробно — docs/case-delta.md, задача w2-hm-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-hm-c2",
+      "title": "История и бренды: таймлайн и «Очаково сегодня»",
+      "what": "Подробно — docs/case-delta.md, задача w2-hm-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-hm-c3",
+      "title": "Ролики «Смена изнутри» на главной",
+      "what": "Подробно — docs/case-delta.md, задача w2-hm-c3.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hm-c4",
+      "title": "Наставничество в сторителлинге",
+      "what": "Подробно — docs/case-delta.md, задача w2-hm-c4.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hm-c5",
+      "title": "Контрольные вопросы находятся с главной",
+      "what": "Подробно — docs/case-delta.md, задача w2-hm-c5.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-hm-c6",
+      "title": "Фирменные пиктограммы по брендбуку",
+      "what": "Подробно — docs/case-delta.md, задача w2-hm-c6.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P2"
+     }
+    ]
+   },
+   {
+    "id": "w2-game",
+    "owner": "game",
+    "wave": 2,
+    "files": [
+     "src/game/",
+     "src/pages/Game.tsx",
+     "src/lib/sfx.ts",
+     "scripts/tests/game-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-gm-1",
+      "title": "Лента по сиду и вызов другу (game-honest-challenge, пп. 3–4)",
+      "what": "mulberry32: порядок и вид брака по сиду в логических слотах, не в пикселях, число брака пропорционально длине раунда. «Поделиться» отправляет /game?c=<сид>-<очки>-<поймано>-<лишние>&src=ref_<код>. Над лентой «Тебе прислали результат: поймано 13 из 14, лишних 1. Лента та же». После раунда «Ты — 310, прислали — 290» и «Откликнуться вдвоём» (/apply с отмеченным «Иду с другом»), без «побей». Неверный c молча игнорируется. Таблиц рекордов и призов нет.",
+      "acceptance": "Два браузера с одинаковым c получают одинаковую последовательность data-kind; неверный c не ломает страницу; e2e игры проходят в Chromium и WebKit.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-gm-2",
+      "title": "Картинка результата для сторис",
+      "what": "Кнопка «Сохранить картинку»: PNG 1080×1920 из canvas (результат, «Поймай брак», адрес сайта) через navigator.share({files}), иначе скачивание.",
+      "acceptance": "PNG до 400 КБ; текст на картинке совпадает с итогом.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-gm-3",
+      "title": "События игры (tasks-funnel, п. 4)",
+      "what": "trackEvent('game_start') при нажатии «Играть» и trackEvent('share', {kind:'game'}) при «Поделиться», без очков и личных данных.",
+      "acceptance": "События уходят один раз за действие; сервер их принимает (w2-platform).",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-gm-c1",
+      "title": "Контрольные вопросы «Что ты знаешь об „Очаково“»",
+      "what": "Подробно — docs/case-delta.md, задача w2-gm-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     }
+    ]
+   },
+   {
+    "id": "w2-platform",
+    "owner": "platform",
+    "wave": 2,
+    "files": [
+     "server/app.ts",
+     "server/index.ts",
+     "server/api/public.ts",
+     "server/api/index.ts",
+     "shared/siteConfig.ts",
+     "shared/applicationInput.ts",
+     "server/middleware/",
+     "server/retention/",
+     "server/integrations/",
+     "server/candidate/",
+     "server/db/accessLog.ts",
+     "server/db/migrations/020_platform.sql",
+     "package.json",
+     "pnpm-lock.yaml",
+     "vite.config.ts",
+     "index.html",
+     "public/robots.txt",
+     "public/og/",
+     "public/apple-touch-icon.png",
+     "docker-compose.yml",
+     "Dockerfile",
+     ".env.example",
+     ".github/workflows/ci.yml",
+     "scripts/server-test.ts",
+     "scripts/e2e.ts",
+     "scripts/test-all.mjs",
+     "scripts/perf.mjs",
+     "docs/deploy.md",
+     "scripts/tests/platform-*.test.ts",
+     ".env.example"
+    ],
+    "tasks": [
+     {
+      "key": "w2-pl-1",
+      "title": "Убрать GSAP из зависимостей (hero-first-frame, п. 4)",
+      "what": "После проверки, что импортов gsap и @gsap/react нет нигде, удалить их из package.json и lockfile, группу vendor-gsap в vite.config.ts переименовать в vendor-lenis или убрать.",
+      "acceptance": "В dist нет чанка vendor-gsap; transferredKB главной ниже минимум на 35 КБ; сборка и e2e зелёные.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pl-2",
+      "title": "Права кандидата на сервере (data-rights)",
+      "what": "POST /api/applications/:id/withdraw с x-status-token: обезличивание тем же wipeApplications с причиной «кандидат отозвал согласие» (вид удаления в retention_log через 020), снятие задач из очереди, токен перестаёт работать; при обезличивании стирается привязка к боту. eraseBotUser(sql, channel, id) для бота. Строки bot_users удаляются по запросу целиком и по сроку (last_seen_at), счётчики заранее в агрегат. Архив на Яндекс Диске — без ФИО и телефонов, переписывать старые файлы не нужно.",
+      "acceptance": "Отзыв — статус 404, в журнале запись с источником «кандидат»; с чужим токеном 404; после удаления по запросу строки bot_users нет, отчёт аудитории прежний; на имитации Диска ни в одном файле нет телефона.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pl-3",
+      "title": "Ссылка для привязки бота и срок ответа в /api/config",
+      "what": "POST /api/applications/:id/bot-link с x-status-token → storage.createBotLink (w2-bot), только при работающем адаптере, свой лимит частоты. /api/config добавляет responseDays, если w2-hr-admin сделает настройку.",
+      "acceptance": "Без бота — 404; чужой токен — 404; ответ содержит только диплинки.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pl-4",
+      "title": "Аналитика на сервере (analytics-metrika)",
+      "what": "При METRIKA_ID или VK_PIXEL_ID сервер подставляет <meta name='analytics'> в index.html, пересборка не нужна; без ID — ничего. CSP с раздельными флагами для Метрики и пикселя VK (script-src, img-src, connect-src). В README/deploy.md — одна строка, как включить. Инлайн-сниппетов нет.",
+      "acceptance": "Без ID CSP совпадает со снимком; с ID есть нужные домены; тест в server-test.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pl-5",
+      "title": "Замер большого списка HR (hr-scale)",
+      "what": "Сценарий в scripts/perf.mjs: 5000 синтетических заявок через page.route на /api/hr/applications, первая отрисовка, отклик поиска, пустой опрос с 304.",
+      "acceptance": "Первая отрисовка меньше 1 с, отклик поиска меньше 100 мс, пустой опрос меньше 5 КБ — числа в отчёте.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-pl-6",
+      "title": "Скорость первой загрузки (load-speed, пп. 1–2)",
+      "what": "build.manifest: true. Сервер для /apply, /vacancies, /game и /privacy вставляет modulepreload на чанк страницы и его зависимости. /.vite наружу не отдаётся. Готовая разметка шапки и первого экрана в dist/index.html для «/» (состояние «заявки нет»), на клиенте createRoot поверх неё, без hydrateRoot. Сверку preload в server-test обновить.",
+      "acceptance": "perf, медиана 5: FCP ≤ 1,6 с, LCP ≤ 2,2 с, CLS = 0; на /apply и /vacancies запрос чанка в первые 400 мс; главная с отправленной заявкой без мелькания.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-pl-7",
+      "title": "Новые события воронки (tasks-funnel, п. 4)",
+      "what": "Белый список: game_start и share с видом (game, money, invite), без очков и корзин точности. 020 меняет check типов funnel_events. Неизвестные типы — 400.",
+      "acceptance": "server-test: неизвестный тип отклонён; в событиях нет очков и личных данных.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-pl-8",
+      "title": "Эксплуатация: журнал выгрузок, состояние, docker-smoke",
+      "what": "access_log в 020 и logAccess(sql, entry): кто, роль, действие, формат, сколько строк, фильтр, номера заявок — для выгрузок, Диска и чтения служебным токеном (вызовы в hr.ts делает w2-hr-pipeline). /api/health расширен: проваленные задачи за сутки, последняя выгрузка на Диск и ошибка, последнее удаление по сроку, последнее обновление от каждого бота. Задание docker-smoke в CI. Перенос process.env в config.ts и console.* в log() — последним шагом.",
+      "acceptance": "Задача с тремя неудачами видна как failed24h ≥ 1; после выгрузки в access_log строка; CI с тремя заданиями.",
+      "priority": "P2"
+     },
+     {
+      "key": "w2-pl-c1",
+      "title": "Раздача видео: Range, кэш, CSP, Docker",
+      "what": "Подробно — docs/case-delta.md, задача w2-pl-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-pl-c2",
+      "title": ".env.example: GIGACHAT_BASE_URL, GIGACHAT_CONCURRENCY",
+      "what": "Подробно — docs/case-delta.md, задача w2-pl-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-content",
+    "owner": "content-docs",
+    "wave": 2,
+    "files": [
+     "docs/demo.md",
+     "docs/pitch/",
+     "scripts/e2e/zz-demo-video.ts",
+     "README.md",
+     "docs/strategy.md",
+     "docs/roadmap.md",
+     "docs/hr.md",
+     "docs/kvasych.md",
+     "archive/docs/",
+     "shared/content/content.ts",
+     "shared/content/production.ts",
+     "shared/content/quiz.ts",
+     "shared/content/departments.ts",
+     "shared/hhVacancy.ts",
+     "scripts/tests/content-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-dc-1",
+      "title": "Сценарий показа жюри (jury-pack, документ)",
+      "what": "docs/demo.md: (а) таблица по каждому пункту docs/case.md — требование → экран → как проверить за 30 секунд; (б) маршрут на 5:00 по минутам с адресами и кликами (главная на 390 → брак на ленте; «Собери лето» и подбор по /?src=fair-mgupp; заявка; на 1440 в /hr заявка с меткой и «Сменой N/4» → «Собеседование»; «Моя заявка» на телефоне: слот, карта, .ics; «Воронка» и срез по заданиям; чат Квасыча, три вопроса кейса; «Боты»; выгрузки XLSX и 1С; стратегия); (г) 10 неудобных вопросов с честными ответами (бот не живой, GigaChat без ключа, откуда зарплаты, вакансии — предложение команды, цена пилота — только оценка команды со ссылкой); (д) чек-лист перед показом: «Очистить базу» → «Демо-данные», /api/health, вход в HR, чистый localStorage, телефон в той же сети. Писать по фактическому состоянию после волны 2.",
+      "acceptance": "Человек, не видевший проект, проходит demo.md на стенде за 5:00 по секундомеру и находит каждый экран из таблицы; дат и обращений с родом нет.",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-dc-2",
+      "title": "Запасное видео, слайды, три цифры",
+      "what": "scripts/e2e/zz-demo-video.ts по E2E_VIDEO=1: recordVideo, до 2 минут, связка «заявка → приглашение HR → статус у кандидата», демо-имена и телефоны, файл сжат и лежит локально. HTML-слайды до 8 в docs/pitch/ (локальный файл). Три главные цифры с файл:строка.",
+      "acceptance": "Видео открывается локально и показывает связку; у каждой цифры в demo.md и на слайдах есть файл:строка.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-dc-3",
+      "title": "Документы по факту второй волны",
+      "what": "README: таблица API с новыми маршрутами (config, consent, withdraw, bot-link, booking, sources, bots, broadcast, kb), разделы продукта. hr.md: явка, обзвон, раздача, оформление, итог сезона и резерв, источники и QR, боты, рассылка, самозапись, согласие, задания в списке; строка 63 про ответственного при импорте. roadmap: сделано и осталось. strategy: «Лето в цифрах» и резерв — после данных HR, формулировка про запись через QR — по факту самозаписи, напоминание о наборе. Список «Согласовать» одинаков в трёх местах.",
+      "acceptance": "Проверка путей зелёная; описанное совпадает с продуктом при ручной сверке; дат нет.",
+      "priority": "P1"
+     },
+     {
+      "key": "w2-dc-c1",
+      "title": "README для экспертов",
+      "what": "Подробно — docs/case-delta.md, задача w2-dc-c1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-dc-c2",
+      "title": "Стратегия и дорожная карта по официальным фактам",
+      "what": "Подробно — docs/case-delta.md, задача w2-dc-c2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-brand-docs",
+    "owner": "бренд и материалы",
+    "wave": 2,
+    "files": [
+     "docs/brand/ (кроме concept.md — его можно уточнять, не переписывая)",
+     "docs/analytics.md",
+     "scripts/tests/w2-brand-docs-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-bd-1",
+      "title": "Визуальные материалы: листовки, маскот, образы, референсы",
+      "what": "Подробно — docs/case-delta.md, задача w2-bd-1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-bd-2",
+      "title": "Концепция мерча",
+      "what": "Подробно — docs/case-delta.md, задача w2-bd-2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-bd-3",
+      "title": "Видеоролик: идея, сценарий, референсы",
+      "what": "Подробно — docs/case-delta.md, задача w2-bd-3.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-bd-4",
+      "title": "Обоснование концепции и аналитика",
+      "what": "Подробно — docs/case-delta.md, задача w2-bd-4.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "w2-bd-5",
+      "title": "Протокол фокус-группы",
+      "what": "Подробно — docs/case-delta.md, задача w2-bd-5.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "w2-focus",
+    "owner": "фокус-группа",
+    "wave": 2,
+    "files": [
+     "src/pages/Focus.tsx",
+     "server/api/focus.ts",
+     "server/db/focus.ts",
+     "server/db/migrations/022_focus.sql",
+     "src/components/hr/FocusView.tsx",
+     "scripts/tests/focus-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "w2-fc-1",
+      "title": "Фокус-группа за 10 минут: /focus и вкладка в HR",
+      "what": "Подробно — docs/case-delta.md, задача w2-fc-1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "c2-fields",
+    "owner": "контракты 2",
+    "wave": "c2",
+    "files": [
+     "shared/applications.ts",
+     "shared/applicationInput.ts",
+     "shared/birthDate.ts",
+     "server/db/ (кроме funnel.ts и demo.ts)",
+     "server/db/migrations/021_case_fields.sql",
+     "server/api/public.ts (только проверка полей)",
+     "shared/hr.ts (только типы и подписи)",
+     "scripts/tests/c2-fields-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "c2-fields-1",
+      "title": "birthDate и 18+",
+      "what": "Подробно — docs/case-delta.md, задача c2-fields-1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-fields-2",
+      "title": "startReady и startMonth",
+      "what": "Подробно — docs/case-delta.md, задача c2-fields-2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-fields-3",
+      "title": "Обязательные поля кейса для сайта и ботов",
+      "what": "Подробно — docs/case-delta.md, задача c2-fields-3.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-fields-4",
+      "title": "mentorName и practiceDocs",
+      "what": "Подробно — docs/case-delta.md, задача c2-fields-4.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "c2-facts",
+    "owner": "контракты 2",
+    "wave": "c2",
+    "files": [
+     "shared/content/*.ts",
+     "shared/content/companyQuiz.ts",
+     "server/assistant/knowledge.ts",
+     "server/llm/offline.ts (только строки фактов)",
+     "scripts/tests/content-*.test.ts",
+     "scripts/tests/w1-content-*.test.ts",
+     "scripts/tests/c2-facts-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "c2-facts-1",
+      "title": "Вакансии и практика по «Описанию практики»",
+      "what": "Подробно — docs/case-delta.md, задача c2-facts-1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-facts-2",
+      "title": "Условия и быт по справочнику студента",
+      "what": "Подробно — docs/case-delta.md, задача c2-facts-2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-facts-3",
+      "title": "История и бренды без алкоголя",
+      "what": "Подробно — docs/case-delta.md, задача c2-facts-3.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-facts-4",
+      "title": "12 контрольных вопросов",
+      "what": "Подробно — docs/case-delta.md, задача c2-facts-4.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-facts-5",
+      "title": "«Правда или миф» по новым фактам",
+      "what": "Подробно — docs/case-delta.md, задача c2-facts-5.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     },
+     {
+      "key": "c2-facts-6",
+      "title": "Фото этапов «Пути кваса»",
+      "what": "Подробно — docs/case-delta.md, задача c2-facts-6.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "c2-brand-media",
+    "owner": "контракты 2",
+    "wave": "c2",
+    "files": [
+     "public/video/",
+     "public/brand/",
+     "src/components/Logo.tsx",
+     "src/components/Layout.tsx (только логотип)",
+     "public/favicon.*",
+     "index.html (иконки)",
+     "src/index.css (токены цветов)",
+     "scripts/media.mjs",
+     "scripts/photos.mjs",
+     "photos-src/",
+     "public/photos/",
+     "scripts/tests/c2-brand-*.test.ts"
+    ],
+    "tasks": [
+     {
+      "key": "c2-bm-1",
+      "title": "Видео: проверка на алкоголь, кодирование, постеры, манифест",
+      "what": "Подробно — docs/case-delta.md, задача c2-bm-1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-bm-2",
+      "title": "Логотип без квадрата в SVG, фавиконки",
+      "what": "Подробно — docs/case-delta.md, задача c2-bm-2.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     },
+     {
+      "key": "c2-bm-3",
+      "title": "Пиктограммы и паттерн в SVG",
+      "what": "Подробно — docs/case-delta.md, задача c2-bm-3.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     },
+     {
+      "key": "c2-bm-4",
+      "title": "Токены цветов брендбука",
+      "what": "Подробно — docs/case-delta.md, задача c2-bm-4.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     },
+     {
+      "key": "c2-bm-5",
+      "title": "Фото 1996 без кружки, .DS_Store и лишние фото",
+      "what": "Подробно — docs/case-delta.md, задача c2-bm-5.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P1"
+     }
+    ]
+   },
+   {
+    "id": "c2-brand-concept",
+    "owner": "контракты 2",
+    "wave": "c2",
+    "files": [
+     "docs/brand/concept.md"
+    ],
+    "tasks": [
+     {
+      "key": "c2-bc-1",
+      "title": "Концепция HR-бренда: идея, цель, слоган, образы, легенда",
+      "what": "Подробно — docs/case-delta.md, задача c2-bc-1.",
+      "acceptance": "см. docs/case-delta.md, раздел пакета",
+      "priority": "P0"
+     }
+    ]
+   }
+  ],
+  "verification": [
+   "Сборка и тесты: pnpm typecheck, pnpm test, E2E=1 pnpm test и pnpm test:e2e:webkit зелёные; новые scripts/tests/*.test.ts и scripts/e2e/*.ts реально запускаются (временно сломанный файл роняет прогон).",
+   "Владение файлами: по отчётам пакетов ни один файл не правили два пакета одной волны; миграции 012–020 под своими номерами применяются с нуля и на копии демо-базы.",
+   "Офлайн-Квасыч на стенде через чат и /api/dialog: десять вопросов кейса (штат, практика с дневником, первая смена и т. д.) с ответом по теме в первом предложении; «привет, сколько платят?», «зп белая?», «а на складе?» после зарплаты; набор проверки ≥ 90 %, отложенная часть ≥ 85 %.",
+   "Бот: «а сколько платят?» посреди заявки не становится именем; первым спрашивается 18+; после a:ok adult=true и согласие с версией; заявка из веб-чата видна в «Моей заявке» и в шапке; «Путь кваса» и «Позвать друга» в итогах.",
+   "Честность: grep по src, shared, server, docs не находит «корпоративн… автобус», «за счёт компании», «дают общежитие», «первые в СССР», «Прототип», «квест», «пропуск в сезон», «рассмотрит заявку первой», «бонус» без суммы от HR; у каждой ориентировочной суммы пометка; «Срочный набор» не стоит у ориентира; дат нет ни в коде, ни в тестах, ни в документах.",
+   "Глазами на 390 и 1440 px: первый экран со словами «практика», «18», «март — сентябрь», сумма видна с первым кадром, контраст заголовка на 1280×720; «КВАС» на бутылке и favicon без круга; «Смена» янтарём; «Условия» таблицей с «2/2 или 5/2»; 8+ вопросов; «Собери лето» за смену и в час; новая колода мифов при повторе; строка о работе на /game; подвал «Решение команды…»; /consent.",
+   "Безопасность: /bots/telegram и /bots/max без секрета — 403, подмена chat.id не доходит до движка; 30 заявок с одного IP проходят, повтор телефона не отдаёт номер и токен; подставленный X-Forwarded-For не меняет ключ; без согласия — 422; withdraw и bot-link с чужим токеном — 404.",
+   "HR после «Очистить базу» и «Демо-данные»: нет probe, test, jury; просрочек 1–2; «Задания и наём» сходится с плиткой «Заявка»; плитка «Итог не отмечен» равна прошедшим слотам без отметки; обзвон клавишами Д/Н в обеих раскладках; фокус не уходит из карточки; новые вкладки (Источники, Боты, Рассылка) и срезы не пустые; выгрузки содержат новые поля; роль hr не правит расходы; QR с распечатанного плаката читается камерой телефона.",
+   "Скорость и доступность: pnpm perf — сумма видна не позже 100 мс после FCP, LCP не хуже прежнего, в dist нет vendor-gsap, в покое на #faq нет вечных циклов rAF; проверки доступности e2e без нарушений на сайте и в HR; при reduced motion видны все факты ленты.",
+   "Превью ссылок: curl для /, /game, /vacancies, /apply отдаёт свои og-теги с абсолютным og:image; картинки 1200×630 до 300 КБ; /robots.txt запрещает /hr и /api.",
+   "Развёртывание: docker compose config с APP_DATABASE_URL не требует db, порт только на 127.0.0.1; /api/health/ready — 503 без движка или с упавшим адаптером; в CI есть задание e2e.",
+   "Показ: стенд на 8790 пересобран после каждой волны, демо-база перезаполнена через интерфейс, docs/demo.md пройден человеком со стороны за 5:00 по секундомеру."
+  ]
+ },
+ "kept": [
+  {
+   "key": "kvasych-case-questions",
+   "title": "Квасыч и блок «Вопросы» отвечают на вопросы кейса: практика от вуза, работа после сезона, первая смена",
+   "priority": "P0",
+   "area": "assistant"
+  },
+  {
+   "key": "tasks-funnel",
+   "title": "Срез «Задания и наём» в «Воронке»: проверка гипотезы кейса о мотивированных кандидатах",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "webhook-secret",
+   "title": "Вебхуки Telegram и MAX принимают апдейты только с секретом и только от владельца чата",
+   "priority": "P0",
+   "area": "bot"
+  },
+  {
+   "key": "fair-intake",
+   "title": "Приём на ярмарке: лимиты по человеку, а не по IP, и режим общего планшета без чужих данных",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "apply-step-questions",
+   "title": "Вопрос внутри заявки не становится именем, заявку можно открыть словами",
+   "priority": "P0",
+   "area": "bot"
+  },
+  {
+   "key": "offline-live-speech",
+   "title": "Офлайн-Квасыч понимает живые вопросы: сленг, опечатки, приветствие, контекст, составные вопросы",
+   "priority": "P0",
+   "area": "assistant"
+  },
+  {
+   "key": "facts-by-source",
+   "title": "Факты о компании по источнику: маршруты вместо «корпоративного автобуса», ДМС и общежитие без усиления, история без ошибок",
+   "priority": "P0",
+   "area": "content"
+  },
+  {
+   "key": "friend-ref",
+   "title": "«Позвать друга» на сайте: личный код, связанная пара в HR, без контакта друга",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "sources-registry",
+   "title": "Источники в HR: метки, ссылки, QR, плакат для стенда и стоимость выхода на смену",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "bots-visible",
+   "title": "Бот виден без живых ключей: кнопки на сайте из серверной настройки с меткой и предпросмотр Telegram и MAX в HR",
+   "priority": "P1",
+   "area": "bot"
+  },
+  {
+   "key": "jury-pack",
+   "title": "Пакет для жюри: сценарий на 5 минут, карта требований, запасное видео и свежая демо-база",
+   "priority": "P0",
+   "area": "docs"
+  },
+  {
+   "key": "interviews-attendance",
+   "title": "Собеседования: явка в один клик, очередь «итог не отмечен», фамилия до проходной",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "onboarding",
+   "title": "От «К оформлению» до первой смены: дата выхода, чек-лист, напоминание, список для проходной, «Как подготовиться»",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "brand-bottle",
+   "title": "Фирменная бутылка с квасом вместо абстрактного знака: лента, игра, «Смена», «Собери лето» и честные кадры «Пути кваса»",
+   "priority": "P0",
+   "area": "game"
+  },
+  {
+   "key": "link-preview",
+   "title": "Превью ссылок в Telegram и VK, честное описание и подвал без «прототипа»",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "docs-strategy",
+   "title": "README, стратегия и брифы без противоречий продукту; в стратегии — смета пилота, цели по каналам, маркировка рекламы",
+   "priority": "P1",
+   "area": "docs"
+  },
+  {
+   "key": "myths-work",
+   "title": "«Правда или миф» снимает страхи о работе, повтор даёт новую колоду",
+   "priority": "P1",
+   "area": "content"
+  },
+  {
+   "key": "consent-152",
+   "title": "Согласие по 152-ФЗ: отдельно от 18+, проверяется и хранится сервером, одинаково на сайте и в боте",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "season-outcome",
+   "title": "Итог сезона и кадровый резерв: удержание до сентября, приглашение в штат, повторный обзвон",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "kb-answers",
+   "title": "HR отвечает на «Вопросы к Квасычу», и ответ попадает в базу помощника",
+   "priority": "P1",
+   "area": "assistant"
+  },
+  {
+   "key": "practice-flags",
+   "title": "Отметки «Практика от вуза» и «Хочу остаться после сезона» в заявке, свод по вузам в HR",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "hero-case-words",
+   "title": "Первый экран: слова кейса (практика, студенты, 18+) и читаемый заголовок на ноутбуках",
+   "priority": "P0",
+   "area": "home"
+  },
+  {
+   "key": "game-honest-challenge",
+   "title": "«Поймай брак»: честный итог при нажатиях подряд, масштаб настоящей линии, сохранность рекорда и вызов другу на той же ленте",
+   "priority": "P1",
+   "area": "game"
+  },
+  {
+   "key": "honest-schedule",
+   "title": "Честный график: ночные смены рядом с 107 000 ₽, в «Условиях» — «2/2 или 5/2»",
+   "priority": "P1",
+   "area": "home"
+  },
+  {
+   "key": "vacancy-data",
+   "title": "Данные вакансий: суммы по источнику, «Срочный набор» только там, где он настоящий, анкета экскурсовода без портфолио",
+   "priority": "P1",
+   "area": "content"
+  },
+  {
+   "key": "money-shift",
+   "title": "«Собери лето»: деньги за смену и в час, кнопка «После сессии» и «Поделиться расчётом»",
+   "priority": "P1",
+   "area": "home"
+  },
+  {
+   "key": "my-application-anywhere",
+   "title": "«Моя заявка» видит заявку из чата на сайте и открывается на другом устройстве",
+   "priority": "P1",
+   "area": "chat"
+  },
+  {
+   "key": "site-to-messenger",
+   "title": "Заявка с сайта получает ответы HR в Telegram или MAX",
+   "priority": "P1",
+   "area": "bot"
+  },
+  {
+   "key": "self-booking",
+   "title": "Самозапись на собеседование и «День найма»: HR открывает часы, кандидат выбирает",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "recruit-reminder",
+   "title": "«Напомнить о наборе»: подписка в боте и на сайте, рассылка от HR только подписавшимся",
+   "priority": "P1",
+   "area": "bot"
+  },
+  {
+   "key": "weekly-report",
+   "title": "Отчёт руководству за неделю одной кнопкой и по расписанию на Яндекс Диск",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "hr-scale",
+   "title": "Список заявок выдерживает 3000+ заявок сезона",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "dial-mode",
+   "title": "Режим обзвона: следующая заявка открывается сразу после итога звонка",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "content-editor",
+   "title": "Вакансии и срок ответа HR меняются без программиста",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "hero-first-frame",
+   "title": "Сумма и «Откликнуться» видны с первым кадром, GSAP убран, в покое страница не нагружает процессор",
+   "priority": "P1",
+   "area": "home"
+  },
+  {
+   "key": "rub-glyph",
+   "title": "Знак ₽ и стрелки рисуются фирменным шрифтом, а не системными",
+   "priority": "P1",
+   "area": "home"
+  },
+  {
+   "key": "data-rights",
+   "title": "Права кандидата и защита данных в HR: отзыв согласия самому, удаление до конца, журнал выгрузок, пароли сотрудников",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "analytics-metrika",
+   "title": "Яндекс Метрика и пиксель VK Рекламы с целями воронки, раздел «Аналитика» в политике",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "gigachat-ready",
+   "title": "GigaChat готов к живому ключу: общий срок ответа, «печатает…» в мессенджерах, guard против выдуманных фактов",
+   "priority": "P1",
+   "area": "assistant"
+  },
+  {
+   "key": "a11y-hr-motion",
+   "title": "Доступность: фокус в окнах HR, ноль нарушений axe, остановка движущихся лент",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "hh-import-team",
+   "title": "Импорт с hh.ru и работа команды: свои должности, раздача заявок по рекрутерам, защита от двойного звонка",
+   "priority": "P1",
+   "area": "hr"
+  },
+  {
+   "key": "ops-readiness",
+   "title": "Готовность к развёртыванию: compose для сервера, проверка настроек при старте, блок «Состояние», CI с e2e и образом",
+   "priority": "P1",
+   "area": "platform"
+  },
+  {
+   "key": "load-speed",
+   "title": "Скорость первой загрузки: готовый HTML первого экрана, ранняя загрузка чанков страниц, срезанная латиница шрифтов",
+   "priority": "P2",
+   "area": "platform"
+  },
+  {
+   "key": "home-craft",
+   "title": "Ремесло главной: шов-лента между секциями, единая шкала кеглей, «Условия» таблицей, разговор в «Спросить Квасыча», появление заголовков",
+   "priority": "P1",
+   "area": "home"
+  },
+  {
+   "key": "bot-naming",
+   "title": "Бот называет вещи как сайт: «Путь кваса», те же названия брака, «Позвать друга» после заданий",
+   "priority": "P1",
+   "area": "bot"
+  }
+ ],
+ "conflicts": [
+  "Итог сезона: marketing предлагал новые статусы «Доработал сезон» и «Ушёл раньше», а case-fit, hr и benchmark — отдельное поле. Решение: отдельное поле «Итог сезона» у заявок «На смене». Логика статусов, уведомления и «Моя заявка» не меняются. Вид «Резерв» объединяет итог сезона и отказы «нет мест» и «не совпал график».",
+  "«Иду с другом»: marketing предлагал разбирать телефон друга из поля заявки и по нему склеивать пары, security-legal — убрать контакт друга, потому что это данные без согласия. Решение: поле контакта убираем, пару связывает личный код ссылки. Друг подаёт заявку сам и сам даёт согласие. Фильтр «Идут вдвоём» и «Выделить пару» из предложения marketing работают по коду. Пункт roadmap «отметка и контакт друга», FAQ «friend» и политику нужно переписать.",
+  "QR-коды: case-fit допускал пакет qrcode, marketing, art и jury-devil предлагали свой кодировщик. Решение: свой кодировщик в shared/qr.ts с тестами. quality-brief запрещает новые пакеты без крайней необходимости, а прецедент уже есть — свой генератор xlsx.",
+  "«Правда или миф»: genz предлагал 3 карточки про работу плюс Pepsi и 70 000 бутылок, benchmark — фиксированные 2 исторические и 3 про работу, gamedesign — пул из 11 карточек и случайную колоду. Решение: пул из 5 исторических и 6 рабочих карточек, в колоде 3 про работу и 2 про историю, порядок случайный, повтор даёт новую колоду. Повтор обретает смысл, а задание не удлиняется.",
+  "Вызов другу в игре: genz предлагал параметр vs=<поймано>-<всего>, gamedesign — сид ленты c=<сид>-<очки>-…. Решение: сид, потому что одинаковая лента и фиксированные 14 бракованных бутылок дают честное сравнение. Картинку для сторис берём у genz. Таблиц рекордов нет (roadmap.md:10).",
+  "Движение: art хотел больше анимации (useReveal, шов от прокрутки, налив), a11y-perf — меньше (убрать GSAP, ноль кадров в покое, кнопки остановки лент). Решение: GSAP убираем. Любое движение запускается один раз по IntersectionObserver или от прокрутки, использует только transform и opacity и никогда не прячет сумму и кнопки. В покое — ноль кадров, при reduced motion движение выключено.",
+  "Режим стенда: marketing предлагал короткую форму на общем планшете без сохранения данных, benchmark — без формы, только задания и QR на свой телефон. Решение: короткая форма без записи в браузер, с автосбросом и QR «Продолжить на своём телефоне». Заявка на месте не теряется, а следующий человек не видит чужих данных. Режим объединён с лимитами для ярмарки в один пункт.",
+  "Межсезонье: case-fit предлагал статус «Предзапись» и переключатель «Набор: идёт / откроется скоро», marketing и benchmark — подписку «Напомнить о наборе». Решение: подписка в боте и кнопка на сайте без нового статуса. Так у HR меньше состояний, и обычная заявка доступна круглый год. Переключатель режима набора отложен.",
+  "Самозапись и текст стратегии: benchmark и marketing предлагали строить самозапись, marketing в правке документов — до этого переписать стратегию. Решение: строим самозапись (пункт self-booking). Пока её нет, strategy.md пишет «заявка за минуту, время назначает HR».",
+  "Лимиты запросов: architecture предлагал ключ по id чата и телефону с потолком 400 в минуту на IP, security-legal — поднять лимиты по IP, ловушку и минимум 3 секунды на заполнение. Решение: ключ — человек (id чата, телефон или ник), IP — только высокий потолок. Ловушку и минимальное время берём у security-legal. Подозрительная заявка не теряется, а сохраняется с пометкой.",
+  "Срок ответа GigaChat: architecture предлагал 10 с, conversation — 12 с. Решение: настройка GIGACHAT_DEADLINE_MS, по умолчанию 12 с, потому что в мессенджерах в это время показывается «печатает…». В чате на сайте — таймаут 20 с и кнопка «Повторить».",
+  "ДМС: conversation предлагал, чтобы guard пропускал «ДМС за счёт компании» как верный факт, editor возразил, что источник (ochakovo.ru/rabota: «Полисы ДМС») не говорит, кто платит. Решение: формулировка по источнику, guard разрешает только фразы из shared после правки фактов.",
+  "«Корпоративный автобус»: editor пишет, что факт не подтверждается, README ссылается на вакансии hh.ru. Моя проверка: на ochakovo.ru/kontakty только городские маршруты 610, 622, 807, 259 и 275 и электричка, служебного транспорта нет; API hh.ru вернул 403. Решение: на сайте — маршруты с сайта компании. Слово «корпоративный» — только с найденным источником или подтверждением HR; пункт добавлен в «Согласовать».",
+  "Бонус за 4/4 и сортировка по «Смене»: README.md:125, strategy.md:133 и 135 противоречат roadmap.md:7-9. Решение по roadmap: бонуса нет, сортировки по очкам нет. Срез по заданиям и фильтр — только для анализа.",
+  "Определение «вышел на смену»: в strategy.md:16 — «отработал первую неделю», в shared/applications.ts:17 — «первая смена отработана». Решение: одно определение по статусу продукта, strategy правится. Удержание считается в поле «Итог сезона».",
+  "Подвал: case-fit предлагал «Кейс … · фото с ochakovo.ru», jury-devil добавлял «Не официальный сайт компании». Решение: вариант jury-devil — он честный и заранее снимает вопрос о выдаче себя за компанию.",
+  "Фавикон с отвергнутым символом «квадрат + кольцо» предлагали поменять и art в правке превью, и art в правке бутылки. Решение: символ меняется в пункте про бутылку, а пункт про превью берёт оттуда apple-touch-icon. Фото в «Собери лето» (art #7) и честные кадры «Пути кваса» (art #6) объединены с бутылкой, потому что используют её рисунок.",
+  "Отброшено: страница /vuzam для центров карьеры (case-fit). Она стоит M, а пользы мало: обращения вузов HR и так получает по почте, атрибуцию по вузам закрывают метки и QR. Ещё отброшено «С первого экрана сразу в раунд» (gamedesign) — ценность 2, ссылка уже ведёт к игре. Предложения про таблицы рекордов, турниры и «Дегустатора кваса» без настоящей стажировки не принимались: roadmap и стратегия их уже отвергли.",
+  "Объединения ради лимита в 45 пунктов. Контекст реплик, составные вопросы и набор для проверки (conversation) вошли в пункт про живую речь офлайн-Квасыча. Явка и фамилия — в один пункт про собеседования. «Как подготовиться» и «Путь до первой смены» — в пункт про оформление. Срок ответа HR — в редактор контента. Политика — в пункт о согласии. Журнал выгрузок, пароли сотрудников, отзыв согласия и удаление до конца — в один пункт про права кандидата и защиту данных. Свои должности и раздача заявок — в один пункт про импорт с hh.ru."
+ ],
+ "excludedTasks": [
+  "w2-dc-1",
+  "w2-dc-2"
+ ]
+}

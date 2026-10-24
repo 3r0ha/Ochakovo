@@ -1,0 +1,9 @@
+{
+  "minMonthlyPay": 56000,
+  "maxEntryPay": 70000,
+  "netMinMonthlyPay": 48700,
+  "vacancies": 11,
+  "gameSeconds": 20,
+  "schedule": "Смены по 12 часов",
+  "address": "Москва, ул. Рябиновая, 44"
+}

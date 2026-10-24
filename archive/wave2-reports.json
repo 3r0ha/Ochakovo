@@ -1,0 +1,1760 @@
+{
+ "w1-pages-chat": {
+  "id": "w1-pages-chat",
+  "done": [
+   "w1-pc-1",
+   "w1-pc-2",
+   "w1-pc-3",
+   "w1-pc-4",
+   "w1-pc-5",
+   "w1-pc-6",
+   "w1-pc-7",
+   "w1-pc-8"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "src/pages/Apply.tsx",
+   "src/pages/Privacy.tsx",
+   "src/components/Layout.tsx",
+   "src/components/chat/ChatPanel.tsx",
+   "src/components/candidate/legal.ts",
+   "src/components/candidate/status.ts",
+   "scripts/e2e/pages-chat.ts (renamed from scripts/e2e/w1-pages-chat.ts, as named in plan.json)",
+   "scripts/tests/w1-pages-chat-apply.test.ts",
+   "scripts/tests/w1-pages-chat-pages.test.ts",
+   "deleted: scripts/.tmp-w1-pages-chat-{e2e,serve,shots}.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w1-hr-insights",
+    "file": "scripts/e2e/w1-hr-insights.ts",
+    "what": "pnpm typecheck (tsconfig.scripts.json) fails at line 52: TS6133, `page` is declared but never used. This is the only typecheck error in the project."
+   },
+   {
+    "owner": "w1-platform-ops",
+    "file": "server/app.ts",
+    "what": "Add '/consent' to sitemapPaths next to '/privacy'. The page is public and opens without login."
+   }
+  ],
+  "checks": "pnpm test w1-pages-chat: 3 files, 29 tests, all green. pnpm test w1-game-result w1-platform-core-intake (other packages' tests that read my files): green. tsc -p tsconfig.json: green. tsc -p tsconfig.scripts.json: the only error is in someone else's scripts/e2e/w1-hr-insights.ts. E2E scripts/e2e/pages-chat.ts ran on its own server (API 8810, database ochakovo_w1_pages_chat, build in scratchpad): 6 scenarios / 19 steps, all green (Chromium). The built-in e2e scenarios from scripts/e2e.ts were not run: the runner rebuilds the shared dist folder. Screenshots at 390 and 1440 (form, errors, «Рассказать подробнее», 429, success, invitation, /consent, /privacy, footer, vacancies, chat on the phone step and on timeout) were checked by eye. They are in /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w1-pages-chat/. Server stopped, ports 8810 and 5310 free, database dropped, temp scripts deleted.",
+  "notes": "The previous executor had done all 8 tasks and their unit tests passed. This run finished the checks and fixed gaps. Changes:\n1. Practice and «Хочу остаться» moved into «Рассказать подробнее» next to «Учёба», as plan.json says.\n2. Policy link moved out of the consent checkbox onto its own line.\n3. Chat: placeholder «Имя» on the name step; «Телефон или @ник» on desktop. On touch screens a «Ник вместо номера» button: the bot accepts a nick on the phone step, but the inputmode=tel keypad has no letters.\n4. Invite line: «Тебя позвали… в «Очаково»», shorter on phones. It now says «Иду с другом» is already checked, because it is pre-checked.\n5. Privacy now lists «рекомендация» as a data source.\n6. Bans on «корпоративный автобус» removed from my tests and e2e: case-delta restores the bus. «Прототип» stays banned.\ngrep «корпоративн» in src/components still finds hr/SettingsView (Диск, выходные). That file is not mine, and it is not about the bus."
+ },
+ "w1-hr-insights": {
+  "id": "w1-hr-insights",
+  "done": [
+   "w1-hi-1",
+   "w1-hi-2",
+   "w1-hi-3",
+   "w1-hi-4",
+   "w1-hi-5"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "server/db/funnel.ts",
+   "server/db/hr.ts",
+   "server/db/demo.ts",
+   "shared/demo.ts",
+   "shared/hr.ts",
+   "server/export/xlsx.ts",
+   "server/export/xlsxWriter.ts",
+   "server/integrations/sync.ts",
+   "src/components/hr/FunnelView.tsx",
+   "src/lib/hr/insights.ts",
+   "scripts/tests/w1-hr-insights-demo.test.ts",
+   "scripts/tests/w1-hr-insights-funnel.test.ts",
+   "scripts/tests/w1-hr-insights-sources.test.ts",
+   "scripts/tests/w1-hr-insights-xlsx.test.ts",
+   "scripts/e2e/w1-hr-insights.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-assistant (topics.ts от w1-assistant)",
+    "file": "server/assistant/topics.ts",
+    "what": "Регулярка темы «кого берут» `девушк` не ловит «девушек» (вопрос «девушек берут на склад?» уходит в тему «другое»). Нужно `девуш(к|ек)` или похожее и тест на эту форму."
+   }
+  ],
+  "checks": "Всё зелёное. Наборы пакета `node scripts/test-all.mjs w1-hr-insights` (demo, funnel, sources, xlsx; demo — три прогона подряд из-за случайных данных) и зависимые tests/w1-hr-desk-*, ops-meta, ops-ready. `scripts/hr-test.ts` на своей базе: 316 из 316. `pnpm typecheck`: все три конфига. Новый e2e-плагин `scripts/e2e/w1-hr-insights.ts` гонял временным раннером на своём сервере 8812 со своей сборкой в Chromium и WebKit. Общий `pnpm test:e2e` не запускал: он пересобирает общий dist и тяжёлый. Посмотрел глазами на 390 и 1440: «Воронка» (источники, приглашения, недели, «Задания и наём», прокрутка таблиц вбок) и «Вопросы к Квасычу». Горизонтальной прокрутки страницы нет, ошибок консоли нет. Скриншоты — в /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w1-hr-insights/. Убрал за собой: временные скрипты, базы ochakovo_w1_hr_insights и ochakovo_t_w1hri_smoke_*, свой сервер; порты 8812 и 5312 свободны.",
+  "notes": "Прошлый исполнитель сделал все пять задач, тесты были зелёные. Что доделал я.\n1) Демо-вопросы к Квасычу заменил: прежние (стоимость общежития, медкнижка, дневник практики, сверхурочные, скидка, отгул на сессию) отвечены в справочнике студента и описании практики, то есть противоречили бы case-delta. Новые темы: парковка, прописка, ДМС, внешний вид, правила на смене, отзывы, практика удалённо, кого берут — по два вопроса на тему. Время вопросов — с 8 до 23 по Москве. Тест это проверяет.\n2) В `buildPassList` телефон и адрес берутся из `contacts`: поправка c2-facts дойдёт до списка на проходную сама.\n3) На 390 в полосе слева от закреплённой колонки просвечивали уехавшие ячейки — закрыл. Пометку «метка без названия» перенёс под метку.\n4) Добавил e2e-плагин. Демо-данные он сеет прямо в базу прогона и удаляет только своё."
+ },
+ "w1-hr-desk": {
+  "id": "w1-hr-desk",
+  "done": [
+   "w1-hd-1",
+   "w1-hd-2",
+   "w1-hd-3",
+   "w1-hd-4",
+   "w1-hd-5",
+   "w1-hd-6",
+   "w1-hd-7"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "shared/hrFilter.ts",
+   "src/pages/Hr.tsx",
+   "src/pages/HrPass.tsx",
+   "src/components/hr/CandidateDrawer.tsx",
+   "src/components/hr/overlay.tsx",
+   "src/components/hr/BulkBar.tsx",
+   "src/components/hr/toasts.tsx",
+   "src/components/hr/FilterBar.tsx",
+   "src/components/hr/ImportDialog.tsx",
+   "server/api/hr.ts",
+   "server/db/workflow.ts",
+   "scripts/e2e/hr-desk.ts",
+   "scripts/tests/w1-hr-desk-fields.test.ts",
+   "scripts/tests/w1-hr-desk-api.test.ts"
+  ],
+  "needs": [
+   {
+    "owner": "c2-facts / w2-hr-pipeline",
+    "file": "shared/content/content.ts, server/db/migrations (шаблоны 004/005/007/008/010), server/export/xlsx.ts",
+    "what": "Телефон отдела подбора +7 495 785-39-30 доб. 1155, 2107 расходится со справочником студента (8 800 100-77-77 доб. 1155, 3105, 2107; 8 903 591-00-13). /hr/pass теперь берёт адрес и телефон из contacts — поменяется сам; тексты шаблонов и лист пропуска в xlsx нужно поправить их владельцам."
+   }
+  ],
+  "checks": "pnpm typecheck — зелёный. pnpm test w1-hr-desk: 14 тестов зелёные. Также зелёные test:hr (316), test:server (49), w1-hr-insights-*, core-*, ops-*, w1-platform-core-*. E2E-сценарии scripts/e2e/hr-desk.ts (6 сценариев) — все зелёные. Их запускал свой временный прогонщик: своя сборка в scratchpad, база ochakovo_w1_hr_desk, порт 8811, общий dist/ не трогал. Разовый замер на 5000 синтетических заявок через page.route: 100 строк на экране через 0,52 с на 1440 и 0,48 с на 390. Поиск после паузы 150 мс перерисовывает список за 12–32 мс. Снимки 390 и 1440 всего видимого — в scratchpad/build/w1-hr-desk/shots/ (38 файлов, в том числе perf-5000-*). Скрипт снимков проверял, что ни страница, ни окна не шире экрана: ошибок нет.",
+  "notes": "Прошлый исполнитель сделал почти всё. Что нашёл и исправил: 1) В обзвоне итог звонка затирался переходом к следующей (callRef обновлялся только при перерисовке) — счёт «недозвон N» не рос. 2) При notify 'call' карточка уходила, стрелка → блокировалась — разделил «дальше» и автопереход. 3) Добавил пропуск заявок, изменённых другим (отпечаток статуса при старте); «Отменить» убирает итог из счёта. 4) Фильтр tasks — none|some|all по контракту, как «Задания и наём»; старые tasks=0/1-3/4 читаются. 5) На 390 сообщения закрывали телефон в полосе обзвона — подняты над ней и над панелью массовых действий. 6) Окно импорта на 390 уезжало вбок. 7) Фокус после закрытия при пропавшей строке — на заголовок; tel: без телефона убран. 8) GET /api/hr/applications тоже с ETag/304 и без обезличенных. Временные скрипты удалены, база удалена, порты свободны."
+ },
+ "integrate-1": {
+  "id": "integrate-1",
+  "done": [
+   "needs w1-pages-chat→w1-hr-insights: TS6133 в scripts/e2e/w1-hr-insights.ts уже снят, typecheck зелёный",
+   "needs w1-pages-chat→w1-platform-ops: /consent в sitemapPaths + проверка в ops-meta",
+   "needs w1-hr-insights→w2-assistant: тема «кого берут» ловит «девушек», «девушку», «парни», «парней» + тест",
+   "needs w1-hr-desk→c2-facts: телефон отдела подбора по справочнику (8 800 100-77-77 доб. 1155, 3105, 2107; второй номер contacts.mobile); /hr/pass, xlsx, сайт и бот берут его из contacts",
+   "wave1 needs: снят todo в core-input (memoryStorage проверяет согласие)",
+   "wave1 needs: .env.example без VITE_*_BOT, комментарии к секретам и именам ботов; deploy.md — TRUST_PROXY, 409/429 по телефону, вебхуки 403/429, личный чат",
+   "wave1 needs: README (Docker с паролем и профилем, CI e2e, боты, защита), roadmap, llm.md (speech.ts, topics.ts, проверка)",
+   "wave1 needs: dialog-test firstEstimate; приветствие бота «бот-помощник»; подзаголовок KbGapsView; HOME_TITLE в Layout; TaskLabel onRed в QuizSection",
+   "красное: doc-тесты (case-delta.md — план, пути в case.md), e2e «3. Заявка» (неверный filter has), e2e 768 px (уезжающая вкладка чата не была inert), hr-desk «Неявка» в графике (неделя по умолчанию), hr-desk в WebKit (CDP)",
+   "даты: hr-test.ts без 47 дат (всё от текущего момента), комментарии и docs/hr.md без дат",
+   "алкоголь: фото archive-1996 кадрировано без подстаканника с кружкой пива, кэш картинок бота — с шириной в имени",
+   "миграции с нуля (дважды) и на копии ochakovo_demo: 012 применилась, у 43 строк источник согласия по каналу",
+   "уборка: scripts/.tmp-* нет, ochakovo_contracts и свои базы удалены, порт 8890 свободен"
+  ],
+  "partial": [
+   "needs w1-hr-desk: телефон в текстах уведомлений (notify_templates из миграций 004/005/007/008/010) остался +7 495 785-39-30 доб. 1155, 2107: правка возможна только новой миграцией, номер 013 закреплён за w2-hr-pipeline; HR-админ может поправить тексты в панели"
+  ],
+  "notDone": [
+   {
+    "key": "запреты «корпоративный автобус» и «за счёт компании» в тестах",
+    "why": "По case-delta их переписывает c2-facts вместе с фактом об автобусе в shared; сейчас тесты зелёные и не мешают"
+   },
+   {
+    "key": "базы ochakovo_home, ochakovo_hr, ochakovo_pages, ochakovo_platform",
+    "why": "Старые базы прошлых раундов, не входят в список на удаление (w*, c2_*, t_*, contracts); оставлены"
+   }
+  ],
+  "filesChanged": [
+   "server/app.ts",
+   "scripts/tests/ops-meta.test.ts",
+   "server/assistant/topics.ts",
+   "scripts/tests/w1-assistant-offline.test.ts",
+   "shared/content/content.ts",
+   "scripts/dialog-test.ts",
+   "scripts/hr-test.ts",
+   "scripts/tests/core-input.test.ts",
+   ".env.example",
+   "docs/deploy.md",
+   "README.md",
+   "docs/roadmap.md",
+   "docs/llm.md",
+   "docs/hr.md",
+   "docs/case.md",
+   "server/dialog/flows/menu.ts",
+   "server/dialog/images.ts",
+   "src/components/hr/KbGapsView.tsx",
+   "src/components/hr/ScheduleView.tsx",
+   "src/components/hr/PlanView.tsx",
+   "src/components/Layout.tsx",
+   "src/components/chat/Chat.tsx",
+   "src/components/candidate/status.ts",
+   "src/home/QuizSection.tsx",
+   "shared/hrPlan.ts",
+   "shared/hrImport.ts",
+   "server/export/xlsxWriter.ts",
+   "server/db/funnel.ts",
+   "scripts/tests/content-docs-paths.test.ts",
+   "scripts/tests/w1-content-docs.test.ts",
+   "scripts/e2e.ts",
+   "scripts/e2e/hr-desk.ts",
+   "photos-src/archive-1996.png",
+   "public/photos/archive-1996-370.avif (новый)",
+   "public/photos/archive-1996-370.webp (новый)",
+   "public/photos/archive-1996-480.avif и .webp (удалены)",
+   "shared/photos.json",
+   "dist/ (пересобран)",
+   "server/.generated/photos/*.jpg (кэш очищен)"
+  ],
+  "needs": [
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "server/db/migrations/013_hr_pipeline.sql",
+    "what": "Обновить notify_templates (interview, reminder, sms_interview, sms_reminder): вместо +7 495 785-39-30 доб. 1155, 2107 — номер отдела подбора из contacts (8 800 100-77-77 доб. 1155, 3105, 2107)"
+   },
+   {
+    "owner": "c2-facts",
+    "file": "scripts/tests/w1-content-facts.test.ts, w1-content-docs.test.ts, w1-home-sections-facts.test.ts, w1-home-sections-botblock.test.ts, w1-assistant-offline.test.ts, scripts/assistant-test.ts, scripts/e2e/home-sections.ts",
+    "what": "Переписать запреты «корпоративный автобус» и «за счёт компании» по case-delta (оставить запрет «ДМС за счёт компании»), вместе с фактом об автобусе в contacts. Новое поле contacts.mobile (8 903 591-00-13) показать в контактах; perks про ДМС и общежитие привести к case-delta"
+   },
+   {
+    "owner": "w2-platform",
+    "file": "package.json, vite.config.ts",
+    "what": "В dist остаётся чанк vendor-gsap (в нём lenis), gsap и @gsap/react всё ещё в зависимостях"
+   },
+   {
+    "owner": "c2-brand-media",
+    "file": "photos-src/, public/photos/",
+    "what": "Фото 1996 года уже кадрировано (370×370, без подстаканника с кружкой). Остаются public/.DS_Store, неиспользуемые фото и favicon.ico"
+   },
+   {
+    "owner": "w2-content",
+    "file": "README.md",
+    "what": "«Откуда данные» и «Согласовать» привести к case-delta: общежитие, автобус и медосмотр теперь факты из справочника студента"
+   }
+  ],
+  "checks": "Итоговый прогон: E2E=1 pnpm test (TEST_DATABASE_URL=ochakovo_integrate_8890, E2E_PORT=8890) зелёный целиком. test:channels, test:assistant (145), test:server (49), test:hr (316), test:dialog (222), 35 файлов scripts/tests. Сквозные: в Chromium и в WebKit все 24 сценария зелёные. pnpm typecheck и pnpm build зелёные. Миграции: с нуля на пустой базе, повторный запуск ничего не меняет; на копии ochakovo_demo 012 применилась. Поиск дат по server, shared, src, scripts, docs и README ничего не нашёл. «ДМС за счёт компании», «Прототип» и пиво на сайте и в боте не найдены; слова об алкоголе есть только в guard и в отказе отвечать на такие вопросы. Сервер 8890 на копии демо-базы: в sitemap есть /consent, заголовок главной верный после перехода с /vacancies, в подвале новый телефон, ошибок консоли в Chromium и WebKit на 390/768/1440 нет. Снимки: /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/integrate-1/",
+  "notes": "Красного не осталось. Что исправлено в коде и почему.\n1) Вкладка чата на компьютере теперь не снимается со страницы, пока уезжает, и сразу получает inert. Раньше уезжающую кнопку можно было нажать, а e2e на 768 px находил её за краем экрана.\n2) «График» больше не уходит на следующую неделю, если на этой есть прошедшие собеседования без отметки явки. По пятницам HR не видел, кого отмечать. Отсюда падал сценарий hr-desk.\n3) Тесты поправлены по смыслу. В e2e «3. Заявка» filter({has}) искал form внутри label. hr-desk пропускает проверку через CDP в WebKit, как встроенные сценарии. Doc-тесты не проверяют план case-delta.md.\n4) В hr-test год с нужным календарём вычисляется, а не задан числом. Остальные даты считаются от текущего момента.\n5) В scripts/e2e.ts добавлена переменная E2E_PORT."
+ },
+ "c2-brand-concept": {
+  "id": "c2-brand-concept",
+  "done": [
+   "c2-bc-1"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "docs/brand/concept.md",
+   "scripts/tests/c2-brand-concept-doc.test.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-content",
+    "file": "docs/kvasych.md",
+    "what": "Строка «Он персонаж, а не обещание: наставника на смене кандидатам не обещаем» устарела: по справочнику студента наставника прикрепляют к каждому новичку. Нужно описать роль Квасыча как мастера-наставника, собирательный образ наставников из Учебного центра (concept.md, раздел 8), и добавить реплику про наставника. Шутку про возраст убрать."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/strategy.md",
+    "what": "В §3 взять идею «Смена», слоган «Сначала научим, потом доверим» и главное сообщение из concept.md. В §2 сегменты свести к посылам из раздела 9. Убрать «от 57 000 ₽», ДМС среди преимуществ и «места и стоимость общежития — у HR»: теперь 3 400 ₽ для студентов."
+   },
+   {
+    "owner": "w2-content",
+    "file": "README.md",
+    "what": "В таблицу «требование кейса → где» добавить строку «Концепция HR-бренда (идея, цель, слоган, образы, легенда)» → docs/brand/concept.md."
+   },
+   {
+    "owner": "w2-home",
+    "file": "src/home/",
+    "what": "w2-hm-c1: в блоке оплачиваемой практики поставить слоган «Сначала научим, потом доверим» рядом с суммой и образ «Наставник и новичок у пульта». w2-hm-c4: легенду взять дословно из раздела 7 («Квас делают люди»). Карточки наставников показывать только по шаблону из раздела 7 и только с согласия, без выдуманных имён."
+   },
+   {
+    "owner": "w2-focus",
+    "file": "src/pages/Focus.tsx",
+    "what": "В вопрос «какой слоган понятнее» поставить три строки из concept.md, раздел 4 «Для фокус-группы», в том же порядке. Тест concept.md проверяет, что этот список совпадает с основным и запасными слоганами."
+   },
+   {
+    "owner": "w2-brand-docs",
+    "file": "docs/brand/",
+    "what": "Листовки, мерч и ролик о компании делать по образам 1–7 и разделу «Границы». Для мерча: «Я делаю натуральные напитки» на спине, выдавать после практики. Для печати — правило брендбука ОЧАКОВО прописными; решение по нему оставить заказчику."
+   },
+   {
+    "owner": "c2-brand-media",
+    "file": "public/video/",
+    "what": "Для образов концепции из ролика «Оператор линии розлива» нужны кадры: наставник и новичок у пульта (около 14–22 с, подпись «Наставники всегда помогут») и надпись на спине куртки. В «Процессе создания нового вкуса» видны этикетки KERN, в «Химике-лаборанте» на полках стоят бутылки, похожие на пиво. Проверить по кадрам и вырезать."
+   }
+  ],
+  "checks": "Все 11 проверок в node --import tsx scripts/tests/c2-brand-concept-doc.test.ts прошли. pnpm test c2-brand-concept тоже прошёл. Проверка на порче документа: добавил «!» в слоган, 57 000 ₽ и «если ты готов». 4 проверки упали, после возврата текста снова 11 из 11. npx tsc -p tsconfig.scripts.json: в моих файлах ошибок нет. Есть 6 ошибок в чужом scripts/tests/c2-fields-required.test.ts: пакет c2-fields ещё в работе. pnpm test content-docs-paths w1-content-docs прошёл: новая папка docs/brand им не мешает. Серверы и браузеры не запускал. Временных скриптов в scripts/ нет.",
+  "notes": "Концепция называется «Смена»: на заводе это рабочая смена и смена поколений, на сайте — «Смена N/4». Основной слоган — «Сначала научим, потом доверим». Запасные — «Я делаю натуральные напитки» (эта фраза напечатана на спинах курток в ролике компании, проверено по кадрам) и «Квас делают люди». В приложении 24 варианта, критерии К1–К7 и сравнение финалистов. Легенда начинается с прямого ответа, в ней только факты из кейса, справочника, каталога и ochakovo.ru (сверено с shared/content/company.ts). Из лет в документе только 1978, 1996 и 1998. Все суммы и проценты тест сверяет с docs/case.md. Тест w1-content-docs смотрит только docs/*.md. Если его распространят на docs/brand, старые запреты на «корпоративный автобус» и «за счёт компании» столкнутся с новыми фактами, а c2-facts эти тесты переписывает."
+ },
+ "c2-fields": {
+  "id": "c2-fields",
+  "done": [
+   "c2-fields-1",
+   "c2-fields-2",
+   "c2-fields-3",
+   "c2-fields-4"
+  ],
+  "partial": [],
+  "notDone": [
+   {
+    "key": "живая проверка на 8830",
+    "why": "Сервер не стартует: в чужом файле shared/content/faq.ts (пакет c2-facts, работа ещё идёт) не определена функция num — ReferenceError при загрузке. Тот же путь (createApp, настоящий PostgreSQL) проверен тестами внутри процесса. E2E не запускал: нужна сборка, браузер и запуск сервера."
+   }
+  ],
+  "filesChanged": [
+   "/Users/kitty/Ochakovo/shared/birthDate.ts (новый)",
+   "/Users/kitty/Ochakovo/shared/applications.ts",
+   "/Users/kitty/Ochakovo/shared/applicationInput.ts",
+   "/Users/kitty/Ochakovo/shared/hr.ts (только caseFieldLabels и caseFieldText)",
+   "/Users/kitty/Ochakovo/server/db/migrations/021_case_fields.sql (новый)",
+   "/Users/kitty/Ochakovo/server/db/index.ts",
+   "/Users/kitty/Ochakovo/server/db/workflow.ts",
+   "/Users/kitty/Ochakovo/server/api/public.ts (только проверка полей)",
+   "/Users/kitty/Ochakovo/scripts/tests/c2-fields-birthdate.test.ts (новый)",
+   "/Users/kitty/Ochakovo/scripts/tests/c2-fields-start.test.ts (новый)",
+   "/Users/kitty/Ochakovo/scripts/tests/c2-fields-required.test.ts (новый)",
+   "/Users/kitty/Ochakovo/scripts/tests/c2-fields-onboarding.test.ts (новый)",
+   "/Users/kitty/Ochakovo/scripts/tests/core-input.test.ts (добавлены значения полей кейса)",
+   "/Users/kitty/Ochakovo/scripts/tests/w1-platform-core-intake.test.ts (добавлены значения полей кейса)",
+   "/Users/kitty/Ochakovo/scripts/server-test.ts (добавлены значения полей кейса)",
+   "/Users/kitty/Ochakovo/scripts/hr-test.ts (поля кейса в POST /api/applications; проверка анкеты ставит дату рождения вместо adult:false)",
+   "/Users/kitty/Ochakovo/scripts/e2e/platform-core.ts (добавлены значения полей кейса)",
+   "/Users/kitty/Ochakovo/scripts/e2e/pages-chat.ts (только POST через API: добавлены значения полей кейса)"
+  ],
+  "needs": [
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/flows/apply.ts",
+    "what": "Собирать фамилию, дату рождения, вуз или «Уже не учусь», startReady (и startMonth); на шаге даты — birthDateProblem (при underage закончить заявку текстом birthDateMessages.underage); перед сохранением — checkApplication(input, {candidate:true}) с датой в том виде, как её ввели; сохранять через acceptApplication."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/storage.ts",
+    "what": "В memoryStorage.asStored после consentError добавить: if (isAdultByBirthDate(a.birthDate) === false) throw new UnderageError() — так же, как в PostgreSQL."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/pages/Apply.tsx, scripts/e2e/pages-chat.ts",
+    "what": "Поля формы: фамилия, имя, отчество «если есть», дата рождения (maskBirthDate, inputMode numeric, autoComplete bday), вуз или колледж либо «Уже не учусь», startReadyOptions и startMonthOptions. Ответ 422 приходит с errors и codes; при codes.birthDate=underage показывать «Берём с 18 лет». Пока полей нет, сценарии e2e, которые отправляют форму через интерфейс, получают 422."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "scripts/e2e.ts",
+    "what": "Встроенный сценарий заявки (около строки 259) отправляет форму через интерфейс — ему нужны новые поля после w2-pc-c1."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/retention/index.ts",
+    "what": "В wipeApplications при обезличивании стирать дату рождения: birth_date = null (это персональные данные)."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "server/api/hr.ts, src/components/hr/*, shared/hrFilter.ts, shared/hrImport.ts",
+    "what": "В PATCH profile уже работают birthDate, startReady, startMonth, school, notStudying, mentorName, practiceDocs (WorkflowRepo.setProfile). Нужно: проверять profile.birthDate через birthDateProblem (bad_birth_date → 422); проверку на 18 лет делать по новой дате; карточка и список (caseFieldText: дата, возраст, когда может выйти, учёба); фильтр по startReady; поля в ручном добавлении; наставник и чек-лист документов; колонка даты рождения в импорте."
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "shared/hr.ts (exportColumns, oneCColumns), server/db/demo.ts, shared/demo.ts",
+    "what": "Новые колонки во всех выгрузках брать из caseFieldLabels и caseFieldText, дату рождения оборачивать в personal()/erasedLabel. В демо-данных — даты рождения (от текущего момента), startReady, вуз или notStudying; у «К оформлению» и «На смене» — наставник и документы."
+   }
+  ],
+  "checks": "pnpm typecheck: все три проекта проходят, если не считать двух ошибок в чужом shared/content/faq.ts (c2-facts, num). Тесты на моей базе ochakovo_c2_fields проходят: c2-fields-birthdate (11), c2-fields-start (4), c2-fields-required (5), c2-fields-onboarding (4), core-input, core-migration, w1-platform-core-intake, w1-platform-core-e2e-plugins, w1-hr-desk-*, w1-hr-insights-*, test:server. В test:hr все проверки анкеты и заявок проходят; запуск падает дальше, в toHhVacancy, — там изменились вакансии (c2-facts). test:dialog, w1-bot-*, assistant и w1-content падают из-за c2-facts: num и переименованные вакансии. Чтобы это проверить, прогнал их на копии в scratchpad с заглушкой num: падают только проверки контента, проверки 18+, согласия и анкеты проходят. Временные базы удалены, ochakovo_c2_fields удалена, временный скрипт удалён, порты 8830 и 5330 свободны.",
+  "notes": "Контракт. В shared/birthDate.ts: parseBirthDate, normalizeBirthDate, birthDateProblem (возвращает underage или bad_birth_date), ageOn по Москве, isAdultByBirthDate, maskBirthDate, formatBirthDate, ageWords, birthDateMessages. В shared/applications.ts: StartReady и startReadyOptions с вариантами now, two_weeks, after_session, month, а также startMonthOptions и startReadyLabel («С июля»); notStudying и studyLabel; PracticeDoc, practiceDocOptions и practiceDocsLabel. checkApplication(input, {candidate}) возвращает {errors, codes}; validateApplication(input, opts) по умолчанию не требует полей кейса, как раньше. В HrApplication добавлены mentorName и practiceDocs. На 422 ответ — {error, errors, codes}. В PostgreSQL saveApplication выдаёт UnderageError. adult вычисляется из даты рождения при чтении. Изменён missingProfile: вместо «18+» теперь «дата рождения». Подпись варианта month — «С определённого месяца»: правила текстов запрещают многоточие из «С месяца…»."
+ },
+ "c2-facts": {
+  "id": "c2-facts",
+  "done": [
+   "c2-facts-1",
+   "c2-facts-2",
+   "c2-facts-3",
+   "c2-facts-4",
+   "c2-facts-5",
+   "c2-facts-6"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "shared/content/vacancies.ts",
+   "shared/content/departments.ts",
+   "shared/content/content.ts",
+   "shared/content/faq.ts",
+   "shared/content/production.ts",
+   "shared/content/quiz.ts",
+   "shared/content/handbook.ts (новый)",
+   "shared/content/company.ts (новый)",
+   "shared/content/practice.ts (новый)",
+   "shared/content/companyQuiz.ts (новый)",
+   "server/assistant/knowledge.ts",
+   "server/llm/offline.ts (фактические строки, карты id вакансий, ветки «стажировка», «срок» и «общежитие»)",
+   "scripts/tests/w1-content-facts.test.ts",
+   "scripts/tests/w1-content-myths.test.ts",
+   "scripts/tests/w1-content-vacancies.test.ts",
+   "scripts/tests/w1-content-docs.test.ts",
+   "scripts/tests/c2-facts-practice.test.ts (новый)",
+   "scripts/tests/c2-facts-handbook.test.ts (новый)",
+   "scripts/tests/c2-facts-company.test.ts (новый)",
+   "scripts/tests/c2-facts-quiz.test.ts (новый)",
+   "scripts/tests/c2-facts-assistant.test.ts (новый)"
+  ],
+  "needs": [
+   {
+    "owner": "w2-home",
+    "file": "src/home/Money.tsx",
+    "what": "P0, главная падает: в roles есть id 'tour-guide', а этой вакансии больше нет (сумма 73 000 без источника), поэтому vacancyById('tour-guide')!.pay бросает ошибку. Новые роли — графики 2/2 с shiftPay: fermentation-assistant ('Технологический цех', 70 000), lab-chemist ('Лаборатория', 60 000), store-worker ('Фирменный магазин'). Комментарий «по hh.ru» заменить на «по „Описанию практики“ и hh.ru»."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/flows/money.ts",
+    "what": "P0, бот падает: в roles есть 'tour-guide', и roleVacancy(1).pay! бросает ошибку. Взять те же роли, что в Money.tsx. Текст «по открытым вакансиям „Очаково“» заменить на «по данным „Очаково“ и вакансиям на hh.ru»."
+   },
+   {
+    "owner": "w2-assistant",
+    "file": "server/assistant/tools.ts",
+    "what": "P0. 1) shortPay для формата 'Бесплатная практика' должен возвращать «без оплаты», сейчас пишет «зарплата по итогам собеседования». 2) isSeasonal: формата 'Сезонная работа' в данных больше нет, по смыслу нужна 'Оплачиваемая практика'. 3) studyMap: убрать line-mechanic, hr-intern, data-analyst-intern, tour-guide. Механик, инженер, автоматизация, IT — automation-intern; HR, история, психология — marketing-intern; логистика — warehouse-operator, storekeeper, logistics-planner."
+   },
+   {
+    "owner": "w2-assistant",
+    "file": "server/assistant/guard.ts",
+    "what": "P0. Добавить в baseAmounts суммы справочника: dorm.priceStudent (3400), dorm.priceOther (6800), PASS_FINE (500) из shared/content/handbook.ts. Иначе ответы с ними отклоняются и Квасыч отвечает «Здесь лучше ответит отдел персонала». Ответ про общежитие с 3 400 ₽ проходит только по совпадению: 3400 равно shiftPay лаборанта за смену. Ещё: 'помощник' и 'стажер' больше не встречаются в названиях вакансий, поэтому фраза «бот-помощник» в чужих текстах будет отклонена."
+   },
+   {
+    "owner": "w2-assistant",
+    "file": "scripts/tests/w1-assistant-offline.test.ts, scripts/assistant-test.ts, scripts/tests/assistant-eval.test.ts, scripts/fixtures/assistant-eval.tsv",
+    "what": "Тесты закрепляют старые решения: «Помощник аппаратчика брожения», 107 000 и 102 000, запрет слова «корпоративн», «стоимость общежития у HR», экскурсовод, «можно на июнь и июль» для сезонной работы. Набор проверки сейчас проходит на 61 %. Переписать под новые факты; новые ответы закреплены в c2-facts-assistant.test.ts."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "scripts/dialog-test.ts",
+    "what": "Использует удалённые id: tour-guide, data-analyst-intern, hr-intern, line-mechanic. Проверки подбора «историк → экскурсовод» и «психолог → HR» устарели: теперь гуманитарий и маркетолог получают marketing-intern («Практика в офисе»), инженер — automation-intern. Свойства подбора закреплены в c2-facts-quiz.test.ts."
+   },
+   {
+    "owner": "w2-home",
+    "file": "src/home/Conditions.tsx, src/home/BotBlock.tsx, src/home/VacancyList.tsx, scripts/tests/w1-home-sections-facts.test.ts, scripts/tests/w1-home-sections-botblock.test.ts, scripts/e2e/home-sections.ts",
+    "what": "Conditions: строку «Ещё» с крупным «Общежитие, ДМС, обед» и perkLine(/ДМС/) заменить: льготы ДМС больше нет. Взять perkLine(/общежит/i), perkLine(/обед/i), perkLine(/медосмотр/i), строку «Деньги» — по perks «Зарплата 12-го и 27-го». BotBlock: в BOT_SAMPLE старые ответы. Ответ на «Можно на практику от вуза?» теперь: «Да. Оплачиваемая практика — в цехе розлива, в технологическом цехе, в лаборатории и на складе, от 56 000 до 70 000 ₽ в месяц до вычета налога; в других отделах — бесплатная практика по договорённости.» Второй пример лучше заменить на «Есть испытательный срок?» → «У студентов испытательного срока нет — вместо него производственная практика.» В тестах убрать запрет «корпоративн» и «за счёт компании», ids Money и проверки ДМС; e2e — удалённые id."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "scripts/tests/w1-pages-chat-apply.test.ts, scripts/e2e/pages-chat.ts, src/pages/Apply.tsx",
+    "what": "Тесты используют 'tour-guide' как вакансию без портфолио. Теперь без портфолио — bottling-operator, с портфолио — только marketing-intern (asksPortfolio: department office). В Apply.tsx фраза «заявка за минуту»: в steps теперь «2 минуты», так как анкета стала длиннее."
+   },
+   {
+    "owner": "w2-content",
+    "file": "shared/hhVacancy.ts",
+    "what": "В hhRoles убрать tour-guide, line-mechanic, hr-intern, data-analyst-intern и добавить storekeeper ({ id: '52', name: 'Кладовщик, приемщик товаров' }). Убрать отдельный пункт '<li>Корпоративный транспорт от м. «Озёрная»</li>': contacts.route теперь сам начинается с корпоративного автобуса, получается повтор. Оплачиваемая практика — срочный договор, accept_temporary: true. Бесплатную практику без суммы на hh.ru не публиковать: добавить в problems."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "scripts/hr-test.ts",
+    "what": "Строка 939: toHhVacancy(vacancyById('tour-guide')!) падает, этой вакансии нет. Для проверки «нет роли hh.ru» взять синтетическую вакансию или storekeeper, пока его нет в hhRoles."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/app.ts, scripts/og.mjs, public/og/",
+    "what": "Описание /vacancies («Сезонная работа, оплачиваемая практика и стажировки…») переписать: «Оплачиваемая практика от 56 000 до 70 000 ₽ в лаборатории, цехах и на складе, бесплатная практика по договорённости и работа…». В ops-meta.test.ts сравнение includes(scheduleSummary.title) падает: nb() ставит неразрывный пробел после «по» в «Смены по 12 часов», сравнивать после plain(). Перезапустить node scripts/og.mjs: суммы 56 000–70 000 ₽, 11 вакансий."
+   },
+   {
+    "owner": "c2-brand-media (или сведение)",
+    "file": "index.html",
+    "what": "В title, description и og: стоит «от 57&nbsp;000&nbsp;₽», нужно «от 56&nbsp;000&nbsp;₽» (minMonthlyPay — кладовщик на практике). Тест ops-meta падает на этом."
+   }
+  ],
+  "checks": "pnpm typecheck (все три tsconfig, весь проект) — без ошибок. Мои наборы (node scripts/test-all.mjs c2-facts w1-content content-docs) — 10 из 10 зелёные: c2-facts-practice, c2-facts-handbook, c2-facts-company, c2-facts-quiz, c2-facts-assistant, w1-content-facts, w1-content-myths, w1-content-vacancies, w1-content-docs, content-docs-paths. Прогнал вживую около 40 вопросов к офлайн-Квасычу: автобус, общежитие, наставник, документы, зарплата, бренды проходят проверку guard. Чужие тесты падают из-за старых фактов, всё расписано в needs: test:assistant, test:dialog, w1-assistant-offline, assistant-eval (61 %), w1-home-sections-facts и -botblock, w1-pages-chat-apply, ops-meta. Базу не создавал, серверы и браузер не поднимал, временные скрипты scripts/.tmp-c2-facts-* удалены.",
+  "notes": "Суммы и бренды сверены с источниками. На hh.ru по «Очаково» в Москве (28 вакансий) живы только «магазин» (137288247) и «мерчендайзер» (138508330). Сумм 107 000, 102 000 и 73 000 там нет, поэтому tour-guide, line-mechanic, hr-intern и data-analyst-intern удалены. Где роль совпадает по смыслу, id старые: bottling-operator теперь «Оператор линии розлива», fermentation-assistant — «Оператор технологического цеха», lab-chemist — «Лаборант». Новый id — storekeeper. Бесплатная практика — 4 вакансии без суммы, 11 задач из документа. Форматы: 'Оплачиваемая практика', 'Бесплатная практика', 'Постоянная работа'; старые значения оставлены в типе для заявок в базе. minMonthlyPay — 56 000, maxEntryPay — 70 000. Новые модули: handbook.ts, company.ts, practice.ts, companyQuiz.ts (12 вопросов, companyQuizRound, companyQuizResult). В контенте появились phonebook и contacts.dorm. Бренды взяты с ochakovo.ru/brands, «Мохито Освежающий» и Kern исключены. WhatsApp сверен с ochakovo.ru/rabota. В ролике «Оператор линии розлива» видны банки GIN — это для c2-brand-media. Этикетки на hero-line не читаются. Скриншотов нет: в пакете только данные, а главная до правки Money.tsx падает."
+ },
+ "c2-brand-media": {
+  "id": "c2-brand-media",
+  "done": [
+   "c2-bm-1",
+   "c2-bm-2",
+   "c2-bm-3",
+   "c2-bm-4",
+   "c2-bm-5",
+   "shift-video-component"
+  ],
+  "partial": [],
+  "notDone": [
+   {
+    "key": "c2-bm-1 (ролик «Процесс создания нового вкуса»)",
+    "why": "Ролик не используется. Он о солодовом напитке KERN: его наливают в стакан с пеной, как пиво; на ёмкостях читается «Лаборатория экспериментального пивоварения»; в холодильниках магазина стоит пиво. Без этих сцен связного ролика не остаётся. Причина записана в manifest.excluded."
+   }
+  ],
+  "filesChanged": [
+   "scripts/media.mjs",
+   "scripts/photos.mjs",
+   "src/components/Logo.tsx",
+   "src/components/ShiftVideo.tsx",
+   "src/components/Layout.tsx",
+   "src/index.css",
+   "public/brand/logo-red.svg",
+   "public/brand/logo-white.svg",
+   "public/brand/logo-line-red.svg",
+   "public/brand/logo-line-white.svg",
+   "public/brand/logo-frieze-red.svg",
+   "public/brand/logo-frieze-white.svg",
+   "public/brand/pattern-red.svg",
+   "public/brand/pattern-white.svg",
+   "public/brand/pattern-dark-red.svg",
+   "public/brand/pictograms/*.svg (20) + manifest.json",
+   "public/brand: удалены favicon.ico, logo.svg, logo.png, logo-lockup-2016-wikimedia.jpg, og-default-official.jpg",
+   "public/favicon.ico",
+   "public/video/* (3×720p, 3×480p, 12 постеров, manifest.json)",
+   "public/.DS_Store (удалён)",
+   "photos-src/archive-1996.png (вернул исходник, кадрирование — в photos.mjs)",
+   "photos-src: удалены archive-1988, archive-1997, izba, silos",
+   "public/photos: archive-1996-424.*, удалены archive-1988/1997, izba, silos, archive-1996-370",
+   "shared/photos.json (его пишет photos.mjs)",
+   "scripts/tests/c2-brand-media-video.test.ts",
+   "scripts/tests/c2-brand-media-logo.test.ts",
+   "scripts/tests/c2-brand-media-pictograms.test.ts",
+   "scripts/tests/c2-brand-media-photos.test.ts",
+   "scripts/tests/c2-brand-media-shiftvideo.test.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-platform / ops",
+    "file": "public/og/*, public/og/og.json (scripts/og.mjs)",
+    "what": "ops-og.test падает: изменились данные вакансий от c2-facts, картинки превью нужно перерисовать (node scripts/og.mjs). Мои изменения тест не затрагивают. apple-touch-icon (красная плитка с надписью ОЧАКОВО) символа «квадрат с кругом» не содержит, его можно оставить."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/app.ts, Dockerfile",
+    "what": "w2-pl-c1: проверить, что /video/*.mp4 отдаётся с 206, video/mp4 и без сжатия. serveStatic из @hono/node-server Range поддерживает. Сейчас кэш недельный, долгий кэш на усмотрение. CSP media-src 'self' уже стоит. Бюджет: 720p до 4 МБ, 480p около 1,6 МБ."
+   },
+   {
+    "owner": "w2-home, w2-pages-chat",
+    "file": "src/home/*, src/pages/Vacancies.tsx",
+    "what": "Ролики подключать так: <ShiftVideo id=\"machinist\"|\"bottling-operator\"|\"lab-assistant\" /> — постер; variant=\"button\" — компактная кнопка «Посмотреть смену · 0:27» для карточек ролей. Для страницы вакансий: bottling-operator — цех розлива, lab-assistant — лаборатория."
+   },
+   {
+    "owner": "c2-facts",
+    "file": "shared/content/*",
+    "what": "Фото archive-1996 теперь 424×284: подставки, кружки и тарелки нет. Если какое-то фото перестанет использоваться, c2-brand-media-photos.test попросит убрать его из photos-src."
+   },
+   {
+    "owner": "w2-content",
+    "file": "README.md / docs/deploy.md",
+    "what": "Упомянуть node scripts/media.mjs [brand|favicon|video]. Отметить, что для продакшена нужна лицензия Proxima Nova (шрифт бренда)."
+   }
+  ],
+  "checks": "pnpm typecheck — зелёный. pnpm test c2-brand-media — 5 файлов, все тесты зелёные. Соседние тесты (w1-game-bottle, w1-content-*, w1-home-hero-static, w1-game-result) зелёные. ops-og падает из-за данных вакансий от c2-facts, а не из-за моих правок.\n\nmedia.mjs brand сверяет растр SVG с исходником .ai (PyMuPDF): расхождение 0–0,03 %.\n\nВсе четыре ролика просмотрены по кадрам: каждую секунду, по границам сцен и по 10 кадров в секунду в спорных местах. Получившиеся ролики тоже просмотрены по кадрам.\n\nВ браузере (Chromium, 390 и 1440, сборка в scratchpad, vite preview на 5332):\n- до нажатия mp4 не запрашивается;\n- запуск работает с Enter, фокус переходит на плеер, звук выключен, на телефоне 480p, на ноутбуке 720p, ответ 206;\n- запуск второго ролика ставит первый на паузу, ролик вне экрана тоже встаёт на паузу;\n- кнопка звука работает, кнопка-вариант для карточек работает;\n- горизонтальной прокрутки нет.\nВ WebKit воспроизведение работает. Шапка и подвал проверены на /consent. Главная сейчас падает с ошибкой «reading 'pay'» из-за правок c2-facts в вакансиях, это не мои файлы. Скриншоты: scratchpad/build/c2-brand-media/shots.\n\nБазу не создавал, порты 5332 и 8832 свободны, временные скрипты удалены.",
+  "notes": "Ролики:\n- Оператор линии розлива: на линии разливают «Джин & Грейпфрут». Вырезаны сцены с читаемой этикеткой (0,73–1,7; 2,7–3,7; 7,5–10,47; 11,6–12,63). В оставшихся банки мелкие, размытые или в плёнке.\n- Лаборант: вырезаны полки с банкой сидра и стол с бутылками в этикетках.\n- Во всех роликах вырезана концовка с логотипом в квадрате и QR-кодом на неизвестный адрес. Маленький прежний логотип в углу первых кадров остался.\n- Речи нет ни в одном ролике (кадры, volumedetect, спектрограммы), поэтому speech=false. Ролик стартует без звука, подпись: «Без слов: музыка и титры».\n\nЛоготип: из «ЛОГО БЕЗ КВАДРАТА». В шапке — вариант в одну строку, в подвале — в три строки.\n\nПиктограммы: исключены пивная бутылка, кег, ящик с бутылками и оба хмеля. В паттерне на их местах стоят разрешённые пиктограммы, соседние не повторяются.\n\nfavicon.svg (бутылка кваса) оставлен, favicon.ico сделан из него.\n\nНа фото tanks-symbol и excursion на стенах завода виден старый знак — это документальные кадры."
+ },
+ "w2-hr-pipeline": {
+  "id": "w2-hr-pipeline",
+  "done": [
+   "w2-hp-c1",
+   "w2-hp-c2",
+   "w2-hp-1",
+   "w2-hp-2",
+   "w2-hp-3",
+   "w2-hp-4",
+   "w2-hp-5",
+   "w2-hp-6",
+   "w2-hp-7",
+   "контракт: templateKeys shift_reminder/sms_shift_reminder, declineReasons no_show_shift, candidateStatus().firstShift и prepare",
+   "scripts/hr-test.ts под новые факты (tour-guide и др.)"
+  ],
+  "partial": [
+   "w2-hp-8: кнопка «Предложить выбрать время» в карточке и массово и пометка «самозапись» в графике и карточке готовы. POST /api/hr/booking/offer пакет w2-booking ещё не сделал, поэтому кнопка честно пишет «Самозапись на сервере не подключена». Проверить вживую не на чем"
+  ],
+  "notDone": [
+   {
+    "key": "w2-hp-9",
+    "why": "Блокер: нет контракта w2-hr-sources. Файла src/components/hr/sourcesCache.ts (useSources) нет, server/api/hr-sources.ts пока заготовка. Источник в «+ Кандидат» и импорте пока выбирается из manualSources"
+   },
+   {
+    "key": "w2-hp-10 (P2)",
+    "why": "P2 не брал: в P1 остались задачи, зависящие от чужих пакетов (w2-hp-8, w2-hp-9)"
+   }
+  ],
+  "filesChanged": [
+   "shared/applications.ts",
+   "shared/candidateStatus.ts",
+   "shared/hrFilter.ts",
+   "shared/hrImport.ts",
+   "shared/hrPlan.ts",
+   "server/db/migrations/013_hr_pipeline.sql",
+   "server/db/workflow.ts",
+   "server/db/hr.ts",
+   "server/db/jobs.ts",
+   "server/jobs/scheduler.ts",
+   "server/notify/index.ts",
+   "server/hr/actions.ts",
+   "server/api/hr.ts",
+   "src/lib/hr/pipeline.ts",
+   "src/lib/hr/desk.ts",
+   "src/components/hr/CandidateDrawer.tsx",
+   "src/components/hr/Candidates.tsx",
+   "src/components/hr/FilterBar.tsx",
+   "src/components/hr/AddCandidate.tsx",
+   "src/components/hr/ImportDialog.tsx",
+   "src/components/hr/BulkBar.tsx",
+   "src/components/hr/PlanView.tsx",
+   "src/components/hr/ScheduleView.tsx",
+   "src/components/hr/TemplatesView.tsx",
+   "src/components/hr/hrUtils.ts",
+   "src/pages/Hr.tsx",
+   "scripts/hr-test.ts",
+   "scripts/tests/w2-hr-pipeline-case.test.ts",
+   "scripts/tests/w2-hr-pipeline-onboarding.test.ts",
+   "scripts/tests/w2-hr-pipeline-season.test.ts",
+   "scripts/e2e/hr-pipeline.ts"
+  ],
+  "needs": [
+   {
+    "owner": "c2-fields",
+    "file": "scripts/tests/c2-fields-onboarding.test.ts",
+    "what": "Строки около 151–153: PATCH profile с датой «31.02.1» теперь отвечает 422 bad_birth_date, как просил сам c2-fields. Ждать 422 и проверять, что дата в базе прежняя. Сейчас тест ждёт 200 и падает"
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "src/components/hr/FunnelView.tsx",
+    "what": "Передать <PlanView apps={apps} onOpen={…} />, тогда фамилии в своде «Практика от вуза · по учебным заведениям» открывают карточку. Без onOpen они видны, но не кликаются"
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "server/db/demo.ts, shared/hr.ts",
+    "what": "Демо: у «К оформлению» — first_shift_at/shift_kind, mentor_name, practice_docs; у «На смене» — season_outcome/reserve; у ручных заявок — consent_by (имя HR) и consent_version ''. Выгрузки: колонки согласия (источник, кто отметил, когда), первой смены, итога сезона и резерва"
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/pages/Apply.tsx («Моя заявка»), src/lib/api.ts",
+    "what": "Показывать CandidateStatus.prepare (title, items) и firstShift.text («пятница, 30 октября, с 8:00, дневная смена», «не раньше июля», «срок обсудят на собеседовании», «дату назовёт HR», «уже позади»). Поле null — блок не показывать. В api() передавать data.codes в ApiValidationError"
+   },
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/flows/*",
+    "what": "В ответе «Моя заявка» показывать candidateStatus().prepare и firstShift (контракт выполнен в shared/candidateStatus.ts)"
+   },
+   {
+    "owner": "w2-booking",
+    "file": "server/api/booking.ts",
+    "what": "Панель вызывает POST /api/hr/booking/offer {ids}. Ответ — {offered?: {id}[], failed?: {id, error}[]}. 404 панель показывает как «самозапись не подключена»"
+   },
+   {
+    "owner": "сведение (w2-hp-9)",
+    "file": "src/components/hr/AddCandidate.tsx, src/components/hr/ImportDialog.tsx",
+    "what": "Когда у w2-hr-sources появится useSources() в sourcesCache.ts, заменить manualSources на метки из реестра. Старое fair подписать «Ярмарка вакансий»"
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/hr.md",
+    "what": "Описать в docs/hr.md: возраст, выход и учёбу в списке и карточке; фильтры «Выход», «Практика и отказы», вид «Резерв»; «Оформление» (первая смена с напоминанием, наставник, документы, кабинет 525); итог сезона; основание согласия; «Идут вдвоём»; свод вузов. Миграция 013 заменила в шаблонах +7 495 785-39-30 на 8 800 100-77-77 доб. 1155, 3105, 2107 (по справочнику)"
+   }
+  ],
+  "checks": "Итог: typecheck по моим файлам чистый, все мои тесты, hr-test и смежные наборы зелёные, кроме c2-fields-onboarding (одна проверка, ожидаемо). E2E-плагин прошёл 3 из 3 на моём стенде. Скриншоты на 390 и 1440 проверены.\n\n- Typecheck: tsc отдельно по tsconfig.json, tsconfig.node.json и tsconfig.scripts.json. Остался 1 чужой промах: w2-brand-docs-print.test.ts.\n- Мои тесты (node --import tsx, временные базы): w2-hr-pipeline-case 6/6, w2-hr-pipeline-onboarding 6/6, w2-hr-pipeline-season 6/6.\n- hr-test на чистой базе ochakovo_w2_hr_pipeline: 316 пройдено, 0 провалено. До правок падали проверки hh.ru (tour-guide) и импорта.\n- Смежные наборы зелёные: w1-hr-desk-api и -fields, c2-fields-birthdate, -required и -start, w1-hr-insights-demo, -funnel, -xlsx и -sources, core-input, core-migration, w1-platform-core-intake, w1-bot-pg, server-test (49/0).\n- c2-fields-onboarding: падает одна проверка — ждёт 200 на опечатку в дате. Это нужно поправить в их тесте, запись в needs.\n- E2E: сделал плагин scripts/e2e/hr-pipeline.ts. Полный прогон не запускал. Плагин гонял временным запуском на своей сборке (vite build в scratchpad) и сервере 8843: 3/3 сценария прошли.\n- Глазами на 390 и 1440: список, карточки (новая, младше 18, без согласия, «К оформлению», «На смене», по приглашению), окно приглашения без согласия, «+ Кандидат», «Резерв», фильтры, свод вузов. Найденное поправлено: «Уже не учится», формулировки без рода, возраст и т. п. Снимки: /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w2-hr-pipeline/shots/ (последние правки карточки «На смене» в них не попали).\n- Уборка: сервер 8843 остановлен, временные scripts/.tmp-w2-hr-pipeline-* удалены, база dropdb.",
+  "notes": "Основание согласия при ручном добавлении и импорте обязательно в интерфейсе. Сервер без поля ставит «согласия нет», поэтому чужие тесты не сломались. Без согласия и без 18 лет пригласить можно только с подтверждением, в карточке и массово.\n\nНапоминание о первой смене — задача shift_reminder с ключом shift:<id>:<день>. Перед отправкой сервер проверяет: статус hired и та же дата. Без бота и SMS HR получает задачу «Напомнить о первой смене».\n\nrefCode в HrApplication у заявок из бота берётся из сессии: так считаются пары «Идут вдвоём».\n\nНовая миграция — только 013: шаблоны первой смены, consent_by и телефон отдела подбора по справочнику.\n\nСвод вузов в PlanView сводит разные написания названий в одну строку. «Уже не учится» и «Учёба не указана» — отдельными строками.\n\nДаты с опечатками в тестах считаются от текущего года, литеральных дат нет."
+ },
+ "w2-bot": {
+  "id": "w2-bot",
+  "done": [
+   "w2-bt-c1",
+   "w2-bt-c2",
+   "w2-bt-c3",
+   "w2-bt-1",
+   "w2-bt-2",
+   "w2-bt-3",
+   "w2-bt-4",
+   "w2-bt-5"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "server/dialog/flows/apply.ts",
+   "server/dialog/flows/money.ts",
+   "server/dialog/flows/menu.ts",
+   "server/dialog/flows/vacancies.ts",
+   "server/dialog/flows/status.ts",
+   "server/dialog/flows/friend.ts",
+   "server/dialog/flows/game.ts",
+   "server/dialog/flows/tour.ts",
+   "server/dialog/flows/myth.ts",
+   "server/dialog/flows/ask.ts",
+   "server/dialog/flows/practice.ts (новый)",
+   "server/dialog/flows/companyQuiz.ts (новый)",
+   "server/dialog/flows/remind.ts (новый)",
+   "server/dialog/engine.ts",
+   "server/dialog/context.ts",
+   "server/dialog/types.ts",
+   "server/dialog/storage.ts",
+   "server/dialog/ui.ts",
+   "server/dialog/names.ts (новый)",
+   "server/dialog/videos.ts (новый)",
+   "server/db/index.ts",
+   "server/db/migrations/018_bot_remind.sql (новый)",
+   "scripts/dialog-test.ts",
+   "scripts/bot-sim.ts",
+   "scripts/tests/w2-bot-apply.test.ts (новый)",
+   "scripts/tests/w2-bot-links.test.ts (новый)",
+   "scripts/tests/w1-bot-ops.test.ts (тест бота из волны 1, под новую заявку)",
+   "scripts/tests/w1-bot-pg.test.ts (тест бота из волны 1, под новую заявку)"
+  ],
+  "needs": [
+   {
+    "owner": "w2-assistant",
+    "file": "scripts/assistant-test.ts",
+    "what": "Блок «Интеграция с ботом», около строки 429. Первый шаг заявки в боте теперь — дата рождения. Вместо действия a:adult:y отправить текст с датой 20 лет назад, посчитанной от mskToday() (ДД.ММ.ГГГГ). Вместо текста «Даня» отправить «Петров Даня»: на одно слово бот отдельно спрашивает фамилию. Проверка includes('оставь телефон') остаётся."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/components/chat/useChat.ts, src/components/chat/ChatPanel.tsx",
+    "what": "Поддержать подсказку поля OutMessage.input = 'date' в InputHint и inputFor: подпись «Дата рождения для заявки», placeholder «ДД.ММ.ГГГГ», inputMode numeric, autoComplete bday, maskBirthDate при вводе. Сейчас неизвестная подсказка сломала бы панель, поэтому бот шлёт 'free'. После этого на сведении в server/dialog/flows/apply.ts поставить BIRTH_INPUT = 'date'."
+   },
+   {
+    "owner": "w2-channels",
+    "file": "server/channels/telegram.ts, рассылка (019)",
+    "what": "1) По желанию: для input 'date' добавить input_field_placeholder «ДД.ММ.ГГГГ». 2) Рассылка «Напомнить о наборе» (миграция 018): получатели — bot_users, где remind_at is not null и remind_off_at is null; remind_dept — id направления из departments или 'any'. После отправки ставить last_broadcast_at. В каждом напоминании кнопка «Не присылать» с action rm:off. Тексты без дат."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/api/public.ts (POST /api/applications/:id/bot-link), server/retention/index.ts",
+    "what": "bot-link: вызывать storage.createBotLink(id, siteConfig({bots, env}).bots) — только имена работающих адаптеров. Ответ null значит: ссылки нет. eraseBotUser(sql, channel, id): PostgresStorage.eraseUser сам вызовет его, если функция экспортирована, а затем доделает своё — привязанные заявки, сессию, имя, ник и remind_*. wipeApplications: при обезличивании обнулять bot_channel, bot_user_id, bot_link_hash, bot_link_expires_at. Обезличивание bot_users по сроку не должно трогать remind_*."
+   },
+   {
+    "owner": "w2-booking",
+    "file": "server/dialog/flows/booking.ts",
+    "what": "Экспортировать route(ctx: Ctx, parts: string[]): Promise<DialogReply> | DialogReply (тип BookingHandler в server/dialog/context.ts). Движок подгружает модуль лениво при кнопках b:… Пока файла нет, бот отвечает: время собеседования назначает отдел персонала, и даёт контакты. В проверках сценарий подставляется через EngineOptions.booking."
+   },
+   {
+    "owner": "w2-content",
+    "file": "README.md, docs/hr.md",
+    "what": "Описать бота. Команды /stop (отвязать заявку с сайта и выключить напоминания) и /delete (удалить мои данные). start=app_<токен> — привязка заявки с сайта, start=remind и remind-<метка>. Новые разделы: «Практика», «Что ты знаешь об „Очаково“», «Напомнить о наборе». Поля заявки в боте: дата рождения, ФИО, контакт, вуз или «Уже не учусь», месяцы, когда выйти, вакансия, «Исправить». Команды bot:sim: !adult, !link, !state. Миграция 018."
+   }
+  ],
+  "checks": "pnpm typecheck: мои файлы без ошибок. Во всём проекте одна ошибка, в чужом файле: scripts/tests/w2-brand-docs-print.test.ts — неиспользуемый dirname.\n\nМои наборы:\n- scripts/dialog-test.ts — 337 прошло, 0 упало.\n- w2-bot-apply (PostgreSQL) — 1/1.\n- w2-bot-links (PostgreSQL) — 1/1.\n- w1-bot-ops — 4/4.\n- w1-bot-pg (PostgreSQL) — 1/1.\n- w1-bot-intent — 7/7.\n\nСоседние наборы зелёные: test:channels, w1-channels-dialog, w1-channels-webhook, core-migration, core-input, w1-platform-core-intake, ops-ready, c2-fields-birthdate, c2-fields-required, c2-fields-start, w1-hr-insights-funnel.\n\nПадают не из-за меня:\n- c2-fields-onboarding: проверка даты в HR PATCH из пакета w2-hr-pipeline.\n- assistant-test: старые факты и шаг a:adult:y, правка нужна w2-assistant.\n\nbot:sim прогнан вручную: подписка и отписка одной кнопкой, start=remind-fair-mgupp, заявка, /stop, /delete.\n\nГлазами: собрал сайт в свою папку, поднял API на 8842 с базой ochakovo_w2_bot. Снял чат на 390 и 1440: приветствие, меню, практика, дата рождения, учёба, «когда выйти», список вакансий, проверка, «отправлена», вопросы. Ошибок в консоли нет. Скриншоты: /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w2-bot/. Сервер остановлен, база удалена, временные скрипты удалены.",
+  "notes": "Заявка в боте: дата рождения → ФИО → телефон или ник → вуз или «Уже не учусь» → месяцы → когда выйти → вакансия → проверка с «Исправить». Моложе 18 — заявка закрывается, данные не сохраняются. ФИО можно одной строкой: порядок бот угадывает по списку имён и окончаниям отчества и фамилии. Перед сохранением — checkApplication с датой в том виде, как её ввели.\n\nВ интерфейсе Storage новый обязательный метод acceptApplication; память и PostgreSQL дают те же повторы и лимиты, что сайт. Подписка remind приходит в Session из bot_users, поэтому без миграции 018 getSession не работает.\n\nРоли «Собери лето»: fermentation-assistant, lab-chemist, store-worker. Ролики уходят ссылками на /video/*-480.mp4 из манифеста. Контрольные вопросы в «Смену» не входят.\n\nТесты w1-bot-ops и w1-bot-pg поправил как преемник пакета бота. В OutMessage.input добавлено 'date', бот его пока не шлёт."
+ },
+ "w2-pages-chat": {
+  "id": "w2-pages-chat",
+  "done": [
+   "w2-pc-c1",
+   "w2-pc-c2",
+   "w2-pc-c3",
+   "w2-pc-2",
+   "w2-pc-4",
+   "w2-pc-5",
+   "w2-pc-7"
+  ],
+  "partial": [
+   "w2-pc-1",
+   "w2-pc-3",
+   "w2-pc-8"
+  ],
+  "notDone": [
+   {
+    "key": "w2-pc-1 (проверка с настоящим API)",
+    "why": "Клиентская часть готова и проверена e2e на подменённом ответе. На сервере нет POST /api/applications/:id/withdraw (w2-platform), поэтому сценарий e2e с настоящим API пропускается с указанием причины."
+   },
+   {
+    "key": "w2-pc-3 (проверка с настоящим API)",
+    "why": "Выбор, перенос, отмена, «позвоните» и ответ 409 «Это время уже заняли» проверены e2e на подменённых ответах. Маршрутов /booking на сервере пока нет (w2-booking), формат ответа взят из моего допущения (см. needs)."
+   },
+   {
+    "key": "w2-pc-8 (правки вакансий при старте)",
+    "why": "Контракта w2-hr-admin на правки вакансий нет: ни маршрута, ни функции в shared. Сделана только часть про trackEvent: типы game_start и share с kind."
+   },
+   {
+    "key": "w2-pc-6 (режим стенда, P2)",
+    "why": "Нужен кодировщик QR shared/qr.ts от w2-hr-sources, его пока нет. Крупные задания на главной — файлы w2-home."
+   }
+  ],
+  "filesChanged": [
+   "src/pages/Apply.tsx",
+   "src/pages/Vacancies.tsx",
+   "src/pages/Privacy.tsx",
+   "src/pages/Consent.tsx",
+   "src/components/Layout.tsx",
+   "src/components/candidate/ApplicationStatus.tsx",
+   "src/components/candidate/applyText.ts",
+   "src/components/candidate/FormControls.tsx",
+   "src/components/candidate/VacancyRow.tsx",
+   "src/components/candidate/questionnaire.ts",
+   "src/components/candidate/sent.ts",
+   "src/components/candidate/status.ts",
+   "src/components/candidate/visit.ts (новый)",
+   "src/components/candidate/booking.ts (новый)",
+   "src/lib/api.ts",
+   "src/lib/analytics.ts (новый)",
+   "scripts/e2e/pages-chat.ts",
+   "scripts/tests/w1-pages-chat-apply.test.ts",
+   "scripts/tests/w1-pages-chat-pages.test.ts",
+   "scripts/tests/w2-pages-chat-apply.test.ts (новый)",
+   "scripts/tests/w2-pages-chat-status.test.ts (новый)",
+   "scripts/tests/w2-pages-chat-vacancies.test.ts (новый)"
+  ],
+  "needs": [
+   {
+    "owner": "w2-hr-pipeline (владелец shared/applications.ts) или сведение",
+    "file": "shared/applications.ts",
+    "what": "Поднять CONSENT_VERSION до '2'. Текст /consent изменился: добавлены отчество, дата рождения, вуз или колледж, «Уже не учусь», «когда можешь выйти» и цель «проверить возраст», убрана отметка «Мне есть 18 лет». По правилу из комментария к CONSENT_VERSION любая правка текста меняет номер версии."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "scripts/e2e.ts",
+    "what": "Шаг встроенного сценария заявки (около строки 259): заполнить «Фамилия», «Дата рождения» (ввести цифры ДДММГГГГ через pressSequentially, точки ставит маска), «Вуз или колледж» и нажать label с input[name=\"apply-start-ready\"][value=\"now\"]. Отметки «Мне есть 18 лет» больше нет: локатор marks найдёт только согласие. #apply-vacancy теперь в основной части формы, месяцы по-прежнему в «Рассказать подробнее»."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/api/public.ts (права кандидата)",
+    "what": "POST /api/applications/:id/withdraw с x-status-token: 2xx — удалено, 404 — чужой ключ. Пока маршрута нет, сценарий e2e «отозвать согласие» пропускается. POST /api/applications/:id/bot-link: клиент ждёт ответ {telegram?: string, max?: string} с полными диплинками."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "index.html / server/app.ts (CSP), server/api/public.ts (/api/events)",
+    "what": "Метатег analytics {\"metrika\":\"<цифры>\",\"vk\":\"<цифры>\"} ставить только при заданных ID. В CSP при заданных ID разрешить mc.yandex.ru (script, img, connect) и top-fragment.mail.ru (script, img). /api/events должен принимать game_start и share с полем kind."
+   },
+   {
+    "owner": "w2-booking",
+    "file": "server/api/booking.ts",
+    "what": "Формат, который понимает клиент (src/components/candidate/booking.ts): GET /api/applications/:id/booking → {hours: ISO[] (до 6), booked: ISO|null}; принимается и {slots:[{startsAt}]} или booked:{startsAt}; нет предложения — 404. POST {startsAt} → 2xx, занято — 409. DELETE → 2xx. POST /booking/none → 2xx. Все запросы с заголовком x-status-token."
+   }
+  ],
+  "checks": "pnpm typecheck по трём конфигам (tsconfig.json, node, scripts): в моих файлах ошибок нет (ошибки есть только в чужом src/components/hr/*, там идёт работа). Мои тесты зелёные: w1-pages-chat-apply, -contracts, -pages и новые w2-pages-chat-apply, -status, -vacancies. Чужие тесты, которые читают мои файлы, тоже прошли: c2-brand-media-logo, w1-game-result, w2-bot-apply, w1-platform-core-intake. Плагин e2e pages-chat (9 сценариев) гонял своим временным раннером на своей сборке (vite build в scratchpad), на своём сервере 8840 и в базе ochakovo_w2_pages_chat: 8 прошли, «отозвать согласие» пропущен, потому что на сервере нет API. Снимки форм и состояний на 390 и 1440 лежат в scratchpad/build/pc. Сервер остановлен, база удалена, временные скрипты удалены.",
+  "notes": "Форма: в основной части фамилия, имя, отчество, дата рождения (маска, цифровая клавиатура, «Берём с 18 лет» и ссылка на задания), контакт, вуз или «Уже не учусь», курс, практика от вуза, «Когда сможешь выйти» с месяцем, вакансия группами по формату. Отметку «Мне есть 18 лет» убрал: возраст проверяется по дате рождения. Вакансии: оплачиваемая практика (слоган, вилка, что даёт компания, 5 ролей, у розлива и лаборатории ролики), бесплатная (?practice=1 ставит отметку «Практика от вуза», документы и кабинет 525), работа. Ссылки ?open= подсвечивают строку. Исправлен прежний баг: обрезались строки графика. «Моя заявка»: «Куда ехать и что взять», «Первая смена», подготовка, бот, выбор времени, отзыв согласия, ссылка на другое устройство. Счётчики не грузятся без метатега и до «Разрешить». Плашка выбора в подвале, её мало кто увидит: так заложено в плане."
+ },
+ "w2-brand-docs": {
+  "id": "w2-brand-docs",
+  "done": [
+   "w2-bd-1",
+   "w2-bd-2",
+   "w2-bd-3",
+   "w2-bd-4",
+   "w2-bd-5"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "docs/brand/README.md",
+   "docs/brand/visuals.md",
+   "docs/brand/merch.md",
+   "docs/brand/video.md",
+   "docs/brand/rationale.md",
+   "docs/brand/focus-group.md",
+   "docs/analytics.md",
+   "docs/brand/concept.md",
+   "docs/brand/print/print.css",
+   "docs/brand/print/leaflet-a5.html",
+   "docs/brand/print/insert-vuz.html",
+   "docs/brand/print/first-shift-a6.html",
+   "docs/brand/print/img/mentor.jpg",
+   "docs/brand/print/fonts/ (8 файлов шрифтов OFL и OFL.txt, скопированы из node_modules/@fontsource-variable и src/fonts)",
+   "docs/brand/img/key-mentor.jpg",
+   "docs/brand/img/key-back.jpg",
+   "docs/brand/img/leaflet-a5-1.webp",
+   "docs/brand/img/leaflet-a5-2.webp",
+   "docs/brand/img/insert-vuz-1.webp",
+   "docs/brand/img/insert-vuz-2.webp",
+   "docs/brand/img/first-shift-a6-1.webp",
+   "docs/brand/img/first-shift-a6-2.webp",
+   "scripts/tests/w2-brand-docs-materials.test.ts",
+   "scripts/tests/w2-brand-docs-print.test.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-hr-sources",
+    "file": "src/pages/HrPoster.tsx",
+    "what": "Листовку A5 (w2-src-c2) на /hr/poster делать по текстам и сетке из docs/brand/visuals.md, раздел 3.1; эталонный макет — docs/brand/print/leaflet-a5.html. Это поле 8 мм, модуль 44 мм, фото и красный модуль со слоганом на лицевой, таблица ролей из paidPractice и QR 28 мм на обороте. Можно добавить вариант для вузов (docs/brand/print/insert-vuz.html) с меткой вуза. Если листовки A5 на /hr/poster не будет, в docs/brand/visuals.md (разделы «Коротко» и 3.1, «Печатная версия») нужно убрать фразу, что листовка с QR печатается там."
+   },
+   {
+    "owner": "w2-focus",
+    "file": "src/pages/Focus.tsx",
+    "what": "Вопросы и варианты ответов — дословно по docs/brand/focus-group.md, раздел 5, «Анкета». Шесть вопросов, слоганы в порядке из concept.md, раздел 4, плюс вариант «Ни один». Перед вопросами показать три слогана и главные факты: от 56 000 до 70 000 ₽, наставник, без испытательного срока, общежитие 3 400 ₽. Метки очных групп — fg-a и fg-b. На вкладке HR при меньше чем 30 ответах по метке показывать числа, без процентов."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/kvasych.md",
+    "what": "1) Убрать строку «наставника на смене кандидатам не обещаем» и шутку про стаж. 2) Описать Квасыча как мастера-наставника. 3) Сослаться на правила для печати из docs/brand/visuals.md, раздел 4: один Квасыч на носитель, на A5 не выше 40 мм, на обложку не ставить, для печати и стикеров — позы point, face и hello."
+   },
+   {
+    "owner": "w2-content",
+    "file": "README.md",
+    "what": "В таблицу «требование кейса → где» добавить визуальные материалы, мерч, ролик, обоснование и фокус-группу → docs/brand/README.md (индекс), visuals.md, merch.md, video.md, rationale.md, focus-group.md. Аналитику (аудитория, UX, аналоги) → docs/analytics.md."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/strategy.md",
+    "what": "1) Смета: строка «Мерч и призы для стенда» покрывает только стенд. Добавить строку «Мерч за практику (худи, шевроны, чехлы)» — 347–660 тыс. ₽, допущение, ссылка на docs/brand/merch.md. 2) Строку видео согласовать с docs/brand/video.md: ролик о компании 200–450 тыс. ₽ можно снять в тот же день, что и серию «Наставник и новичок». 3) В источники добавить docs/analytics.md (данные hh.ru: стажировку находят через вуз в 44% случаев, через ярмарки — в 5%)."
+   }
+  ],
+  "checks": "Проверки пакета прошли: w2-brand-docs-materials — 15 из 15, w2-brand-docs-print — 6 из 6. Затронутые документами чужие тесты тоже прошли: c2-brand-concept-doc — 11 из 11, content-docs-paths — 2 из 2, w1-content-docs — 7 из 7 (через node scripts/test-all.mjs). Команда tsc -p tsconfig.scripts.json --noEmit — 0 ошибок. Печать в PDF через Chromium: A5 148×210 мм, с #bleed — 154×216; A6 105×148, с #bleed — 111×154; у каждого макета по 2 страницы. Скриншоты на 390 и 1440: горизонтальной прокрутки нет (scrollWidth = innerWidth), текст за лист не выходит. Скриншоты: /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w2-brand-docs/ (vp-*-390.png, vp-*-1440.png, листы *.png). Серверы и база не понадобились, временные скрипты удалены.",
+  "notes": "Листовки (A5 «Оплачиваемая практика», A5 для вузов, A6 «Перед первой сменой») сделаны как HTML для печати из браузера. Превью — в docs/brand/img. На лицевой A5 пока кадр из ролика: для тиража мало разрешения и в фоне видны банки линии, поэтому в документах записана новая съёмка. Ролик «Процесс создания нового вкуса» исключён, причина указана. Цены мерча и ролика помечены как допущения. Внешние цифры сверены по источникам: hh.ru 32862 и 31982, Sostav, Mail, dreamjob, mos.ru, Т—Ж, vc.ru. В concept.md две правки: у склада нет пиктограммы, «заявка за 2 минуты». В шрифты добавлен OFL.txt: в нём годы копирайта, лицензия требует их сохранить; этот же файл лежит в src/fonts. Тесты проверяют суммы, роли и телефоны листовок по shared/content, поэтому правка данных сразу покажет расхождение."
+ },
+ "w2-home": {
+  "id": "w2-home",
+  "done": [
+   "c2-facts-needs: главная падала на tour-guide — Money/Conditions/BotBlock/VacancyList и их тесты переведены на новые факты",
+   "w2-hm-c1",
+   "w2-hm-c2",
+   "w2-hm-c3",
+   "w2-hm-c4",
+   "w2-hm-c5",
+   "w2-hm-c6",
+   "w2-hm-1",
+   "w2-hm-2"
+  ],
+  "partial": [
+   "w2-hm-4: сделана латиница. Шрифты главной стали легче: было 115 396 байт, стало 89 832 (−25 КБ), остаток латиницы грузится только по требованию. Часть про пререндер не сделана: пререндера в коде нет, его даёт w2-platform"
+  ],
+  "notDone": [
+   {
+    "key": "w2-hm-3",
+    "why": "P2, шкала кеглей. Приёмка считает размеры и в src/pages/*, src/game/* — это файлы других пакетов. Нужен пофайловый перенос со скриншотами, в конце волны слишком велик риск сломать вёрстку."
+   }
+  ],
+  "filesChanged": [
+   "src/pages/Home.tsx",
+   "src/home/Practice.tsx (новый)",
+   "src/home/ShiftInside.tsx (новый)",
+   "src/home/History.tsx (новый)",
+   "src/home/Mentors.tsx (новый)",
+   "src/home/KnowledgeCheck.tsx (новый)",
+   "src/home/QcFragment.tsx (новый)",
+   "src/home/Pictogram.tsx (новый)",
+   "src/home/legend.ts (новый)",
+   "src/home/media/mentor-panel-560.avif, mentor-panel-560.webp, mentor-panel-840.avif, mentor-panel-840.webp (новые)",
+   "src/home/Money.tsx",
+   "src/home/Conditions.tsx",
+   "src/home/VacancyList.tsx",
+   "src/home/BotBlock.tsx",
+   "src/home/Hero.tsx",
+   "src/home/FinalBand.tsx",
+   "src/home/kit.tsx",
+   "src/home/tasks.ts",
+   "src/home/QuizSection.tsx",
+   "src/home/MythSection.tsx",
+   "src/home/ProductionPath.tsx",
+   "src/fonts.css",
+   "scripts/fonts-subset.py",
+   "src/fonts/onest-latin-core-wght.woff2 (новый)",
+   "src/fonts/sofia-latin-core-wght.woff2 (новый)",
+   "src/fonts/OFL.txt",
+   "scripts/tests/w2-home-practice.test.ts (новый)",
+   "scripts/tests/w2-home-story.test.ts (новый)",
+   "scripts/tests/w2-home-fonts.test.ts (новый)",
+   "scripts/e2e/w2-home.ts (новый)",
+   "scripts/tests/w1-home-sections-facts.test.ts",
+   "scripts/tests/w1-home-sections-botblock.test.ts",
+   "scripts/tests/w1-home-hero-static.test.ts",
+   "scripts/e2e/home-sections.ts",
+   "scripts/e2e/home-hero.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-platform (или сведение)",
+    "file": "scripts/e2e/_harness.ts, scripts/e2e.ts",
+    "what": "Срочно, иначе падает встроенный e2e. doMoney нажимает «сентябрь», но у роли по умолчанию (технологический цех, оплачиваемая практика) сентябрь теперь отключён: практика идёт с марта или апреля до середины августа. В doMoney нажимать «май». В e2e.ts, около строки 223, поправить название шага «сентябрь + «Готово»» на «май»."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/flows/money.ts",
+    "what": "Роли «Собери лето» в боте — те же, что на сайте, и в том же порядке: fermentation-assistant (технологический цех), lab-chemist (лаборатория), store-worker (фирменный магазин). У практики месяцы с марта по август, без сентября."
+   },
+   {
+    "owner": "w2-game",
+    "file": "src/game/CompanyQuiz.tsx, src/pages/Game.tsx",
+    "what": "К концу моей работы CompanyQuizCard не было. На главной своя карточка KnowledgeCheck в блоке #myth со ссылкой на /game?t=quiz — этот режим должен работать. Если сведение захочет встроить CompanyQuizCard, это одна строка в MythSection.tsx."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/components/Layout.tsx",
+    "what": "Предложение: добавить в меню пункт «Практика» → '/#practice' — это главное предложение страницы. Новые якоря главной: #practice, #shift, #history, #mentors."
+   },
+   {
+    "owner": "w2-content",
+    "file": "README.md",
+    "what": "Добавить в таблицу «требование кейса → где»: история и бренды → главная #history; слоган и образ концепции → #practice; ролики «Смена изнутри» → #shift; наставничество и Квасыч → #mentors; контрольные вопросы → карточка в #myth и /game?t=quiz. Отметить, что scripts/fonts-subset.py собирает ядро латиницы."
+   }
+  ],
+  "checks": "pnpm typecheck: tsconfig.json и tsconfig.node.json без ошибок; в tsconfig.scripts.json одна ошибка в чужом w2-brand-docs-print.test.ts. Юнит-тесты прошли (node scripts/test-all.mjs w1-home w2-home c2-brand-media-shiftvideo c2-brand-media-pictograms, 9 файлов). Сценарии e2e home-sections, home-hero и новый w2-home прошли — запускал временным раннером против своего сервера на 8841 со своей базой и сборкой вне dist. Полный e2e не запускал. Скриншоты 390 и 1440 по всем секциям просмотрены: прокрутки вбок нет, ошибок в консоли нет, на 390×844 нижний край «Откликнуться» на 818 px. Сервер остановлен, база ochakovo_w2_home удалена, временные скрипты удалены.",
+  "notes": "Порядок главной: первый экран → «Практика» (слоган «Сначала научим, потом доверим», кадр «наставник у пульта» из ролика без титров и банок, 4 отдела с пиктограммами, 6 льгот) → «Смена изнутри» → «Собери лето» → «Подбор работы» → «Условия» → «Путь кваса» → «Поймай брак» → «Вакансии» (три формата) → «Квас делают люди» → «Наставник у каждого новичка» → «Правда или миф» с контрольными вопросами → Квасыч → «Вопросы».\nЛегенда дословно из concept.md, это сверяет тест.\nУбраны «Сезонная работа», ДМС, «имя и телефон», «Можно на июнь — август» для практики и «без оплаты в месяц».\nТесты w1-home-* и e2e home-* правил как преемник w1-home-sections и w1-home-hero.\nЧужие правки: в home-hero.ts строка /vacancies теперь проверяет «все факты», а не ровно пять — w2-pages-chat добавил факты."
+ },
+ "w2-game": {
+  "id": "w2-game",
+  "done": [
+   "w2-gm-c1",
+   "w2-gm-1",
+   "w2-gm-2",
+   "w2-gm-3"
+  ],
+  "partial": [],
+  "notDone": [
+   {
+    "key": "живой прогон через scripts/e2e.ts и сервер с базой",
+    "why": "Сервер сейчас не стартует из-за чужой незаконченной правки: server/llm/offline.ts импортирует isSeasonal из server/assistant/tools. Полный прогон по заданию делает сведение. Плагины w2-game и game я прогнал тем же E2eHarness на своей сборке (порт 5344) в Chromium и WebKit."
+   }
+  ],
+  "filesChanged": [
+   "src/game/CompanyQuiz.tsx (новый)",
+   "src/game/companyQuizPlay.ts (новый)",
+   "src/game/companyQuizStore.ts (новый)",
+   "src/game/challenge.ts (новый)",
+   "src/game/storyImage.ts (новый)",
+   "src/game/InlineGame.tsx",
+   "src/game/useConveyorGame.ts",
+   "src/game/ConveyorStage.tsx",
+   "src/game/Bottle.tsx",
+   "src/pages/Game.tsx",
+   "scripts/tests/w2-game-company-quiz.test.ts (новый)",
+   "scripts/tests/w2-game-challenge.test.ts (новый)",
+   "scripts/e2e/w2-game.ts (новый)",
+   "scripts/e2e/game.ts (только проверка ссылки «Поделиться»)",
+   "scripts/tests/w1-game-result.test.ts (только проверка ссылки «Поделиться»)"
+  ],
+  "needs": [
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/pages/Apply.tsx",
+    "what": "Поддержать ?friend=1: withFriend: invited || params.get('friend') === '1'. На этот адрес ведёт кнопка «Откликнуться вдвоём» после вызова друга."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/pages/Apply.tsx",
+    "what": "В game заявки передавать companyQuiz: companyQuizSnapshot() из src/game/companyQuizStore.ts. Это лучший счёт контрольных вопросов вида {score, total} или null."
+   },
+   {
+    "owner": "сведение (c2-fields)",
+    "file": "shared/applications.ts",
+    "what": "В GameSnapshot добавить companyQuiz?: { score: number; total: number }. Миграция не нужна: колонка game типа jsonb."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "shared/applicationInput.ts",
+    "what": "Нормализовать game.companyQuiz: целые числа, 0 ≤ score ≤ total ≤ 12, иначе отбросить."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/api/public.ts, server/db/funnel.ts",
+    "what": "Принимать task_done с task 'company' (сейчас ответ 400) и типы game_start и share с kind (w2-pl-7). Клиент их уже отправляет, без очков."
+   },
+   {
+    "owner": "w2-hr-pipeline / w2-hr-insights",
+    "file": "src/components/hr/*, shared/hr.ts",
+    "what": "В карточке кандидата показывать «Контрольные вопросы: 6 из 7». По желанию — колонка в выгрузках и строка 'company' в таблице «Задания и наём»."
+   },
+   {
+    "owner": "w2-home",
+    "file": "src/home/MythSection.tsx",
+    "what": "По желанию вместо KnowledgeCheck поставить <CompanyQuizCard tone=\"light\" level=\"h3\" className=…/> из src/game/CompanyQuiz.tsx: вопросы раскрываются прямо на главной. Ссылка /game?t=quiz работает и без этого."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/app.ts",
+    "what": "По желанию — свои title, description и og для /game?t=quiz («Что ты знаешь об «Очаково»»). Заголовок вкладки уже ставит клиент."
+   }
+  ],
+  "checks": "Unit-тесты: w2-game-company-quiz 10/10, w2-game-challenge 9/9, w1-game-result 11/11, w1-game-bottle 6/6. tsc по tsconfig.json — 0 ошибок во всём проекте, в tsconfig.scripts.json в моих файлах ошибок нет. E2E-плагины w2-game и game через E2eHarness на своей сборке: Chromium зелёные (2 сценария w2-game и 5 шагов game), WebKit тоже зелёные. Проверено: одинаковый c даёт одинаковые data-slot и data-kind на 390 и 1440, неверный c игнорируется, PNG 1080×1920 весит около 150 КБ, game_start приходит один раз, share с kind game, нет горизонтальной прокрутки, контраста ниже нормы и элементов без подписи. Скриншоты 390 и 1440 (страница вопросов, карточка светлая и тёмная, вызов, картинка для сторис, игра на главной) я просмотрел, лежат в /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w2-game/shots/. База ochakovo_w2_game удалена, свои серверы остановлены, временные scripts/.tmp-w2-game-* удалены.",
+  "notes": "«Засчитывается в game.activities» буквально сделать нельзя: это «Смена N/4», сервер и HR ограничивают число четырьмя, и квиз выдал бы «4/4» за три задания. Поэтому счёт хранится отдельно: ochakovo.companyQuiz, companyQuizSnapshot(). Первый законченный раунд отправляет task_done с task 'company'. Подключить к заявке и серверу нужно по needs.\nСсылка вызова: c=<сид>-<очки>-<поймано>-<лишние>-<брака всего>. Пятое поле нужно для «из 14», старая форма из четырёх полей тоже читается. Брак определяется по логическим слотам (slotRandom).\nСтраница /game получила переключатель «Поймай брак / Контрольные вопросы». Звуки квиза идут через sfx и по умолчанию выключены."
+ },
+ "w2-hr-insights": {
+  "id": "w2-hr-insights",
+  "done": [
+   "w2-hi-c1",
+   "w2-hi-1",
+   "w2-hi-2",
+   "w2-hi-c2",
+   "w2-hi-4"
+  ],
+  "partial": [
+   "w2-hi-3"
+  ],
+  "notDone": [
+   {
+    "key": "w2-hi-3: реестр меток с расходом в демо",
+    "why": "Миграции 014 и server/db/sources.ts от w2-hr-sources ещё нет, схема реестра неизвестна. В demo.ts есть хук: если sources.ts экспортирует seedDemoSources(sql, метки), seedDemo его вызовет. Подписка из 018, события игры из 020, остальные демо-данные готовы."
+   }
+  ],
+  "filesChanged": [
+   "/Users/kitty/Ochakovo/shared/hr.ts",
+   "/Users/kitty/Ochakovo/shared/demo.ts",
+   "/Users/kitty/Ochakovo/server/db/demo.ts",
+   "/Users/kitty/Ochakovo/server/db/funnel.ts",
+   "/Users/kitty/Ochakovo/server/export/xlsx.ts",
+   "/Users/kitty/Ochakovo/src/components/hr/FunnelView.tsx",
+   "/Users/kitty/Ochakovo/src/lib/hr/insights.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w1-hr-insights-funnel.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w1-hr-insights-xlsx.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-hr-insights-exports.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-hr-insights-funnel.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-hr-insights-demo.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-hr-insights-game.test.ts",
+   "/Users/kitty/Ochakovo/scripts/e2e/w2-hr-insights.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-hr-sources",
+    "file": "server/db/sources.ts",
+    "what": "Контракт sourceCosts(sql, from, to) → Record<код метки, ₽>. Воронка подхватывает его сама: funnel.ts загружает './sources' динамическим импортом и без модуля скрывает колонки расхода. По желанию — seedDemoSources(sql, codes) для «Демо-данных», его вызывает seedDemo. После слияния можно заменить динамический импорт статическим."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/hr.md",
+    "what": "В 1С новые колонки идут после «Номера заявки»: Дата рождения, Когда может выйти, Практика от вуза, Хочет остаться, Согласие, его версия и дата, Дата оформления, Дата приёма, Смена, Наставник, Документы по практике, Итог сезона, Причина ухода, Резерв. Фраза «Номер заявки в последней колонке» устарела. В Excel, CSV и JSON 17 новых колонок добавлены в конец. В разделе «Воронка» описать новые блоки: итог сезона, явка, причины ухода, приглашения, сравнение с цифрами компании, игра, расход."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/strategy.md",
+    "what": "Строка 168: «компания считает конверсию от всех, кто увидел вакансию». В кейсе (слайд 5) указано только «0,02%», база расчёта не названа. Панель честно пишет, что база неизвестна."
+   },
+   {
+    "owner": "w2-hr-pipeline / w2-platform",
+    "file": "scripts/hr-test.ts",
+    "what": "Проверка «бот: имя и ник давно не заходившего стёрты» падает после обезличивания строк bot_users в миграции 020. С моими правками это не связано: остальные 315 проверок проходят."
+   },
+   {
+    "owner": "c2-fields / w2-hr-pipeline",
+    "file": "scripts/tests/c2-fields-onboarding.test.ts",
+    "what": "PATCH профиля с датой рождения теперь отвечает 422 bad_birth_date — это новая проверка w2-hr-pipeline. Тест c2-fields ждёт 200. С моими файлами не связано."
+   }
+  ],
+  "checks": "pnpm typecheck: мои файлы чистые, единственная ошибка — в чужом w2-brand-docs-print.test.ts. Все тесты w1-hr-insights-* и w2-hr-insights-* (exports, funnel, demo, game) проходят. Демо-тест прогнан около 60 раз, после двух правок нестабильности нет. Тесты hr-, c2-fields, core-, ops-, w1-platform проходят, кроме чужого c2-fields-onboarding. hr-test на своей базе: 315 из 316, упавшая проверка — чужая. E2E только по своим сценариям (E2E_ONLY=w1-hr-insights,w2-hr-insights, порт 8846, своя сборка): всё зелёное. Скриншоты 390 и 1440 px (воронка, недели, расход с подменой ответа API) — без горизонтальной прокрутки и ошибок консоли. Скриншоты лежат в scratchpad/build/w2-hr-insights/. Сервер остановлен, база ochakovo_w2_hr_insights удалена, временные скрипты удалены.",
+  "notes": "Выгрузки: прежние колонки на своих местах, новые — в конце. Дата рождения в Excel — настоящая дата без сдвига часового пояса, в JSON — YYYY-MM-DD. У обезличенной заявки вместо даты рождения пометка «удалено по сроку хранения», в 1С — пустая ячейка. Учёба пишется в третьем лице («Уже не учится»), как в карточке. «Воронка»: восемь плиток, таблица во всю ширину со строкой «Итого», явка, причины отказа и ухода, приглашения, блок «Игра и «поделиться»» (появляется только при событиях), сравнение с цифрами компании. Цифры компании — со слайда 5 кейса (0,02%, 38%, 52) с подписями «по данным панели» и «по данным компании». Расход и «₽ за выход» показываются, только когда есть реестр меток. Тесты закрепляют 67% и 15 000 ₽. В w1-тестах hr-insights поправил ожидания под новые колонки. В демо: практиканты с итогом «Сезон отработан» в пределах 30 дней, у пары по приглашению с сайта приглашённый на смене."
+ },
+ "w2-platform": {
+  "id": "w2-platform",
+  "done": [
+   "w2-pl-c1",
+   "w2-pl-c2",
+   "w2-pl-1",
+   "w2-pl-2",
+   "w2-pl-3",
+   "w2-pl-4",
+   "w2-pl-5",
+   "w2-pl-7",
+   "w2-pl-8",
+   "need c2-fields: scripts/e2e.ts — встроенная заявка с полями кейса",
+   "need c2-fields: server/retention — birth_date = null при обезличивании",
+   "need c2-facts: описание /vacancies и /apply в server/app.ts, ops-meta через plain(), перерисовка og (11 вакансий, 56 000–70 000 ₽)",
+   "need c2-facts: index.html 57 000 → 56 000",
+   "need c2-brand-media: /video/*.mp4 — 206, video/mp4, без сжатия, Docker"
+  ],
+  "partial": [
+   "w2-pl-6: modulepreload чанка страницы по манифесту на /apply, /vacancies, /game, /privacy и /consent, /.vite наружу не отдаётся (запрос чанка на 3G-троттлинге — через 210–300 мс, без предзагрузки — через 1600 мс). Готовая разметка первого экрана в dist/index.html не сделана",
+   "w2-pl-8: access_log и logAccess, выгрузка на Диск пишется в журнал, /api/health.ops (failed24h, stuck, disk, retention, botsLastSeen, lastExport, кэш 30 с), docker-smoke внутри задания docker в CI. Перенос process.env в config.ts и console.* в log() не делал",
+   "w2-pl-3: responseDays в /api/config не добавлен — настройки срока ответа у w2-hr-admin нет"
+  ],
+  "notDone": [
+   {
+    "key": "w2-pl-6 пререндер первого экрана",
+    "why": "Нужны сборка готовой разметки Hero и смена старта в src/main.tsx (createRoot поверх разметки), плюс договорённость с w2-home, чтобы вступление не повторялось. Это чужие файлы, а цель FCP ≤ 1,6 с без пререндера не проверить"
+   },
+   {
+    "key": "w2-pl-8 config.ts и log()",
+    "why": "Задача стоит последним шагом. Она трогает все модули сервера, пока другие пакеты их правят: высокий риск, пользы для показа мало"
+   },
+   {
+    "key": "w2-pl-1: главная легче на 35 КБ",
+    "why": "Импортов GSAP не было и до меня, в чанке оставался только Lenis (18 КБ, тот же хеш). Зависимости и группу vendor-gsap я убрал, но прибавки в весе нет: её дали раньше"
+   },
+   {
+    "key": "docker build",
+    "why": "Образ локально не собирал: реестр npm недоступен, pnpm install внутри образа упадёт. Dockerfile и CI проверены тестами и docker compose config"
+   }
+  ],
+  "filesChanged": [
+   "server/middleware/video.ts (новый)",
+   "server/middleware/security.ts",
+   "server/middleware/rate-limit.ts",
+   "server/app.ts",
+   "server/index.ts",
+   "server/api/public.ts",
+   "server/candidate/rights.ts (новый)",
+   "server/candidate/status.ts",
+   "server/retention/index.ts",
+   "server/integrations/sync.ts",
+   "server/db/accessLog.ts (новый)",
+   "server/db/migrations/020_platform.sql (новый)",
+   "package.json",
+   "pnpm-lock.yaml",
+   "vite.config.ts",
+   "index.html",
+   "Dockerfile",
+   ".env.example",
+   ".github/workflows/ci.yml",
+   "docs/deploy.md",
+   "scripts/server-test.ts",
+   "scripts/e2e.ts",
+   "scripts/perf.mjs",
+   "scripts/og.mjs",
+   "public/og/home.png",
+   "public/og/vacancies.png",
+   "public/og/game.png",
+   "public/og/og.json",
+   "public/apple-touch-icon.png",
+   "scripts/tests/ops-meta.test.ts",
+   "scripts/tests/w2-platform-video.test.ts (новый)",
+   "scripts/tests/w2-platform-analytics.test.ts (новый)",
+   "scripts/tests/w2-platform-rights.test.ts (новый)",
+   "scripts/tests/w2-platform-config.test.ts (новый)",
+   "scripts/tests/w2-platform-ops.test.ts (новый)"
+  ],
+  "needs": [
+   {
+    "owner": "w2-bot",
+    "file": "scripts/tests/w2-bot-links.test.ts",
+    "what": "Строки 118–120: после /delete строки bot_users с этим user_id больше нет (eraseBotUser удаляет её целиком, на её месте обезличенный счётчик erased). Вместо assert.deepEqual(user, {first_name: null, …}) — assert.equal(user, undefined). Я прогнал тест с этой правкой: остальное зелёное, botAudience не меняется, запись kind=request есть."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/storage.ts, server/db/index.ts",
+    "what": "Комментарии «строка аудитории остаётся» устарели: строка удаляется, на её месте erased-счётчик. В eraseUser после вызова eraseBotUser ваш update bot_users ничего не находит, вреда нет. В memoryStorage по желанию сделать то же самое."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "scripts/hr-test.ts",
+    "what": "Около строки 885: проверка «бот: имя и ник давно не заходившего стёрты, строка для воронки осталась» устарела. Теперь строки с user_id нет, а есть строка erased=true с тем же каналом. Ещё одна проверка падает не из-за меня: «отфильтрованная выгрузка: Воронка по выгруженным заявкам»."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "server/api/hr.ts",
+    "what": "Журнал выгрузок: после POST /api/hr/export вызывать logAccess(sql, {user:{id,name,role}, action:'export', format, rows, filter: query, applicationIds}) из server/db/accessLog.ts. При чтении через x-hr-token — action:'token_read', who:'Служебный токен'. В syncNow для кнопки «Выгрузить сейчас» передавать by: {id,name,role}."
+   },
+   {
+    "owner": "w2-hr-admin",
+    "file": "src/components/hr/SettingsView.tsx, server/api/hr.ts",
+    "what": "По желанию: раздел «Журнал выгрузок» через accessLog(sql, {limit, applicationId}) и «Состояние» по /api/health → ops."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/lib/api.ts",
+    "what": "В RetentionEntry.kind добавить 'candidate': так пишется отзыв согласия на сайте и «Удалить мои данные» в боте."
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "server/db/funnel.ts",
+    "what": "В FunnelEventType добавить 'game_start' и 'share': миграция 020 и /api/events их принимают, вид лежит в колонке task. В public.ts пока стоит приведение типа. В воронке можно показать «Начали игру» и «Поделились»."
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "server/db/demo.ts",
+    "what": "В clearAll по желанию добавить delete from access_log."
+   },
+   {
+    "owner": "w2-content",
+    "file": "README.md",
+    "what": "В строке /api/events добавить game_start и share с видом (game, money, invite). У /api/health — сводку ops: неудачные задачи, Диск, срок хранения, боты, последняя выгрузка. Таблица API падает не из-за меня: нет маршрутов /api/hr/kb-answers."
+   },
+   {
+    "owner": "w2-home или владелец scripts/e2e/_harness.ts",
+    "file": "scripts/e2e/_harness.ts (doMoney)",
+    "what": "Во «Собери лето» сентябрь теперь недоступен, поэтому doMoney падает и встроенная цепочка e2e (задания → заявка → HR) не запускается. Нужно выбирать доступный месяц. Ожидания месяцев в scripts/e2e.ts (Июн–Сен и months [6,7,8,9]) сведение поправит вместе с doMoney. Мой шаг заявки с полями кейса проверен отдельно на своём сервере: фамилия, дата по маске, вуз и «Сразу» сохраняются."
+   },
+   {
+    "owner": "w2-booking",
+    "file": "server/api/booking.ts",
+    "what": "GET /api/applications/:id/booking отвечает 404, это заглушка. «Моя заявка» запрашивает его, и проверки e2e «без ответов 4xx» упадут, пока маршрута нет."
+   }
+  ],
+  "checks": "pnpm typecheck: мои файлы чистые, ошибка только в чужом w2-brand-docs-print.test.ts. Свои тесты зелёные: w2-platform-video, -analytics, -rights, -config, -ops; ops-deploy, ops-meta, ops-og, ops-ready; core-*, w1-platform-core-*; test:server (63 проверки на своей сборке через DIST_DIR) и test:channels. Регрессия в соседних пакетах: w1-hr-*, w2-hr-*, w2-pages-chat-*, w2-bot-apply и w2-assistant-hr-answers зелёные. Падают w2-bot-links (ожидаемо, см. needs), а также не мои test:dialog и w2-content-docs. Проверено вживую на 8847 со своей сборкой: Range через curl побайтно совпадает; WebKit делает bytes=0-1 → 206, играет и перематывает, Chromium тоже. На главной ролик в «Смене изнутри» играет в WebKit на 390 и в Chromium на 1440, скриншоты в scratchpad/build/w2-platform/shots. PERF_ONLY=hr: 5000 строк, первая отрисовка 665 мс, поиск 29 мс, пустой опрос 494 Б, ok=true. Чанк страницы на 3G-троттлинге запрашивается через 210–300 мс против 1600 мс без modulepreload. pnpm install --frozen-lockfile --lockfile-only --offline на копии: lockfile совпадает с package.json. Встроенные e2e на своей сборке: «Главная» и «Доступность» зелёные, цепочка упала на чужом doMoney. Картинки og и иконку оценил глазами. Своя база удалена, сервер остановлен, временные скрипты удалены.",
+  "notes": "Видео: свой обработчик /video/* в server/middleware/video.ts. Отдаёт 206 и 416, If-Range, ETag и 304, Accept-Ranges всегда, no-transform, кэш 30 дней, с ?v= — immutable. В Docker ролики лежат одной копией в dist/video, сборка падает, если их нет. Права кандидата: строка bot_users удаляется целиком, на её место встаёт обезличенный счётчик (erased, случайный id, час прихода), поэтому воронка и botAudience не меняются. В журнале у отзыва согласия kind=candidate, «Кандидат». Архив на Диске собирается без ФИО, контактов, даты рождения, учёбы, свободного текста и имён сотрудников. Аналитика: метатаг и CSP по METRIKA_ID и VK_PIXEL_ID, без ID CSP совпадает со снимком. Добавил DIST_DIR (сервер, server-test) и E2E_DIST (e2e), чтобы проверять свою сборку, не трогая общую dist. Сведению: pnpm install --frozen-lockfile уберёт gsap из node_modules. Описания страниц для превью переписаны под факты."
+ },
+ "w2-assistant": {
+  "id": "w2-assistant",
+  "done": [
+   "w2-as-c1",
+   "w2-as-2",
+   "w2-as-1",
+   "w2-as-3",
+   "w2-as-4"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "server/assistant/text.ts",
+   "server/assistant/hrAnswers.ts",
+   "server/assistant/kbAnswers.ts",
+   "server/assistant/knowledge.ts",
+   "server/assistant/guard.ts",
+   "server/assistant/tools.ts",
+   "server/assistant/topics.ts",
+   "server/assistant/assistant.ts",
+   "server/assistant/types.ts",
+   "server/llm/offline.ts",
+   "server/llm/speech.ts",
+   "server/llm/gigachat.ts",
+   "server/llm/provider.ts",
+   "server/api/hr-kb.ts",
+   "server/db/migrations/016_kb_answers.sql",
+   "src/components/hr/KbGapsView.tsx",
+   "src/lib/hr/kb.ts",
+   "scripts/assistant-test.ts",
+   "scripts/fixtures/assistant-eval.tsv",
+   "scripts/tests/w1-assistant-offline.test.ts",
+   "scripts/tests/w2-assistant-handbook.test.ts",
+   "scripts/tests/w2-assistant-gigachat.test.ts",
+   "scripts/tests/w2-assistant-hr-answers.test.ts",
+   "scripts/tests/w2-assistant-rebuild.test.ts",
+   "scripts/e2e/w2-assistant.ts",
+   "docs/llm.md"
+  ],
+  "needs": [
+   {
+    "owner": "w2-content",
+    "file": "README.md",
+    "what": "Тест w2-content-docs требует строку в таблице API, раздел «Сервер и боты»: «| GET, POST, PATCH | `/api/hr/kb-answers`, `/api/hr/kb-answers/check`, `/api/hr/kb-answers/:id` | ответы HR на вопросы к Квасычу: список, проверка текста, сохранение, правка и выключение |». Маршруты: GET /api/hr/kb-answers, POST …/check, POST /api/hr/kb-answers, PATCH …/:id."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "scripts/dialog-test.ts",
+    "what": "Проверка «нет ответа — не «передал», а контакты и «Откликнуться»» (около строки 708) спрашивает «есть ли премия за переработку». Теперь на это есть ответ из справочника: часы сверх нормы оплачиваются отдельно. Взять вопрос без данных, например «есть ли парковка для сотрудников». Остальные 336 проверок проходят."
+   },
+   {
+    "owner": "w2-hr-admin",
+    "file": "shared/content/faq.ts",
+    "what": "1) practice-docs: «дневник или отчёт ведёшь сам» — мужской род, нужно нейтрально: «дневник или отчёт заполняет студент». 2) quit: «по сезонному договору — за три дня (ст. 296)». У практики срочный трудовой договор, сезонной работы в данных нет. Предлагаю: «по ст. 80 ТК РФ предупреждают письменно за две недели, а по срочному договору до двух месяцев — за три календарных дня (ст. 292)»."
+   },
+   {
+    "owner": "w2-hr-admin",
+    "file": "server/api/hr-content.ts",
+    "what": "После правки вакансий в редакторе (суммы, закрытие) вызывать rebuildKnowledge() из server/assistant/knowledge.ts. Он пересоберёт базу, промпт, список вакансий в функциях и разрешённые суммы guard. Сам массив vacancies нужно менять на месте."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/app.ts",
+    "what": "Добавить в /api/health метрики помощника: assistantStats() из server/assistant/assistant.ts → {answers, avgMs, fallbackShare, timeouts, bySource}."
+   },
+   {
+    "owner": "w2-platform",
+    "file": ".env.example",
+    "what": "Добавить GIGACHAT_QUEUE= с комментарием: сколько запросов может ждать в очереди к GigaChat, по умолчанию 8; при переполнении сразу отвечает офлайн-режим."
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "server/db/demo.ts",
+    "what": "В demoQuestions два вопроса упоминают сезонную работу, которой больше нет: «ДМС действует, если я на сезонной работе?» и «медицинскую страховку сезонным оформляют?». Заменить на «…на практике?» и «…практикантам оформляют?». Тема в TOPIC.dms теперь «ДМС»."
+   }
+  ],
+  "checks": "Тесты пакета, все зелёные (node scripts/test-all.mjs assistant w2-assistant w1-assistant c2-facts-assistant w1-home-sections):\n- test:assistant: 139/139.\n- assistant-eval: 100 % (80 из 80), отложенная часть 100 %.\n- w1-assistant-offline: 20/20.\n- w2-assistant-handbook: 7/7.\n- w2-assistant-gigachat: 10/10.\n- w2-assistant-hr-answers: 3/3 на настоящем PostgreSQL через withTestDb.\n- w2-assistant-rebuild: 3/3.\n- c2-facts-assistant, w1-home-sections-botblock и -facts — зелёные.\n\nСвоё e2e (E2E_ONLY=w2-assistant, E2E_DIST — моя сборка, порт 8845): 2 из 2 сценариев, на 390 горизонтальной прокрутки нет.\n\nСоседние проверки зелёные: core-migration (016 применяется с нуля и на существующую базу), w1-hr-insights-demo, w1-bot-pg, w1-bot-ops, w1-bot-intent, w2-bot-apply, w1-channels-dialog, ops-ready, test:channels, docs-тесты w1-content-docs и content-docs-paths.\n\nTypecheck: tsconfig.node и tsconfig.json чистые. Мои файлы в scripts чистые; две ошибки остаются в чужих тестах w1-hr-insights-xlsx и w2-brand-docs-print.\n\nЧужие падения вне моих файлов:\n- dialog-test: 336 из 337; нужна правка, см. needs.\n- w2-content-docs: нужна строка API в README, см. needs.\n- w2-bot-links: сбой в стирании bot_users, не связан с помощником.\n- server-test: 3 проверки собранного dist (vendor-gsap, manifest, видео).\n\nСкриншоты 390 и 1440 вкладки «Вопросы к Квасычу» (форма, проверка на лету, сохранение) лежат в /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w2-assistant/. Сервер остановлен, база ochakovo_w2_assistant удалена, временные скрипты удалены.",
+  "notes": "P0. Квасыч отвечает по «Справочнику студента»: общежитие, столовая, зарплата, учёба, прачечная, пропуск, здравпункт, документы, наставник, испытательный срок, автобус, телефоны. Тексты и цифры — из shared/content. guard пропускает суммы общежития (3 400 и 6 800) и штраф за пропуск (500). Слово «помощник» больше не считается должностью. Вопросы без данных (регистрация, «возьмут ли девушку», телефон на смене) сразу уходят к HR.\n\nКвасыч — образ наставника. Ответы на BOT_SAMPLE с главной совпадают слово в слово.\n\nP1. Ответ HR сразу работает в /api/dialog. Поиск формулировок проверен на тестовых. GigaChat получает срок ответа и очередь с пределом; проверено только на подменённом fetch, живого ключа нет.\n\nguard: время 8:00–20:00 теперь факт — пропускаем время из данных, режем остальное.\n\nНесколько фактов справочника без цифр (три шага новичка, военкомат) добавлены в knowledge.ts с цитатами: в shared/content/handbook.ts их нет."
+ },
+ "w2-content": {
+  "id": "w2-content",
+  "done": [
+   "w2-dc-c1",
+   "w2-dc-c2",
+   "w2-dc-3",
+   "c2-facts→w2-content: shared/hhVacancy.ts",
+   "c2-brand-concept→w2-content: docs/kvasych.md, docs/strategy.md, README (строка концепции)",
+   "c2-brand-media→w2-content: README (scripts/media.mjs, лицензия Proxima Nova)"
+  ],
+  "partial": [],
+  "notDone": [
+   {
+    "key": "w2-dc-1, w2-dc-2",
+    "why": "В excludedTasks: сценарий показа, слайды и видео заказчик оставил себе."
+   },
+   {
+    "key": "Описание /focus и роликов на карточках вакансий",
+    "why": "На момент сдачи w2-focus и ролики на /vacancies не сданы. Они стоят в docs/roadmap.md, раздел «Вторая волна: в работе», в README их нет."
+   }
+  ],
+  "filesChanged": [
+   "/Users/kitty/Ochakovo/shared/hhVacancy.ts",
+   "/Users/kitty/Ochakovo/README.md",
+   "/Users/kitty/Ochakovo/docs/strategy.md",
+   "/Users/kitty/Ochakovo/docs/roadmap.md",
+   "/Users/kitty/Ochakovo/docs/hr.md",
+   "/Users/kitty/Ochakovo/docs/kvasych.md",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-content-hh.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-content-docs.test.ts"
+  ],
+  "needs": [
+   {
+    "owner": "сведение",
+    "file": "README.md, docs/roadmap.md, docs/hr.md",
+    "what": "Когда сдадут /focus (server/api/focus.ts, FocusView) и ролики на карточках вакансий: w2-content-docs покажет маршруты без строки в README — дописать строки API. Ещё: строка «Где смотреть», перенос пунктов из «Вторая волна: в работе» в «Сделано», вкладка в hr.md (строка 3)."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/components/Mascot.tsx",
+    "what": "Добавить позу 'mentor' в MascotPose и poseLabel (подпись «у пульта»). docs/kvasych.md описывает kvasych-mentor.png как новую позу."
+   },
+   {
+    "owner": "w2-hr-admin",
+    "file": "src/components/hr/SettingsView.tsx",
+    "what": "Необязательно. В предпросмотре hh.ru перед problems стоит «Поправить:». У бесплатной практики (HH_FREE_PRACTICE_PROBLEM из shared/hhVacancy.ts) лучше писать «Не публикуем:»."
+   },
+   {
+    "owner": "w2-brand-docs",
+    "file": "scripts/tests/w2-brand-docs-print.test.ts",
+    "what": "Это единственная ошибка pnpm typecheck: TS6133, импорт dirname не используется."
+   }
+  ],
+  "checks": "Зелёные: w2-content-hh (6/6), w2-content-docs (7/7, таблица API сверена с маршрутами createApp на временной базе), content-docs-paths, w1-content-docs, w1-content-facts, ops-deploy, c2-brand-concept-doc, w2-brand-docs-materials. tsc по трём проектам: в моих файлах ошибок нет, единственная ошибка — чужой тест. Предпросмотр hh.ru в HR снят на 390 и 1440 (сервер 8853, база ochakovo_w2_content) и просмотрен. Скриншоты: /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w2-content/hh-*.png. Сервер остановлен, база удалена, временные скрипты убраны.",
+  "notes": "Цифры о поколении Z в case-delta не подтвердились: «45% через знакомых», «ярмарки 5% против 44% через вуз». В стратегию взяты проверенные: hh.ru 47% и знакомые 24% («Ближе» и АБА), без суммы не смотрят 45% (SuperJob), без ответа 3 дня теряют интерес 40% (hh.ru), через вуз не взаимодействуют 43,59% (IPR). URL с годом нельзя (запрет дат), поэтому AdIndex указан без ссылки. Убрано выдуманное «компания считает конверсию от увидевших». В hhVacancy: роли сверены с api.hh.ru, у практики accept_temporary и условия сайта, бесплатная практика попадает в problems, корпоративный автобус назван один раз. Строгий тест w2-content-docs падает, если в README нет маршрута сервера."
+ },
+ "w2-booking": {
+  "id": "w2-booking",
+  "done": [
+   "w2-bk-1",
+   "w2-bk-2",
+   "w2-bk-3"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "server/db/migrations/017_booking.sql",
+   "server/booking/hours.ts",
+   "server/booking/state.ts",
+   "server/booking/text.ts",
+   "server/booking/service.ts",
+   "server/booking/memory.ts",
+   "server/booking/index.ts",
+   "server/api/booking.ts",
+   "server/dialog/flows/booking.ts",
+   "src/lib/hr/booking.ts",
+   "scripts/tests/w2-booking-hours.test.ts",
+   "scripts/tests/w2-booking-api.test.ts",
+   "scripts/tests/w2-booking-bot.test.ts",
+   "scripts/tests/w2-booking-hiringday.test.ts",
+   "scripts/e2e/booking.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/flows/status.ts",
+    "what": "В «Моей заявке» добавить ряды из bookingRows(ctx) (server/dialog/flows/booking.ts): «Выбрать время собеседования», а после записи — «Другое время» и «Отменить запись»."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/flows/apply.ts",
+    "what": "После успешной заявки с меткой дня найма (isHiringLabel(ctx.session.source) из server/booking) добавить кнопку «Выбрать час собеседования» с действием b:list."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "scripts/bot-sim.ts, scripts/dialog-test.ts",
+    "what": "Подключить memoryBooking(storage) из server/booking/memory.ts. В симуляторе — команда !offer: booking.offer(id последней заявки). В dialog-test — раздел «HR предложил → b:list → час → занятый час (booking.occupy) → b:none → b:cancel»; есть образец в scripts/tests/w2-booking-bot.test.ts."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/components/candidate/booking.ts, src/components/candidate/ApplicationStatus.tsx",
+    "what": "GET /booking теперь отдаёт offered, full и hiringDay {day, address}. Показывать блок и при offered=true с пустыми часами: «Мест нет» (full) и ссылку «Ни одно время не подходит». Для дня найма заголовок «День найма: выбери час» и строка «Оформление — потом: дату назовёт HR». Ответ 410 {message} (срок вышел или предложения нет) показывать текстом сервера. Убрать «Собеседование — около часа»: длительности в материалах нет."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "src/components/hr/CandidateDrawer.tsx, список заявок, «График» или «Настройки»",
+    "what": "В карточке — состояние предложения через bookingInfo(id) из src/lib/hr/booking.ts («Предложено выбрать время до …», «Кандидату не подошло ни одно время», «Время выбрано кандидатом») и кнопка «Отозвать предложение» (withdrawBookingOffer). Метка в списке — по openBookingOffers(). Раздел «Дни найма»: hiringDays, createHiringDay, closeHiringDay, ссылки links.site/telegram/max и QR."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/middleware/rate-limit.ts",
+    "what": "Лимит для POST и DELETE /api/applications/:id/booking и POST …/booking/none (например burst 20, perMinute 10). GET /api/applications/:id/booking — как у статуса."
+   },
+   {
+    "owner": "w2-hr-sources",
+    "file": "shared/sources.ts / реестр меток",
+    "what": "Метки hiringday и hiringday-<…> подписывать как «День найма», тип источника — событие."
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "server/db/demo.ts",
+    "what": "В демо-данные добавить, если есть таблица booking_offers: пару предложений, одно собеседование с interviews.self_booked = true и день найма. В clearAll очищать hiring_days."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/hr.md, README.md",
+    "what": "Описать самозапись и день найма, маршруты из шапки server/api/booking.ts, правила: до 6 часов, по 3 в день, не раньше чем через 18 ч, срок предложения 7 дней, «Ни одно не подходит» ставит задачу HR. Оформление в день найма не обещаем."
+   },
+   {
+    "owner": "w2-hr-admin",
+    "file": "src/pages/HrLogin.tsx",
+    "what": "Страница входа запрашивает /api/hr/me/account без сессии и получает 401. Из-за этого e2e-проверки «без 4xx» падают на входе. Не запрашивать без сессии или принять это как норму в harness."
+   }
+  ],
+  "checks": "Тесты пакета, все зелёные: w2-booking-hours (8), w2-booking-api (4), w2-booking-bot (3), w2-booking-hiringday (3), всего 18. Тест на гонку проверен на прочность: без блокировки часа он падает (двое получают последнее место).\n\nE2E только своего плагина: E2E_ONLY=booking, порт 8849, своя сборка, одноразовая база. Все 6 шагов прошли: карточка HR → 390 px → «График» 1 из 6 и «самозапись» → 1440 px, перенос и отмена → день найма → нет ошибок консоли и 4xx/5xx после входа.\n\ntsc по трём конфигам: в моих файлах ошибок нет. Единственная ошибка — чужая, неиспользуемый импорт в w2-brand-docs-print.test.ts.\n\nСоседние наборы проходят: core-migration, w1-hr-desk-api, w2-hr-pipeline-case, w2-pages-chat-status, w2-platform-rights.\n\ndialog-test: 335 из 336. Упавшая проверка — про ответ помощника, к самозаписи не относится.\n\nСкриншоты 390 и 1440 просмотрены. Сервер остановлен, временные базы удалены, временный скрипт удалён.",
+  "notes": "Часы: до 6, в день не больше 3 — самый ранний свободный час утром, днём и ближе к вечеру. Так у студента с парами есть выбор. Не раньше чем через 18 ч, горизонт 14 дней, предложение действует 7 дней. Место держится advisory-блокировкой часа в PostgreSQL.\n\nЗапись проходит через changeStatus или reschedule со scheduleReminder, сообщение не уходит (silent), self_booked = true. В истории автор — «Кандидат». Отмена возвращает статус, бывший до записи («Не отвечает» → «Связались»). Если HR назначил время после предложения, выбор закрывается.\n\nДень найма: заявка с меткой hiringday-* получает предложение сама при первом запросе. День может быть в выходной, записаться можно до часа до начала.\n\nБот без базы — memoryBooking. Скриншоты лежат в scratchpad/build/w2-booking/.\n\nПока шла работа, shared/content/vacancies.ts чужого пакета на время ломался: 86 МБ и пропавший экспорт. Потом файл восстановился сам."
+ },
+ "w2-channels": {
+  "id": "w2-channels",
+  "done": [
+   "w2-cn-1",
+   "w2-cn-2",
+   "w2-cn-3",
+   "w2-cn-4"
+  ],
+  "partial": [],
+  "notDone": [],
+  "filesChanged": [
+   "/Users/kitty/Ochakovo/server/channels/payload.ts (новый)",
+   "/Users/kitty/Ochakovo/server/channels/preview.ts (новый)",
+   "/Users/kitty/Ochakovo/server/channels/broadcast.ts (новый)",
+   "/Users/kitty/Ochakovo/server/channels/telegram.ts",
+   "/Users/kitty/Ochakovo/server/channels/max.ts",
+   "/Users/kitty/Ochakovo/server/channels/media.ts",
+   "/Users/kitty/Ochakovo/server/api/dialog.ts",
+   "/Users/kitty/Ochakovo/server/api/hr-bots.ts",
+   "/Users/kitty/Ochakovo/server/api/hr-broadcast.ts",
+   "/Users/kitty/Ochakovo/server/db/migrations/019_broadcast.sql (новый)",
+   "/Users/kitty/Ochakovo/src/lib/hr/bots.ts (новый)",
+   "/Users/kitty/Ochakovo/src/components/hr/BotsView.tsx",
+   "/Users/kitty/Ochakovo/src/components/hr/BroadcastView.tsx",
+   "/Users/kitty/Ochakovo/scripts/channels-test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-channels-preview.test.ts (новый)",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-channels-broadcast.test.ts (новый)",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-channels-outbox.test.ts (новый)",
+   "/Users/kitty/Ochakovo/scripts/e2e/w2-channels.ts (новый)"
+  ],
+  "needs": [
+   {
+    "owner": "w2-hr-pipeline (наследник w1-hr-desk)",
+    "file": "scripts/tests/w1-hr-desk-fields.test.ts",
+    "what": "Тест «вкладки второй волны скрыты» проверяет ready = false у BotsView и BroadcastView. Теперь там ready = true. Кроме того, файл импортирует сами вкладки, а они (и SourcesView) загружают src/lib/api с import.meta.env, поэтому в node весь файл падает уже на импорте. Нужно сверять текст исходника (export const ready: boolean = true) или убрать эту проверку."
+   },
+   {
+    "owner": "w2-hr-pipeline (наследник hr-desk)",
+    "file": "scripts/e2e/hr-desk.ts",
+    "what": "Строка 343: «Боты» и «Рассылка» теперь видны, у «Рассылки» только для администратора. Их нужно убрать из списка вкладок, которые проверяются как скрытые."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "server/notify/index.ts",
+    "what": "sendBot собирает сообщение кандидату на месте: {text, buttons:[[Меню → m]]}. Лучше вынести это в экспорт botMessage(text). Тогда notifyMessage в server/api/hr-bots.ts станет его вызовом, и у «Исходящих» будет один источник. Сейчас совпадение проверяет w2-channels-outbox.test.ts."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/hr.md",
+    "what": "Раздел «Рассылка» по смыслу совпадает с тем, что сделано. Стоит дописать три вещи. Сегмент «По направлению» включает и тех, кто подписался на любое направление. Подписчики из чата на сайте рассылку не получают. «Не отправлено» в журнале — это рассылка была меньше недели назад, бот мессенджера не подключён или ошибка мессенджера."
+   }
+  ],
+  "checks": "Все проверки ниже, кроме e2e, — на имитациях; живых ботов не было. tsx scripts/channels-test.ts: 25 из 25. На фейковом API добавлена сверка адаптеров со сборщиками (tgPlanSend, maxBodies), поведение адаптеров прежнее. Мои тесты на PostgreSQL: w2-channels-preview — 5 из 5, w2-channels-broadcast — 5 из 5, w2-channels-outbox — 1 из 1. Чужие тесты w1-channels-dialog (10) и w1-channels-webhook (11) не сломались. tsc по tsconfig.json, tsconfig.node.json и tsconfig.scripts.json: в моих файлах ошибок нет; единственная ошибка — в чужом w2-brand-docs-print.test.ts. Свой e2e (E2E_ONLY=w2-channels, порт 8850, своя сборка) три раза подряд зелёный: 3 сценария, контраст, кнопки без подписи, нет сдвига вбок на 390. Скриншоты 390 и 1440 обеих вкладок я посмотрел. По ним исправил: ленту теперь видно до последнего сообщения, когда догружаются картинки; убрал путь к файлу на диске сервера из тела запроса; сделал понятнее строку «кому уйдёт»; на телефоне блоки идут в порядке набор → рассылка → журнал. Временные скрипты удалены, сервер на 8850 остановлен, базы удалены.",
+  "notes": "Сборщики (payload.ts) используются в адаптерах, в предпросмотре и в тестах. Предпросмотр: отдельный движок на хранилище в памяти, сессии живут 30 минут, не больше 40 сессий; помощник офлайн, пробелы базы знаний не записываются. В базу и воронку ничего не попадает, сетевых запросов нет — это проверено. Переключатель Telegram/MAX заново собирает ту же переписку: история общая для обоих мессенджеров, отличается только вид. Рассылка: 019 добавляет recruit_state, broadcasts и в bot_users столбцы last_broadcast_id и blocked_at. Кому именно ушло сообщение, не хранится, в журнале только счётчики. Правило «раз в неделю» резервируется до отправки. Кто заблокировал бота, пропускается, пока сам не вернётся в бот. «До конца приёма» можно отправить при заданном сроке, когда до него осталось 7 дней или меньше. dialog.ts теперь берёт mediaUrl из channels/media.ts. Предпросмотр и рассылку я проверил только на имитациях — без настоящих токенов."
+ },
+ "w2-hr-sources": {
+  "id": "w2-hr-sources",
+  "done": [
+   "w2-src-1",
+   "w2-src-3",
+   "w2-src-4",
+   "w2-src-c1",
+   "w2-src-c2"
+  ],
+  "partial": [
+   "w2-src-2"
+  ],
+  "notDone": [
+   {
+    "key": "w2-src-2: проверка распечатки живым телефоном iOS и Android, фото в отчёте",
+    "why": "У меня нет телефона и принтера. Вместо этого PDF отрендерил в масштабе кадра телефона (угол 70°, кадр 1280 и 1920 px, размытие и шум) и прочитал декодерами OpenCV. Плакат A3 читается с 1,5 м при кадре 1920 px, листовка A5 (QR 36 мм) — с 30–45 см. Живую проверку и фото должно сделать сведение."
+   },
+   {
+    "key": "Названия меток в «Воронке», карточке и списке",
+    "why": "Это чужие файлы. Контракт готов: useSourceNames() и sourceName(src, names). Нужные правки перечислены в needs. Тест показывает, что sourceNames + sourceName дают «Ярмарка МИСИС»."
+   }
+  ],
+  "filesChanged": [
+   "/Users/kitty/Ochakovo/shared/qr.ts",
+   "/Users/kitty/Ochakovo/shared/sources.ts",
+   "/Users/kitty/Ochakovo/server/db/migrations/014_sources.sql",
+   "/Users/kitty/Ochakovo/server/db/sources.ts",
+   "/Users/kitty/Ochakovo/server/api/hr-sources.ts",
+   "/Users/kitty/Ochakovo/src/lib/hr/sources.ts",
+   "/Users/kitty/Ochakovo/src/components/hr/sourcesCache.ts",
+   "/Users/kitty/Ochakovo/src/components/hr/SourcesView.tsx",
+   "/Users/kitty/Ochakovo/src/pages/HrPoster.tsx",
+   "/Users/kitty/Ochakovo/src/pages/HrFlyer.tsx",
+   "/Users/kitty/Ochakovo/scripts/fixtures/qr/make.py",
+   "/Users/kitty/Ochakovo/scripts/fixtures/qr/cases.json",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-hr-sources-qr.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-hr-sources-registry.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/w2-hr-sources-print.test.ts",
+   "/Users/kitty/Ochakovo/scripts/e2e/w2-hr-sources.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-hr-insights",
+    "file": "src/components/hr/FunnelView.tsx",
+    "what": "Около строки 154: describeSource(r.source, useSourceNames()), useSourceNames импортировать из './sourcesCache'. Метки с kind 'unknown' можно сделать ссылкой на /hr?tab=sources («Дать название»)."
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "server/export/xlsx.ts, shared/hr.ts (exportColumns, oneCColumns)",
+    "what": "Лист «Воронка» (describeSource) и колонка «Источник» в выгрузках берут названия из реестра: names = await sourceNames(sql) из server/db/sources.ts, затем sourceName(a.source, names)."
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "server/db/demo.ts",
+    "what": "В clearAll («Очистить базу») удалять демо-расходы: delete from source_costs where demo (если таблица есть). seedDemoSources(sql, codes) уже готов, demo.ts его вызывает."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "src/components/hr/Candidates.tsx, CandidateDrawer.tsx, FilterBar.tsx, DuplicatesView.tsx",
+    "what": "Это приёмка w2-src-1: в списке и карточке должно быть видно название. Заменить sourceName(a.source) на sourceName(a.source, useSourceNames()) (Candidates ~453, CandidateDrawer ~1590, FilterBar ~61, DuplicatesView ~92) или вызвать useSourceLabel() из './sourcesCache'."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "src/components/hr/AddCandidate.tsx, ImportDialog.tsx, server/api/hr.ts",
+    "what": "w2-hp-9: в «+ Кандидат» и импорте выбирать метку из реестра (useSources()?.sources, группы по sourceKinds). Сервер должен принимать метки из hr_sources, а не только manualSources."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "src/components/hr/toasts.tsx",
+    "what": "Контраст второй строки тоста (detail) — 3,65:1, нужно 4,5:1 (нашла проверка contrastProblems в e2e)."
+   },
+   {
+    "owner": "w2-hr-admin",
+    "file": "src/pages/HrLogin.tsx",
+    "what": "При открытии без сессии myAccount() даёт 401 GET /api/hr/me/account. В e2e это ответ 4xx, и проверки «без ошибок и 4xx» в чужих сценариях падают. Звать только после входа или не считать 401 ошибкой."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/hr.md, README.md",
+    "what": "Описать вкладку «Источники»: реестр меток и типы точек, «Дать название», QR (SVG и PNG), расходы (правит только администратор), плакат /hr/poster?src=<метка> и листовку /hr/poster?src=<метка>&format=a5. Эталоны QR перегенерирует scripts/fixtures/qr/make.py."
+   }
+  ],
+  "checks": "Typecheck: в tsconfig.json и tsconfig.node.json ошибок нет; в tsconfig.scripts.json одна ошибка, в чужом файле w2-brand-docs-print.test.ts. pnpm test: w2-hr-sources-qr (5 проверок), -registry (6, PostgreSQL), -print (3) зелёные. Соседние тесты core-migration, w1-hr-insights-sources, w2-hr-insights-funnel, w2-hr-insights-demo тоже зелёные. Сценарий E2E_ONLY=w2-hr-sources pnpm test:e2e прошёл в Chromium и WebKit. QR сверен с эталонами qrcodegen (Nayuki) по 20 случаям для версий 1–10, совпала каждая матрица и все 8 масок. python-qrcode совпал в 12 случаях из 12. PDF: A3 — 1 страница 297×420 мм, A5 — 2 страницы. Скриншоты 390 и 1440 — в /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w2-hr-sources/. Сервер и база ochakovo_w2_hr_sources удалены.",
+  "notes": "Расход без срока считается в любом периоде, расход со сроком — целиком, если срок пересекается с периодом. Метку менять нельзя: она уже напечатана в QR. Плакат и листовка — одна страница /hr/poster: format=a5 переключает на листовку, поэтому новый маршрут не нужен. Плакат сделан по концепции: «Оплачиваемая практика в „Очаково“», слоган, от 56 000 до 70 000 ₽. Заголовок «Работа на сезон» из старого плана заменён. Листовка повторяет макет docs/brand/print/leaflet-a5.html. Фото на ней — кадр из ролика, обрезан без титра. На фоне размыты красные банки без читаемой этикетки; для тиража нужна своя съёмка. segno как эталон не годится: на границе байта он вставляет 0x00 вместо 0xEC. Файл scripts/e2e/w2-hr-sources.ts назван по правилу 3 плана."
+ },
+ "w2-hr-admin": {
+  "id": "w2-hr-admin",
+  "done": [
+   "w2-ad-c1",
+   "w2-ad-2",
+   "w2-ad-1",
+   "w2-ad-c2",
+   "w2-ad-4",
+   "w2-ad-5"
+  ],
+  "partial": [],
+  "notDone": [
+   {
+    "key": "w2-ad-3 (P2, срок ответа HR в настройках)",
+    "why": "Текст срока собирается при загрузке модулей в чужих файлах: RESPONSE_WORKDAYS в shared/content/content.ts, RESPONSE_WORDS в shared/candidateStatus.ts, /api/config. Своими файлами настройку не провести ни до сайта, ни до бота. Переключатель в панели, который ничего не меняет, вводил бы HR в заблуждение, поэтому его не делал. План для сведения: в 015 добавить applications.response_workdays и триггер, который при вставке берёт срок из настройки (так старые заявки сохранят обещанный им срок). Затем setResponseWorkdays() в content.ts, RESPONSE_WORDS сделать функцией от заявки, поле в /api/config и toApplication."
+   }
+  ],
+  "filesChanged": [
+   "server/db/migrations/015_admin.sql",
+   "server/auth/accounts.ts",
+   "server/auth/session.ts",
+   "server/auth/throttle.ts",
+   "server/api/hr-account.ts",
+   "server/api/hr-content.ts",
+   "server/content/vacancies.ts",
+   "shared/content/vacancies.ts",
+   "shared/content/faq.ts",
+   "src/lib/hr/admin.ts",
+   "src/pages/HrLogin.tsx",
+   "src/components/hr/UsersView.tsx",
+   "src/components/hr/VacanciesView.tsx",
+   "src/components/hr/SettingsView.tsx",
+   "scripts/tests/w2-hr-admin-security.test.ts",
+   "scripts/tests/w2-hr-admin-passwords.test.ts",
+   "scripts/tests/w2-hr-admin-queue.test.ts",
+   "scripts/tests/w2-hr-admin-vacancies.test.ts",
+   "scripts/tests/w2-hr-admin-state.test.ts",
+   "scripts/e2e/w2-hr-admin.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-platform",
+    "file": "server/api/index.ts",
+    "what": "P1, без этого не работает задержка входа. До app.route('/', hrRoutes(...)) добавить app.use('/api/hr/login', loginGuard()) с импортом из '../auth/throttle'. Один экземпляр на createApi. Проверено тестом w2-hr-admin-passwords (подключение — точно так же) и глазами на временном сервере. Можно вместо этого вставить loginGuard() в маршрут логина в hr.ts."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "server/api/hr.ts, src/lib/api.ts (w2-pages-chat), scripts/hr-test.ts",
+    "what": "Управление сотрудниками переехало в /api/hr/accounts (hr-account.ts): там временный пароль и обязательная смена. Старые POST и PATCH /api/hr/users заводят сотрудника без обязательной смены. Сброс пароля через PATCH ловит триггер в 015. Их стоит убрать или делегировать. GET /api/hr/users оставить: на нём проверка 403 в hr-test. createUser, updateUser и getUsers в src/lib/api.ts больше не используются."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "server/api/hr.ts",
+    "what": "Выгрузки из панели (/api/hr/export, /api/applications.csv, pass.xlsx) должны писать журнал: logAccess(sql, {user, action:'export', format, rows, filter, applicationIds}). Без этого в «Состоянии» видна только выгрузка на Диск. Приёмка w2-ad-5 «<имя> · Excel · N заявок» закрыта тестом через logAccess."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "src/components/hr/ImportDialog.tsx, server/api/hr.ts",
+    "what": "По желанию — вариант импорта «По очереди»: assign:'queue', а в транзакции импорта select set_config('ochakovo.assign_queue','1',true) и assigneeId null. Триггер это поддерживает, проверено в w2-hr-admin-queue. Варианты «мне», «никому», «поровну» очередь не трогает."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/main.tsx",
+    "what": "P2 w2-pc-8: до первого рендера вызвать await loadVacancyOverrides() из @shared/content/vacancies. Таймаут 1,5 с, без API данные остаются как в данных компании (проверено тестом). Без этого правки из панели видны в /api/content, у бота и Квасыча, но страница сайта показывает данные из сборки."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/pages/Apply.tsx",
+    "what": "Предвыбор вакансии (?vacancy=, chosenVacancy, quizVacancy, moneyVacancy): вместо vacancyById брать openVacancyById, чтобы закрытая вакансия не подставлялась в форму. vacancyById теперь находит и закрытые — для названий у старых заявок."
+   },
+   {
+    "owner": "w2-bot",
+    "file": "server/dialog/flows/vacancies.ts, server/dialog/flows/apply.ts",
+    "what": "Для кнопок v:open: и выбора вакансии в заявке брать openVacancyById или isVacancyOpen: старая кнопка не должна открывать закрытую вакансию. Список (vacanciesByPay) уже открытые."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/app.ts",
+    "what": "P2. Мета страниц (строки ~101–132: minMonthlyPay, maxEntryPay, vacancies.length) считать при запросе, а не при загрузке модуля: после правки в панели title и description устаревают до перезапуска."
+   },
+   {
+    "owner": "w2-pages-chat, w2-game, сведение",
+    "file": "src/components/Layout.tsx (HOME_TITLE), src/pages/Game.tsx (GAME_JOB_LINE), shared/content/practice.ts (payFrom, payTo)",
+    "what": "Строки с суммами собираются при загрузке модуля. Переделать на функцию или чтение при рендере, чтобы правка суммы применялась без перезапуска. Для фраз про практику использовать новый minPracticePay, а не minMonthlyPay: в minMonthlyPay входят и вакансии работы."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "server/api/hr.ts",
+    "what": "Проверка плана найма и сопоставления импорта сверяет id со списком vacancies, а там теперь только открытые. Для плана и сопоставления лучше allVacancies: иначе план по временно закрытой вакансии не сохранится (видно в hr-test при закрытом мерчандайзере)."
+   },
+   {
+    "owner": "w2-content",
+    "file": "docs/hr.md",
+    "what": "Описать: временный пароль и смену при первом входе; сессию до 7 дней; задержку входа по паре «почта + IP»; раздачу по очереди (HR в очереди по умолчанию, администратор — по отметке); раздел «Вакансии» (что правится, «предложение команды», история); «Состояние» и журнал выгрузок."
+   }
+  ],
+  "checks": "pnpm test w2-hr-admin: прошли все 5 файлов (security 5, passwords 4, queue 4, vacancies 5, state 1). E2E_ONLY=w2-hr-admin pnpm test:e2e на своей сборке и порту 8851: 4 сценария, 10 шагов, все прошли. Typecheck по трём tsconfig: мои файлы без ошибок, единственная ошибка — в чужом w2-brand-docs-print.test.ts. Все scripts/tests после правок: падают 4 чужих файла (c2-fields-onboarding — проверка даты в hr.ts; w1-content-docs; w1-hr-desk-fields — VITE_DEMO_LOCAL из-за импорта чужих Views; w2-bot-links — стирание bot_users). Тесты контента и помощника, задевающие vacancies.ts и faq.ts, прошли. hr-test.ts на своей базе: 315 из 316, упал чужой сценарий про бота. Ещё 7 падений были из-за моих правок в той базе и пропали после её очистки. server-test: 3 чужие проверки dist. 015 повторно на заполненной базе применяется без ошибок. Скриншоты 390 и 1440 (вход, задержка, свой пароль, сотрудники, сброс, вакансии, окна правки, состояние) просмотрены: /private/tmp/claude-501/-Users-kitty-Ochakovo/0b8069e5-d683-4231-969d-56878f5c1806/scratchpad/build/w2-hr-admin/shots/. Временные скрипты удалены, база ochakovo_w2_hr_admin удалена, порт 8851 свободен.",
+  "notes": "P0 у пакета нет. Задержка входа (loginGuard) написана и проверена, но работает только после подключения в index.ts — первый пункт needs. Её нельзя подключить из слота: маршруты hr.ts регистрируются раньше. Обязательную смену пароля проверяет requireHr через bindAccounts: привязку делает hr-account.ts при старте API. Пользователь с временным паролем получает 401 password_change_required, и панель уводит его на /hr/login к форме нового пароля. GET /api/hr/me/account без входа отвечает 200 и user:null, чтобы в e2e не было ошибки 4xx на странице входа. Сотрудники, созданные напрямую в базе (bootstrap, тесты), пароль менять не обязаны. vacancies — только открытые и меняются на месте; allVacancies и vacancyById включают закрытые. minMonthlyPay, maxEntryPay и новый minPracticePay — export let. Ответы FAQ pay и practice теперь геттеры. При сохранении правки вызывается rebuildKnowledge()."
+ },
+ "w2-focus": {
+  "id": "w2-focus",
+  "done": [
+   "w2-fc-1"
+  ],
+  "partial": [],
+  "notDone": [
+   {
+    "key": "живая проверка после сведения",
+    "why": "Слотов для /focus, /api/focus и вкладки HR в контрактах нет, поэтому подключение описано в needs. До этого всё проверено на своей сборке: временный App с маршрутом /focus и /hr?tab=focus плюс сервер с routes() перед createApp. Сценарий scripts/e2e/w2-focus.ts на этой сборке проходит, после сведения его нужно прогнать один раз: E2E_ONLY=w2-focus pnpm test:e2e"
+   }
+  ],
+  "filesChanged": [
+   "/Users/kitty/Ochakovo/server/db/migrations/022_focus.sql",
+   "/Users/kitty/Ochakovo/server/db/focus.ts",
+   "/Users/kitty/Ochakovo/server/api/focus.ts",
+   "/Users/kitty/Ochakovo/src/pages/Focus.tsx",
+   "/Users/kitty/Ochakovo/src/components/hr/FocusView.tsx",
+   "/Users/kitty/Ochakovo/scripts/tests/focus-questionnaire.test.ts",
+   "/Users/kitty/Ochakovo/scripts/tests/focus-api.test.ts",
+   "/Users/kitty/Ochakovo/scripts/e2e/w2-focus.ts"
+  ],
+  "needs": [
+   {
+    "owner": "w2-platform",
+    "file": "server/api/index.ts",
+    "what": "Подключить слот: import * as focus from './focus' и добавить focus в массив slots. Сигнатура routes(deps: ApiDeps, opts?) — как у других слотов."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/App.tsx",
+    "what": "const Focus = page(() => import('./pages/Focus'), 'Focus') и внутри <Route element={<Layout />}> добавить <Route path=\"focus\" element={<Focus />} />."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/components/Layout.tsx",
+    "what": "В titles добавить '/focus': 'Анкета о слогане'. Сейчас Focus.tsx ставит заголовок вкладки сам, кадром позже, как Game.tsx."
+   },
+   {
+    "owner": "w2-hr-pipeline",
+    "file": "src/pages/Hr.tsx",
+    "what": "Вкладка «Фокус-группа»: import { FocusView, ready as focusReady } from '../components/hr/FocusView'. В TabId добавить 'focus', в laterTabs — ...(focusReady ? [{ id: 'focus' as const, label: 'Фокус-группа' }] : []), в разметке — {tab === 'focus' && <FocusView user={user} />}. Открывается по /hr?tab=focus."
+   },
+   {
+    "owner": "w2-hr-pipeline (или сведение)",
+    "file": "src/components/hr/HrShell.tsx",
+    "what": "Вкладок стало 10. На 1024 px строка разделов на компьютере уходит за край: «Настройки», имя и «Выйти» не видны (скриншот 1024-hr-top.png). На 1280 и 1440 строка помещается. Нужно либо дать nav overflow-x-auto, либо показывать полную строку разделов с xl, а до xl — прокручиваемую."
+   },
+   {
+    "owner": "w2-platform",
+    "file": "server/app.ts",
+    "what": "В pages['/focus'] добавить свои title и description для превью ссылки в постах вуза. Например: «Помоги выбрать слоган — анкета «Очаково»» и «Три слогана и шесть вопросов о практике, 2 минуты, анонимно». Картинка — home. В pageChunks добавить '/focus': 'src/pages/Focus.tsx'. В sitemap /focus не добавлять."
+   },
+   {
+    "owner": "w2-pages-chat",
+    "file": "src/pages/Privacy.tsx",
+    "what": "Одной строкой: анкета /focus анонимная. Ставится cookie focus_device (httpOnly, только для /api/focus, год), чтобы с одного устройства был один ответ. В базе хранится только её отпечаток, IP не записывается."
+   },
+   {
+    "owner": "w2-hr-insights",
+    "file": "server/db/demo.ts",
+    "what": "«Очистить базу» в демо-режиме — заодно delete from focus_responses. В «Демо-данные» ответы анкеты не добавлять: протокол запрещает придумывать результаты."
+   },
+   {
+    "owner": "w2-content",
+    "file": "README.md",
+    "what": "В таблицу «требование кейса → где» добавить строку «Проверка концепции через фокус-группу» → /focus?s=<метка>, вкладка HR «Фокус-группа», docs/brand/focus-group.md."
+   }
+  ],
+  "checks": "Тесты:\n- `node scripts/test-all.mjs focus-`: оба набора проходят.\n- focus-questionnaire, 9 проверок. Вопросы и варианты дословно совпадают с docs/brand/focus-group.md, раздел 5. Слоганы совпадают с concept.md («Для фокус-группы») в том же порядке. Суммы берутся из vacancies и handbook. Проверяются ответы, вырезание телефона, почты, ника, имени и ссылок, разбор метки и CSV (BOM, «;», защита от формул).\n- focus-api, 4 проверки на настоящем PostgreSQL. Миграция 022 принимает каждый вариант анкеты и ничего лишнего. Работают cookie и 409, 422, 400, ловушка для ботов и 429 с Retry-After. В HR проверены 401, счёт по меткам и CSV. Удаляет только администратор, без x-hr-request — 403.\n\nТипы: tsc по tsconfig, tsconfig.node и tsconfig.scripts — в моих файлах ошибок 0.\n\nСквозная проверка: scripts/e2e/w2-focus.ts, 3 сценария, проходят на своей сборке (порт 8852). Телефон 390, клавиатура 1440 и HR. Включены проверки контраста, элементов без имени и горизонтальной прокрутки.\n\nСкриншоты 390, 1440, 1280 и 1024 — в scratchpad/build/w2-focus/.\n\nСервер остановлен, база ochakovo_w2_focus удалена, временные scripts/.tmp-w2-focus-* удалены.",
+  "notes": "Анкета: вопросы приходят с сервера (server/db/focus.ts) — в одном месте с проверкой и подписями HR, из src нельзя импортировать server. Формулировки сверяет тест с протоколом. Защита: cookie устройства (в базе только отпечаток sha256) и лимит по IP в памяти — 30 подряд, дальше 30 в час, не больше 100 в сутки. IP не хранится. Телефоны, почта, ники и ссылки в свободном ответе вырезаются до записи, на странице заранее подсказка. Метка ?s= пишется и как источник посетителя, поэтому заявки можно сравнить по той же метке. В HR проценты показываются только от 30 ответов, как в протоколе. В HR есть ссылка с QR (SVG 30 мм) на метку. Администратор удаляет пробные ответы — один или все по метке. Повтор с того же устройства — «Ответ уже записан». scripts/e2e/w2-focus.ts назван по правилу плана; до сведения он упадёт: маршруты не подключены."
+ }
+}

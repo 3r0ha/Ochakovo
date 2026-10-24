@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c0c0c" />
+    <meta name="description" content="Летняя работа и оплачиваемая практика на заводе «Очаково» в Москве: от 56&nbsp;000&nbsp;₽ в месяц, с 18 лет, без опыта, официально. Задания на пару минут и заявка без резюме." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Фото первого экрана главной (src/home/Hero.tsx) начинает грузиться вместе со скриптами, а не после них.
+         Телефону (до 767px) — вертикальный кадр, остальным — горизонтальный. media, imagesrcset и imagesizes
+         повторяют то, что запрашивает Hero, иначе фото скачается дважды (сверяет pnpm test:server).
+         Без поддержки AVIF ссылки пропускаются. data-home-only: сервер убирает их со всех страниц, кроме главной. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      fetchpriority="high"
+      media="(max-width: 767px)"
+      imagesrcset="/photos/excursion-portrait-480.avif 480w, /photos/excursion-portrait-960.avif 960w, /photos/excursion-portrait-1230.avif 1230w"
+      imagesizes="(max-width: 767px) 100vw, (max-aspect-ratio: 1230/1520) 81vh, 100vw"
+      data-home-only
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      fetchpriority="high"
+      media="not all and (max-width: 767px)"
+      imagesrcset="/photos/excursion-480.avif 480w, /photos/excursion-960.avif 960w, /photos/excursion-1600.avif 1600w, /photos/excursion-2200.avif 2200w"
+      imagesizes="(max-width: 767px) 100vw, (max-aspect-ratio: 2280/1520) 150vh, 100vw"
+      data-home-only
+    />
+    <title>Работа на лето в «Очаково» — от 56&nbsp;000&nbsp;₽ в месяц</title>
+    <!-- Превью ссылки в мессенджерах. Сервер (server/app.ts) заменяет title, description и эти теги своими для каждой
+         страницы: суммы — из shared/content/vacancies.ts, картинки — public/og (scripts/og.mjs), адреса — от SITE_URL.
+         Числа здесь сверяет scripts/tests/ops-meta.test.ts. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Очаково" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content="Работа на лето в «Очаково» — от 56&nbsp;000&nbsp;₽ в месяц" />
+    <meta property="og:description" content="Летняя работа и оплачиваемая практика на заводе «Очаково» в Москве: от 56&nbsp;000&nbsp;₽ в месяц, с 18 лет, без опыта, официально. Задания на пару минут и заявка без резюме." />
+    <meta property="og:image" content="/og/home.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

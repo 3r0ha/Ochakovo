@@ -1,0 +1,196 @@
+/*
+ * Стенд «Очаково» на ярмарке вакансий: ролл-ап 850 × 2000 мм и настольная табличка A4.
+ * Цвета по брендбуку, стр. 58. Шрифты те же, что на сайте и листовках (OFL, ../print/fonts/OFL.txt);
+ * фирменный Proxima Nova для тиража покупает компания. Тексты и цифры описаны в docs/brand/visuals.md, раздел «Стенд».
+ * На экране макет уменьшен (--view), при печати идёт в натуральную величину. Адрес с #bleed (скрипт ../print/bleed.js)
+ * добавляет вылеты и поле 6 мм с метками реза; размер вылета и формат листа с вылетами задаёт CSS самого макета.
+ */
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(../print/fonts/onest-cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(../print/fonts/onest-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2212;
+}
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(../print/fonts/onest-ruble-wght.woff2) format('woff2-variations');
+  unicode-range: U+20BD;
+}
+@font-face {
+  font-family: 'Display Signs';
+  font-weight: 900;
+  src: url(../print/fonts/display-signs-900.woff2) format('woff2');
+  unicode-range: U+20BD;
+}
+@font-face {
+  font-family: 'Sofia Display';
+  font-weight: 1 1000;
+  src: url(../print/fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Display';
+  font-weight: 1 1000;
+  src: url(../print/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2212;
+}
+
+:root {
+  --red: #d50032;
+  --red-dark: #ab2328;
+  --grey: #a2aaad;
+  --ink: #3e3e3e;
+  --display: 'Display Signs', 'Sofia Display', 'Arial Narrow', sans-serif;
+  --text: 'Onest', system-ui, sans-serif;
+  --bleed: 0mm;
+  --slug: 0mm; /* поле за вылетом под метки реза: только в режиме #bleed */
+}
+html.bleed {
+  --slug: 6mm;
+}
+
+* {
+  box-sizing: border-box;
+}
+/* Экран просмотра в цветах сайта: тёмный фон, листы как есть */
+html,
+body {
+  margin: 0;
+  background: #0c0c0c;
+  color: var(--ink);
+  font-family: var(--text);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.notes {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 24px 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.72);
+}
+.notes b,
+.notes code {
+  color: #fff;
+}
+.notes code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+}
+.stage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: center;
+  padding: 16px 24px 48px;
+}
+/* Окно предпросмотра: настоящий размер листа с вылетами и полем × --view */
+.view {
+  position: relative;
+  width: calc((var(--w) + 2 * var(--bleed) + 2 * var(--slug)) * var(--view));
+  height: calc((var(--h) + 2 * var(--bleed) + 2 * var(--slug)) * var(--view));
+}
+.view > .sheet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: scale(var(--view));
+  transform-origin: 0 0;
+}
+.caption {
+  max-width: 460px;
+  margin: 12px auto 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.62);
+  text-align: center;
+}
+/* Лист: обрез + вылеты, вокруг поле --slug (рамка border, overflow режет макет по ней) */
+.sheet {
+  position: relative;
+  width: calc(var(--w) + 2 * var(--bleed) + 2 * var(--slug));
+  height: calc(var(--h) + 2 * var(--bleed) + 2 * var(--slug));
+  overflow: hidden;
+  background: #fff;
+  border: var(--slug) solid transparent;
+}
+/* Метки реза: по продолжению линий обреза в поле за вылетом, на 1 мм не доходят до вылета */
+html.bleed .sheet {
+  --len: calc(var(--slug) - 1mm);
+  --at: calc(var(--slug) + var(--bleed) - 0.25mm);
+  --mark: linear-gradient(#000, #000);
+  background:
+    var(--mark) left 0 top var(--at) / var(--len) 0.5mm no-repeat,
+    var(--mark) right 0 top var(--at) / var(--len) 0.5mm no-repeat,
+    var(--mark) left 0 bottom var(--at) / var(--len) 0.5mm no-repeat,
+    var(--mark) right 0 bottom var(--at) / var(--len) 0.5mm no-repeat,
+    var(--mark) left var(--at) top 0 / 0.5mm var(--len) no-repeat,
+    var(--mark) right var(--at) top 0 / 0.5mm var(--len) no-repeat,
+    var(--mark) left var(--at) bottom 0 / 0.5mm var(--len) no-repeat,
+    var(--mark) right var(--at) bottom 0 / 0.5mm var(--len) no-repeat,
+    #fff;
+  background-origin: border-box;
+}
+.trim {
+  position: absolute;
+  inset: var(--bleed);
+}
+.display {
+  font-family: var(--display);
+  font-weight: 860;
+  text-transform: uppercase;
+  line-height: 0.86;
+}
+.red {
+  color: var(--red);
+}
+.nb {
+  white-space: nowrap;
+}
+/* QR с меткой точки контакта. В макетах стоит демо-код на демо-адрес (scripts/materials-qr.ts); перед тиражом его
+   меняют на код своей точки из HR-панели, вкладка «Источники». Свободное поле в 4 модуля уже внутри SVG */
+.qr {
+  margin: 0;
+}
+.qr img {
+  display: block;
+  background: #fff;
+}
+@media screen and (max-width: 700px) {
+  .stage {
+    padding: 8px 16px 32px;
+  }
+  .notes {
+    padding: 16px 16px 4px;
+  }
+}
+@media print {
+  html,
+  body {
+    background: none;
+  }
+  .notes,
+  .caption {
+    display: none;
+  }
+  .stage {
+    display: block;
+    padding: 0;
+  }
+  .view {
+    width: auto;
+    height: auto;
+  }
+  .view > .sheet {
+    position: relative;
+    transform: none;
+  }
+}

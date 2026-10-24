@@ -1,0 +1,154 @@
+/*
+ * Шрифты сайта. Вместо полных наборов fontsource подключаем только кириллицу и латиницу,
+ * а редкие знаки интерфейса (₽, ← →, ≈) — крошечными подмножествами Onest из scripts/fonts-subset.py.
+ * Иначе ради одного «₽» браузер качает latin-ext на 28 КБ, ради стрелки — symbols на 18 КБ.
+ * Латиница разбита на ядро (свои файлы на 22 и 27 КБ вместо 34 и 41 КБ) и остаток, который нужен только редким знакам.
+ * У Sofia Sans Extra Condensed знаков ₽ и стрелок нет: для заголовков и цифр они нарисованы в её же манере —
+ * семейство Ochakovo Display Signs (начертания 800 и 900, тот же скрипт, лицензия OFL — src/fonts/OFL.txt).
+ * Жирность 700 берёт начертание 800.
+ */
+
+
+/* onest: cyrillic-ext */
+@font-face {
+  font-family: 'Onest Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(../node_modules/@fontsource-variable/onest/files/onest-cyrillic-ext-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+/* onest: cyrillic */
+@font-face {
+  font-family: 'Onest Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(../node_modules/@fontsource-variable/onest/files/onest-cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* onest: ядро латиницы — ASCII, неразрывный пробел, «ёлочки», ·, ×, тире, кавычки и невидимые знаки типографа.
+   Собирает scripts/fonts-subset.py (LATIN_CORE); диапазон ниже — тот же список */
+@font-face {
+  font-family: 'Onest Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/onest-latin-core-wght.woff2) format('woff2-variations');
+  unicode-range: U+0020-007E,U+00A0,U+00A9,U+00AB,U+00AD,U+00B0,U+00B7,U+00BB,U+00D7,U+2009-200B,U+200D,U+2010-2015,U+2018-201E,U+2022,U+2026,U+202F,U+2060,U+2212;
+}
+
+/* onest: остальная латиница fontsource — грузится, только если такой знак есть на странице. Диапазон — латиница fontsource без ядра */
+@font-face {
+  font-family: 'Onest Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(../node_modules/@fontsource-variable/onest/files/onest-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-001F,U+007F-009F,U+00A1-00A8,U+00AA,U+00AC,U+00AE-00AF,U+00B1-00B6,U+00B8-00BA,U+00BC-00D6,U+00D8-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-2008,U+200C,U+200E-200F,U+2016-2017,U+201F-2021,U+2023-2025,U+2027-202E,U+2030-205F,U+2061-206F,U+20AC,U+2122,U+2191,U+2193,U+2215,U+FEFF,U+FFFD;
+}
+
+/* onest: ₽ */
+@font-face {
+  font-family: 'Onest Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/onest-ruble-wght.woff2) format('woff2-variations');
+  unicode-range: U+20BD;
+}
+
+/* onest: ← → */
+@font-face {
+  font-family: 'Onest Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/onest-arrows-wght.woff2) format('woff2-variations');
+  unicode-range: U+2190, U+2192;
+}
+
+/* onest: ≈ */
+@font-face {
+  font-family: 'Onest Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/onest-approx-wght.woff2) format('woff2-variations');
+  unicode-range: U+2248;
+}
+
+/* Знаки, которых нет в Sofia Sans, для заголовков и цифр (≈ в «Собери лето»): Onest под отдельным именем и только
+   на эти знаки. Пока Sofia грузится, буквы заголовков ждут её на узком запасном шрифте, а не на широком Onest —
+   иначе строки первого экрана переносились бы по-другому и вёрстка прыгала при подмене шрифта */
+@font-face {
+  font-family: 'Onest Signs';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/onest-approx-wght.woff2) format('woff2-variations');
+  unicode-range: U+2248;
+}
+
+/* sofia-sans-extra-condensed: cyrillic-ext */
+@font-face {
+  font-family: 'Sofia Sans Extra Condensed Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 1 1000;
+  src: url(../node_modules/@fontsource-variable/sofia-sans-extra-condensed/files/sofia-sans-extra-condensed-cyrillic-ext-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+/* sofia-sans-extra-condensed: cyrillic */
+@font-face {
+  font-family: 'Sofia Sans Extra Condensed Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 1 1000;
+  src: url(../node_modules/@fontsource-variable/sofia-sans-extra-condensed/files/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* sofia-sans-extra-condensed: ядро латиницы — тот же список, что у Onest */
+@font-face {
+  font-family: 'Sofia Sans Extra Condensed Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 1 1000;
+  src: url(./fonts/sofia-latin-core-wght.woff2) format('woff2-variations');
+  unicode-range: U+0020-007E,U+00A0,U+00A9,U+00AB,U+00AD,U+00B0,U+00B7,U+00BB,U+00D7,U+2009-200B,U+200D,U+2010-2015,U+2018-201E,U+2022,U+2026,U+202F,U+2060,U+2212;
+}
+
+/* sofia-sans-extra-condensed: остальная латиница — только по требованию */
+@font-face {
+  font-family: 'Sofia Sans Extra Condensed Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 1 1000;
+  src: url(../node_modules/@fontsource-variable/sofia-sans-extra-condensed/files/sofia-sans-extra-condensed-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-001F,U+007F-009F,U+00A1-00A8,U+00AA,U+00AC,U+00AE-00AF,U+00B1-00B6,U+00B8-00BA,U+00BC-00D6,U+00D8-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-2008,U+200C,U+200E-200F,U+2016-2017,U+201F-2021,U+2023-2025,U+2027-202E,U+2030-205F,U+2061-206F,U+20AC,U+2122,U+2191,U+2193,U+2215,U+FEFF,U+FFFD;
+}
+
+/* ₽ ← → для Sofia Sans Extra Condensed — своё дополнение, начертания 800 и 900. Отдельное семейство и первое в
+   --font-display (index.css): статичные начертания внутри семейства Sofia перебили бы её вариативный шрифт
+   на жирностях 800 и 900, и кириллица заголовков ушла бы в запасной шрифт */
+@font-face {
+  font-family: 'Ochakovo Display Signs';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url(./fonts/display-signs-800.woff2) format('woff2');
+  unicode-range: U+20BD, U+2190, U+2192;
+}
+
+@font-face {
+  font-family: 'Ochakovo Display Signs';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url(./fonts/display-signs-900.woff2) format('woff2');
+  unicode-range: U+20BD, U+2190, U+2192;
+}

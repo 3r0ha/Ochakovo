@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Короткие ролики: обложки и титры</title>
+<style>
+  /*
+   * Обложки первых 12 коротких роликов (docs/brand/clips.md), шаблон титров и финальной карточки.
+   * Каждая карточка 1080 × 1920, на экране уменьшена. Готовые файлы для загрузки лежат в covers/clip-NN.webp,
+   * их снимает scripts/clip-covers.mjs с этой же страницы. Кадры роликов компании в ../frames/, фото в public/photos.
+   * Цвета по брендбуку, стр. 58. Шрифты те же, что на сайте и листовках (OFL, ../print/fonts/OFL.txt).
+   */
+  @font-face {
+    font-family: 'Onest';
+    font-weight: 100 900;
+    src: url(../print/fonts/onest-cyrillic-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  }
+  @font-face {
+    font-family: 'Onest';
+    font-weight: 100 900;
+    src: url(../print/fonts/onest-latin-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2212;
+  }
+  @font-face {
+    font-family: 'Onest';
+    font-weight: 100 900;
+    src: url(../print/fonts/onest-ruble-wght.woff2) format('woff2-variations');
+    unicode-range: U+20BD;
+  }
+  @font-face {
+    font-family: 'Display Signs';
+    font-weight: 900;
+    src: url(../print/fonts/display-signs-900.woff2) format('woff2');
+    unicode-range: U+20BD;
+  }
+  @font-face {
+    font-family: 'Sofia Display';
+    font-weight: 1 1000;
+    src: url(../print/fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  }
+  @font-face {
+    font-family: 'Sofia Display';
+    font-weight: 1 1000;
+    src: url(../print/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2212;
+  }
+
+  :root {
+    --red: #d50032;
+    --red-dark: #ab2328;
+    --display: 'Display Signs', 'Sofia Display', 'Arial Narrow', sans-serif;
+    --text: 'Onest', system-ui, sans-serif;
+    /* Карточка 1080 × 1920 на экране уменьшена в четыре раза */
+    --k: 0.25;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  /* Экран просмотра в цветах сайта: тёмный фон, белый текст, красный акцент. Карточки как есть */
+  html,
+  body {
+    margin: 0;
+    background: #0c0c0c;
+    color: rgba(255, 255, 255, 0.78);
+    font-family: var(--text);
+  }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.88em;
+    color: #fff;
+  }
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 40px 32px 64px;
+  }
+  .kicker {
+    margin: 0 0 10px;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ff3d5e;
+  }
+  h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: clamp(56px, 8vw, 104px);
+    line-height: 0.86;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  h2 {
+    margin: 48px 0 8px;
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 40px;
+    line-height: 0.9;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .lead,
+  .note {
+    max-width: 760px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .note {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .toggle {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 12px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--red);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(1080px * var(--k)), 1fr));
+    gap: 28px 20px;
+    margin-top: 20px;
+  }
+  .slot {
+    width: calc(1080px * var(--k));
+    height: calc(1920px * var(--k));
+    position: relative;
+    overflow: hidden;
+  }
+  .slot + p {
+    margin: 10px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.62);
+    width: calc(1080px * var(--k));
+  }
+  .slot + p b {
+    color: #fff;
+  }
+  .slot + p code {
+    white-space: nowrap;
+  }
+
+  /* ── Карточка 1080 × 1920 ───────────────────────────────── */
+  .cover {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 1920px;
+    transform: scale(var(--k));
+    transform-origin: 0 0;
+    background: #121212;
+    color: #fff;
+    overflow: hidden;
+  }
+  .cover.red {
+    background: var(--red);
+  }
+  .brand {
+    position: absolute;
+    left: 72px;
+    top: 104px;
+    width: 250px;
+  }
+  .chip {
+    position: absolute;
+    left: 72px;
+    top: 176px;
+    padding: 14px 22px 13px;
+    background: var(--red);
+    font-weight: 650;
+    font-size: 30px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .red .chip {
+    background: #fff;
+    color: var(--red);
+  }
+  /* Кадр: полоса во всю ширину */
+  .band {
+    position: absolute;
+    left: 0;
+    top: 300px;
+    width: 1080px;
+    height: 870px;
+    overflow: hidden;
+    background: #222;
+  }
+  .band img.fit {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .band img.crop {
+    position: absolute;
+    display: block;
+  }
+  .text {
+    position: absolute;
+    left: 72px;
+    right: 72px;
+    top: 1218px;
+  }
+  .bar {
+    width: 132px;
+    height: 14px;
+    background: var(--red);
+    margin-bottom: 34px;
+  }
+  .hook {
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 150px;
+    line-height: 0.86;
+    text-transform: uppercase;
+    letter-spacing: -0.005em;
+  }
+  .sub {
+    margin-top: 30px;
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: rgba(255, 255, 255, 0.78);
+  }
+  /* Красная обложка «Квасыч отвечает»: крупный знак на фоне, вопрос по центру */
+  .red .glyph {
+    position: absolute;
+    right: -40px;
+    top: 260px;
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 1100px;
+    line-height: 0.8;
+    color: var(--red-dark);
+  }
+  .red .text {
+    top: 760px;
+  }
+  .red .hook {
+    font-size: 176px;
+  }
+  .red .hook.small {
+    font-size: 150px;
+  }
+  .red .sub {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .red .bar {
+    background: #fff;
+  }
+  /* Архивный кадр: снимок поверх года, ровно, без рамки и тени */
+  .archive .year {
+    position: absolute;
+    left: 56px;
+    top: 40px;
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 440px;
+    line-height: 0.8;
+    color: var(--red);
+  }
+  .archive .print {
+    position: absolute;
+    left: 508px;
+    top: 350px;
+    width: 500px;
+  }
+  .archive .print img {
+    width: 100%;
+    display: block;
+    filter: grayscale(1) contrast(1.05);
+  }
+  /* Шаблон: место под кадр героя */
+  .placeholder {
+    position: absolute;
+    inset: 40px;
+    border: 4px dashed rgba(255, 255, 255, 0.4);
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: 40px;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 60px;
+  }
+  .sum {
+    display: inline-block;
+    border: 6px dashed rgba(255, 255, 255, 0.55);
+    padding: 0 24px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  /* Титры: две строки внизу кадра */
+  .subtitle {
+    position: absolute;
+    left: 72px;
+    right: 72px;
+    top: 1290px;
+    text-align: center;
+  }
+  .subtitle span {
+    display: inline;
+    background: rgba(0, 0, 0, 0.82);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding: 6px 18px;
+    font-size: 56px;
+    font-weight: 650;
+    line-height: 1.5;
+  }
+  .full {
+    position: absolute;
+    inset: 0;
+  }
+  .full img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0, rgba(0, 0, 0, 0) 22%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+  }
+  .end .text {
+    top: 620px;
+  }
+  .end .hook {
+    font-size: 190px;
+  }
+  .end .cta {
+    margin-top: 60px;
+    display: inline-block;
+    padding: 26px 40px 24px;
+    background: #fff;
+    color: var(--red);
+    font-weight: 700;
+    font-size: 46px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Зоны интерфейса VK Клипов на телефоне: подпись, кнопки и шапка ложатся поверх ролика */
+  .zones {
+    display: none;
+  }
+  .show-zones .zones {
+    display: block;
+  }
+  .zones i {
+    position: absolute;
+    background: repeating-linear-gradient(45deg, rgba(0, 200, 255, 0.28) 0 18px, rgba(0, 200, 255, 0.12) 18px 36px);
+    outline: 3px solid rgba(0, 200, 255, 0.8);
+    outline-offset: -3px;
+  }
+  .zones .top {
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 96px;
+  }
+  .zones .bottom {
+    left: 0;
+    top: 1600px;
+    width: 1080px;
+    height: 320px;
+  }
+  .zones .side {
+    left: 940px;
+    top: 1040px;
+    width: 140px;
+    height: 560px;
+  }
+
+  /* Телефон: две карточки в ряд, каждая уменьшена целиком до 151 × 269 px, помещается от 356 px ширины экрана */
+  @media (max-width: 700px) {
+    :root {
+      --k: 0.14;
+    }
+    .wrap {
+      padding: 24px 16px 40px;
+    }
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px 16px;
+    }
+  }
+
+  /* Выгрузка: scripts/clip-covers.mjs открывает страницу с #export, карточки в натуральную величину */
+  .export :root,
+  html.export {
+    --k: 1;
+  }
+  html.export .wrap > *:not(.grid):not(.grid-tpl) {
+    display: none;
+  }
+  html.export .slot + p {
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="kicker">Короткие ролики «Очаково»</p>
+  <h1>Обложки и титры</h1>
+  <p class="lead">Обложки первых 12 выпусков из <code>docs/brand/clips.md</code>. Одна система для всех рубрик: сверху знак и рубрика, в середине кадр, внизу вопрос первого кадра крупно. У&nbsp;рубрики «Квасыч отвечает» красная обложка с&nbsp;крупным знаком ответа, а&nbsp;когда появятся позы Квасыча, в&nbsp;рубрике появится и&nbsp;он. Обложка 06 служит шаблоном: кадр и&nbsp;сумму даёт герой выпуска.</p>
+  <label class="toggle"><input type="checkbox" id="zones"> Показать зоны интерфейса VK Клипов</label>
+  <p class="note">Голубым отмечены места, где на телефоне лежат шапка, подпись и кнопки. Текст обложки держим вне этих зон. Размеры зон сняты с интерфейса приложения на телефоне, перед запуском их сверяют на своём аккаунте.</p>
+
+  <section class="grid" id="covers" aria-label="Обложки"></section>
+
+  <h2>Титры и финальная карточка</h2>
+  <p class="note">Титры вшиты в видео: в соцсетях смотрят без звука. Две строки по центру, белый текст на тёмной плашке, шрифт сайта. На финальной карточке одно действие и ссылка в профиле, метка ролика стоит в самой ссылке.</p>
+  <section class="grid grid-tpl" aria-label="Шаблоны">
+    <div>
+      <div class="slot">
+        <div class="cover" data-name="template-subtitles">
+          <div class="full"><img style="object-position:78% 50%" src="../frames/bottling-mentor.webp" alt="Наставник и практикант у пульта линии розлива"></div>
+          <div class="shade"></div>
+          <img class="brand" src="../../../public/brand/logo-wordmark-white.svg" alt="ОЧАКОВО">
+          <div class="subtitle"><span>Наставник показывает, как работает пульт. Практикант записывает</span></div>
+          <div class="zones"><i class="top"></i><i class="side"></i><i class="bottom"></i></div>
+        </div>
+      </div>
+      <p><b>Титры.</b> Кадр из ролика компании «Оператор линии розлива».</p>
+    </div>
+    <div>
+      <div class="slot">
+        <div class="cover red end" data-name="template-end">
+          <div class="glyph" aria-hidden="true">₽</div>
+          <img class="brand" src="../../../public/brand/logo-wordmark-white.svg" alt="ОЧАКОВО">
+          <div class="text">
+            <div class="bar"></div>
+            <div class="hook">Посчитай свой заработок</div>
+            <div class="cta">Ссылка в профиле</div>
+          </div>
+          <div class="zones"><i class="top"></i><i class="side"></i><i class="bottom"></i></div>
+        </div>
+      </div>
+      <p><b>Финальная карточка.</b> Последние 2 секунды ролика: одно действие.</p>
+    </div>
+  </section>
+</div>
+
+<script src="covers.js"></script>
+</body>
+</html>

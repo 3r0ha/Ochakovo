@@ -1,0 +1,185 @@
+{
+  "source": "archive/case-materials/brandbook/Патерн и пиктограммы/OCHAKOVO_pictograms.ai",
+  "module": 48,
+  "rules": [
+    "Модуль у всех одинаковый: при одной ширине картинки масштаб пиктограмм в группе единый.",
+    "Не поворачивать, не отражать, не растягивать по одной оси.",
+    "В группе — один масштаб и один цвет, лучше разные жанры: сырьё, производство, продукция.",
+    "Свободное поле вокруг — не меньше модуля пиктограммы.",
+    "Цвет: красный на белом, белый или тёмно-красный на красном, красный на тёмно-сером (брендбук, стр. 50)."
+  ],
+  "colors": {
+    "red": "#D50032",
+    "darkRed": "#AB2328",
+    "grey": "#A2AAAD"
+  },
+  "pictograms": [
+    {
+      "id": "hopper",
+      "name": "Бункер с дробилкой",
+      "genre": "equipment",
+      "genreName": "оборудование",
+      "file": "/brand/pictograms/hopper.svg"
+    },
+    {
+      "id": "tanks",
+      "name": "Ёмкости",
+      "genre": "equipment",
+      "genreName": "оборудование",
+      "file": "/brand/pictograms/tanks.svg"
+    },
+    {
+      "id": "tank-unit",
+      "name": "Установка с ёмкостями",
+      "genre": "equipment",
+      "genreName": "оборудование",
+      "file": "/brand/pictograms/tank-unit.svg"
+    },
+    {
+      "id": "kettle",
+      "name": "Варочный котёл",
+      "genre": "equipment",
+      "genreName": "оборудование",
+      "file": "/brand/pictograms/kettle.svg"
+    },
+    {
+      "id": "vat",
+      "name": "Чан с вытяжкой",
+      "genre": "equipment",
+      "genreName": "оборудование",
+      "file": "/brand/pictograms/vat.svg"
+    },
+    {
+      "id": "cct",
+      "name": "Цилиндро-конический танк",
+      "genre": "equipment",
+      "genreName": "оборудование",
+      "file": "/brand/pictograms/cct.svg"
+    },
+    {
+      "id": "cycle",
+      "name": "Цикл производства",
+      "genre": "process",
+      "genreName": "процесс",
+      "file": "/brand/pictograms/cycle.svg"
+    },
+    {
+      "id": "control",
+      "name": "Контроль параметров",
+      "genre": "process",
+      "genreName": "процесс",
+      "file": "/brand/pictograms/control.svg"
+    },
+    {
+      "id": "tap-tank",
+      "name": "Ёмкость с кранами",
+      "genre": "equipment",
+      "genreName": "оборудование",
+      "file": "/brand/pictograms/tap-tank.svg"
+    },
+    {
+      "id": "cooler",
+      "name": "Охладитель",
+      "genre": "equipment",
+      "genreName": "оборудование",
+      "file": "/brand/pictograms/cooler.svg"
+    },
+    {
+      "id": "pet-bottle",
+      "name": "Бутылка ПЭТ",
+      "genre": "product",
+      "genreName": "продукция",
+      "file": "/brand/pictograms/pet-bottle.svg"
+    },
+    {
+      "id": "can",
+      "name": "Банка",
+      "genre": "product",
+      "genreName": "продукция",
+      "file": "/brand/pictograms/can.svg"
+    },
+    {
+      "id": "glass-bottle",
+      "name": "Стеклянная бутылка",
+      "genre": "product",
+      "genreName": "продукция",
+      "file": "/brand/pictograms/glass-bottle.svg"
+    },
+    {
+      "id": "barley",
+      "name": "Колос ячменя",
+      "genre": "raw",
+      "genreName": "сырьё",
+      "file": "/brand/pictograms/barley.svg"
+    },
+    {
+      "id": "grain",
+      "name": "Зерно",
+      "genre": "raw",
+      "genreName": "сырьё",
+      "file": "/brand/pictograms/grain.svg"
+    },
+    {
+      "id": "citrus",
+      "name": "Цитрус",
+      "genre": "raw",
+      "genreName": "сырьё",
+      "file": "/brand/pictograms/citrus.svg"
+    },
+    {
+      "id": "grapes",
+      "name": "Виноград",
+      "genre": "raw",
+      "genreName": "сырьё",
+      "file": "/brand/pictograms/grapes.svg"
+    },
+    {
+      "id": "apple",
+      "name": "Яблоко",
+      "genre": "raw",
+      "genreName": "сырьё",
+      "file": "/brand/pictograms/apple.svg"
+    },
+    {
+      "id": "pear",
+      "name": "Груша",
+      "genre": "raw",
+      "genreName": "сырьё",
+      "file": "/brand/pictograms/pear.svg"
+    },
+    {
+      "id": "ears",
+      "name": "Колосья",
+      "genre": "raw",
+      "genreName": "сырьё",
+      "file": "/brand/pictograms/ears.svg"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "beer-bottle",
+      "name": "Бутылка с длинным горлом",
+      "why": "пивная бутылка"
+    },
+    {
+      "id": "keg",
+      "name": "Кег",
+      "why": "пивная тара"
+    },
+    {
+      "id": "bottle-crate",
+      "name": "Ящик с бутылками",
+      "why": "пивные бутылки в ящике"
+    },
+    {
+      "id": "hop-cones",
+      "name": "Шишки хмеля",
+      "why": "хмель для пива"
+    },
+    {
+      "id": "hop",
+      "name": "Хмель",
+      "why": "хмель для пива"
+    }
+  ]
+}

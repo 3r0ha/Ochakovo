@@ -1,0 +1,299 @@
+@import "tailwindcss";
+
+/* Низкий экран ноутбука (1280×720, 1366×768, 1024×768): первый экран плотнее — лента ниже, кадр выше */
+@custom-variant short (@media (width >= 768px) and (height <= 800px));
+
+@theme {
+  /* Только фирменные цвета «Очаково» — стандартная палитра Tailwind отключена */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-paper: #f6f5f2; /* фирменный тёплый фон */
+  --color-ink: #141414;
+  --color-mute: #6e6c67; /* второстепенный текст */
+  --color-line: #dcd9d2; /* тонкие линейки */
+  --color-brand: #d50032; /* фирменный красный */
+  --color-brand-deep: #b0002a;
+  /* Брендбук, стр. 58: тёмно-красный Pantone 7621 — пиктограммы и заливки на красном фоне;
+     серый Pantone 429 — геометрические фигуры паттерна и заливки. На белом серый даёт 2,4:1 — не для текста */
+  --color-brand-dark: #ab2328;
+  --color-brand-grey: #a2aaad;
+  --color-cobalt: #032ab2; /* фирменный синий */
+  --color-sun: #ffd07b; /* фирменный жёлтый */
+  --color-lilac: #e8bcf0;
+  --color-periwinkle: #c7d4ff;
+  --color-blush: #ffc5c5;
+  --color-sage: #cde3b2;
+  --color-peach: #f6b695;
+  --color-kvass: #54341b;
+  --color-leaf: #3f8f0b; /* «верно» — зелёный с банки кваса, затемнён для контраста */
+  /* Тёмная тема главной: почти чёрный без синевы и коричневого */
+  --color-night: #0c0c0c;
+  --color-coal: #161616;
+  --color-ash: #2b2b2b;
+  --color-smoke: #8c8c8c;
+
+  /* Ochakovo Display Signs — только ₽ и стрелки в манере Sofia Sans, Onest Signs — Onest только для ≈ (src/fonts.css).
+     Оба до системных: эти знаки берутся из своих шрифтов, а не из STIX или Arial */
+  --font-display: "Ochakovo Display Signs", "Sofia Sans Extra Condensed Variable", "Onest Signs", "Arial Narrow", sans-serif;
+  --font-sans: "Onest Variable", system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 860;
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+}
+
+@utility container-x {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 20px;
+  @media (width >= 768px) {
+    padding-inline: 40px;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    /* Якоря и фокус с клавиатуры не прячутся под фиксированной шапкой */
+    scroll-padding-top: 96px;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    font-size: 17px;
+    line-height: 1.5;
+    overflow-x: clip;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  /* Абзацы без «вдовы» — одного слова на последней строке; браузеры без pretty переносят как обычно */
+  p, li, dd, figcaption {
+    text-wrap: pretty;
+  }
+  ::selection {
+    @apply bg-brand text-white;
+  }
+  /* Кольцо фокуса: снаружи кольцо цвета --focus-ring, между ним и элементом — полоса --focus-gap.
+     Цвета зависят от фона, на котором лежит элемент (см. «Фон для кольца фокуса» ниже):
+     на тёмном — белое кольцо с тёмной полосой, на светлом — чёрное с белой. */
+  :root {
+    --focus-ring: #fff;
+    --focus-gap: var(--color-night);
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--focus-gap);
+  }
+  img {
+    user-select: none;
+  }
+}
+
+/* Фон для кольца фокуса. Кольцо рисуется на фоне родителя, поэтому цвета задаются детям фона (> *),
+   а не ему самому: чёрная кнопка на белом блоке получает чёрное кольцо, белая на чёрном — белое.
+   Дальше значения наследуются, пока не встретится другой фон — так выигрывает ближайший.
+   Если фон задан не этими классами (фото, градиент), поставьте на обёртку data-surface="light" или "dark". */
+:where(.bg-white, .bg-paper, .bg-sun, .bg-lilac, .bg-periwinkle, .bg-blush, .bg-sage, .bg-peach, .bg-line, .bg-brand-grey, [data-surface="light"]) > * {
+  --focus-ring: var(--color-ink);
+  --focus-gap: #fff;
+}
+:where(.bg-night, .bg-coal, .bg-ink, .bg-ash, .bg-kvass, .bg-cobalt, .bg-leaf, .bg-brand, .bg-brand-deep, .bg-brand-dark, [data-surface="dark"]) > * {
+  --focus-ring: #fff;
+  --focus-gap: var(--color-night);
+}
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* Без анимаций по просьбе системы. Анимации JS выключаются отдельно:
+   motion — через MotionConfig в main.tsx и useReducedMotion, Lenis и useReveal — через prefersReducedMotion(). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@keyframes belt-roll {
+  to { transform: translateX(-50%); }
+}
+
+/* Главная: зерно плёнки. Статичное: слой поверх всей страницы с наложением — любое его движение
+   заставляло бы браузер перерисовывать весь экран */
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Первый экран (src/home/Hero.tsx). Сумма, факты и кнопки стоят с первого кадра; двигаются только фото
+   (короткий наезд) и строки заголовка (выезд из-под маски) — не дольше 0,4 с, только transform */
+@keyframes hero-zoom {
+  from { transform: scale(1.06); }
+}
+@keyframes hero-rise {
+  from { transform: translateY(105%); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-photo { animation: hero-zoom 0.4s var(--ease-out-expo) both; }
+  .hero-line { animation: hero-rise 0.36s var(--ease-out-expo) both; }
+}
+/* Затемнение под фото. Телефон: фото — полоса сверху, внизу тёмный «пол» под лентой.
+   Шире: слева под текстом (лица справа остаются светлыми) и снизу под суммой и лентой */
+.hero-shade {
+  background: linear-gradient(180deg, rgba(12, 12, 12, 0.35) 0%, rgba(12, 12, 12, 0) 18%, rgba(12, 12, 12, 0) 40%, rgba(12, 12, 12, 0.88) 66%, #0c0c0c 80%);
+}
+@media (width >= 768px) {
+  /* Снизу затемнение отмерено от низа экрана: там лента (~150 px), под ней сумма и действия (до ~360 px),
+     выше — заголовок высотой около 19svh. Над заголовком кадр светлеет: лица остаются светлыми */
+  .hero-shade {
+    background:
+      linear-gradient(90deg, rgba(12, 12, 12, 0.75) 0%, rgba(12, 12, 12, 0.45) 30%, rgba(12, 12, 12, 0) 60%),
+      linear-gradient(0deg, #0c0c0c 0, rgba(12, 12, 12, 0.9) 150px, rgba(12, 12, 12, 0.85) 460px, rgba(12, 12, 12, 0.5) calc(380px + 19svh), rgba(12, 12, 12, 0) calc(500px + 19svh)),
+      linear-gradient(180deg, rgba(12, 12, 12, 0.55) 0, rgba(12, 12, 12, 0) 180px);
+  }
+}
+/* Потолок кегля заголовка — доля высоты окна. Низкий ноутбук (1280×720, 1366×768, 1024×768): заголовок чуть меньше,
+   текст ближе к шапке, кадр поднят — лица остаются над заголовком */
+.hero { --hero-cap: 21svh; --hero-cap-m: 1000px; --hero-photo-h: min(26svh, 300px); }
+/* Телефон с низким экраном (360 × 740, 375 × 667): полоса кадра ниже, кегль заголовка — не больше доли высоты окна.
+   «Откликнуться» остаётся в первом экране без прокрутки */
+@media (width < 768px) and (height <= 760px) {
+  .hero { --hero-cap-m: 11.5svh; --hero-photo-h: 22svh; }
+}
+@media (width >= 768px) and (height <= 800px) {
+  .hero { --hero-cap: 18svh; }
+  .hero-copy { padding-top: 4rem; }
+  .hero-img { object-position: 62% 50%; }
+}
+/* Экран уже кадра (4:3): запаса по высоте нет, поэтому кадр чуть крупнее от нижнего края — лица выше */
+@media (width >= 768px) and (height <= 800px) and (max-aspect-ratio: 3/2) {
+  .hero-img { transform: scale(1.08); transform-origin: 62% 100%; }
+}
+
+/* Появление заголовков секций (useReveal в src/lib/motion.ts): текст выезжает снизу, нижний край маски стоит
+   на месте — по низу текста. Сдвиг и запас под текстом (--reveal-shift, --reveal-cut) задаёт JS по самому тексту.
+   reveal — ждёт (прозрачный, но в дереве доступности), reveal-mask — начало под маской, reveal-in — выезд.
+   Классы ставит только JS и снимает после появления; без JS и при «уменьшить движение» заголовок просто виден */
+.reveal {
+  transform: translateY(var(--reveal-shift));
+  opacity: 0;
+}
+.reveal.reveal-mask {
+  opacity: 1;
+  clip-path: inset(-0.3em -0.3em calc(var(--reveal-cut) + var(--reveal-shift)) -0.3em);
+}
+.reveal.reveal-mask.reveal-in {
+  transform: none;
+  clip-path: inset(-0.3em -0.3em var(--reveal-cut) -0.3em);
+  transition:
+    transform 0.9s var(--ease-out-expo),
+    clip-path 0.9s var(--ease-out-expo);
+}
+
+/* Шов-лента между секциями одного цвета (BeltSeam в src/home/kit.tsx) — та же полоса, что под бутылками первого экрана.
+   Рёбра сдвигает прокрутка через --seam-x, в покое кадров нет */
+.belt-seam {
+  background-color: #1d1b19;
+  box-shadow: inset 0 1px 0 var(--color-brand);
+}
+.belt-seam-ribs {
+  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 40px);
+  transform: translateX(var(--seam-x, 0px));
+}
+
+/* Бутылки «Смены» (ShiftBottle): контур одной толщины от шапки до финала */
+.shift-bottle path {
+  stroke-width: 1.3px;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Красный для мелкого текста на тёмном фоне (ошибки в форме, «4/4» в шапке): фирменный #d50032 на чёрном даёт 3,6:1, этот — 5,7:1 */
+@theme {
+  --color-brand-bright: #ff3d5e;
+}
+
+/* Раздел, к которому перешли по ссылке из меню, получает фокус (чтобы Tab шёл дальше по разделу) — без рамки вокруг всего блока */
+section[tabindex="-1"]:focus-visible,
+[id][tabindex="-1"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Заголовки и итоги, на которые фокус переводится программно после ответа в задании (tabindex="-1"): без рамки — это не кнопки */
+[tabindex="-1"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* После перехода на другую страницу фокус встаёт на её заголовок (для клавиатуры и скринридера) — рамка вокруг заголовка не нужна */
+h1[tabindex="-1"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Режим высокой контрастности (Windows): система стирает фоны и тени, поэтому выбранный месяц,
+   роль или ответ не отличались от остальных, рамки из ring пропадали, а линии бургера исчезали */
+@media (forced-colors: active) {
+  [aria-pressed='true'],
+  [aria-selected='true'],
+  label:has(> input:checked) {
+    forced-color-adjust: none;
+    background-color: Highlight !important;
+    color: HighlightText !important;
+    border: 2px solid Highlight;
+  }
+  [aria-pressed='true'] *,
+  [aria-selected='true'] *,
+  label:has(> input:checked) * {
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+  [aria-pressed='false'],
+  label:has(> input[type='radio']:not(:checked)) {
+    border: 1px solid ButtonText;
+  }
+  [aria-controls='mobile-menu'] > span {
+    forced-color-adjust: none;
+    background-color: ButtonText;
+  }
+}
+
+/* Кнопка меню ссылается на меню (aria-controls), только пока оно открыто — линии бургера в контрастном режиме держим по data-burger */
+@media (forced-colors: active) {
+  [data-burger] > span {
+    forced-color-adjust: none;
+    background-color: ButtonText;
+  }
+}
+
+/* Нажатие отличается от наведения: кнопка чуть проседает, красная темнеет */
+:where(button:not(:disabled), a[href], [role='button'], label:has(> input[type='radio'])):active {
+  translate: 0 1px;
+}
+.bg-brand:is(a, button):not(:disabled):active {
+  background-color: var(--color-brand-deep);
+  color: var(--color-white);
+}
+
+/* Фиксированная шапка сверху и полоса чата снизу (на телефоне) не закрывают элемент, на который перешёл фокус */
+html {
+  scroll-padding-top: 84px;
+}
+@media (width < 768px) {
+  html {
+    scroll-padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}

@@ -1,0 +1,17 @@
+node_modules
+dist
+*.local
+.DS_Store
+.env
+server/.generated
+certs/*.pem
+backups
+# Исходный архив кейса (167 МБ — больше лимита файла на GitHub); его содержимое разложено в archive/case-materials
+OCHAKOVO.zip
+# Исходные ролики компании о профессиях — у заказчика; на сайте обработанные копии из public/video (scripts/media.mjs)
+archive/case-materials/video/*.mp4
+# Рабочие отчёты исследования с годами исследований в ссылках и пометках — локальный материал, в публикацию не идёт.
+archive/research/
+# Материалы заказчика (брендбук, справочник студента, PDF кейса) внутренние: в открытый репозиторий не выкладываем.
+# Факты из них пересказаны в docs/case.md, макеты опираются на них локально
+archive/case-materials/

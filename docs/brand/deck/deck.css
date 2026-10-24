@@ -1,0 +1,2503 @@
+/*
+ * Презентация HR-бренда «Очаково» — «Смена». В том же стиле, что сайт: почти чёрная основа, фирменный красный,
+ * огромные узкие заголовки, линейки как на этикетке. Слайд 16:9, все размеры внутри — в cqw (доля ширины слайда):
+ * на экране слайд масштабируется под окно, в PDF печатается 1920 × 1080 px. Показ, переходы и анимации — deck.js;
+ * без скрипта, при печати и с ?static слайды идут лентой в конечном виде. PDF: node scripts/deck-pdf.mjs
+ * Шрифты — те же, что на сайте и листовках (OFL, ../print/fonts/OFL.txt)
+ */
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(../print/fonts/onest-cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(../print/fonts/onest-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2190-2193, U+2212;
+}
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(../print/fonts/onest-ruble-wght.woff2) format('woff2-variations');
+  unicode-range: U+20BD;
+}
+@font-face {
+  font-family: 'Display Signs';
+  font-weight: 900;
+  src: url(../print/fonts/display-signs-900.woff2) format('woff2');
+  unicode-range: U+20BD;
+}
+@font-face {
+  font-family: 'Sofia Display';
+  font-weight: 1 1000;
+  src: url(../print/fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Display';
+  font-weight: 1 1000;
+  src: url(../print/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2190-2193, U+2212;
+}
+
+:root {
+  --red: #d50032;
+  --red-bright: #ff3d5e;
+  --red-deep: #b0002a;
+  --night: #0c0c0c;
+  --coal: #161616;
+  --ash: #2b2b2b;
+  --paper: #ffffff;
+  --ink: #141414;
+  --display: 'Display Signs', 'Sofia Display', 'Arial Narrow', sans-serif;
+  --text: 'Onest', system-ui, sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  background: #050505;
+  color: #fff;
+  font-family: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body {
+  padding: 2vw 0 6vw;
+}
+
+/* ── Слайд ───────────────────────────────────────────────────────────── */
+.slide {
+  --fg: #fff;
+  --muted: rgba(255, 255, 255, 0.72);
+  --hair: rgba(255, 255, 255, 0.28);
+  /* Акцент — фирменный красный, как «в «Очаково»» на первом экране сайта: крупному тексту на тёмном контраста хватает */
+  --accent: var(--red);
+  position: relative;
+  container-type: inline-size;
+  width: min(100vw - 4vw, 177.78vh - 4vh);
+  aspect-ratio: 16 / 9;
+  margin: 0 auto 2vw;
+  overflow: hidden;
+  background: var(--night);
+  color: var(--fg);
+  font-size: 1.45cqw; /* 28 px на слайде 1920 */
+  line-height: 1.4;
+  padding: 4.6cqw 4.2cqw 3.6cqw;
+  display: flex;
+  flex-direction: column;
+  break-after: page;
+}
+.slide.coal {
+  background: var(--coal);
+}
+.slide.red {
+  background: var(--red);
+  --accent: #fff;
+  --muted: rgba(255, 255, 255, 0.86);
+  --hair: rgba(255, 255, 255, 0.5);
+}
+.slide.paper {
+  background: var(--paper);
+  --fg: var(--ink);
+  --muted: rgba(20, 20, 20, 0.7);
+  --hair: rgba(20, 20, 20, 0.22);
+  --accent: var(--red);
+}
+
+/* Строка над слайдом: раздел слева, номер справа */
+.slide > .top {
+  position: absolute;
+  inset: 1.9cqw 4.2cqw auto;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.92cqw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.slide > .top .n {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Типографика ─────────────────────────────────────────────────────── */
+.display,
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+h1 {
+  font-size: 13cqw;
+}
+h2 {
+  font-size: 6.4cqw;
+}
+h3 {
+  font-size: 2.5cqw;
+  line-height: 0.92;
+}
+.kicker {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.2cqw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.lead {
+  font-size: 2cqw;
+  line-height: 1.32;
+  font-weight: 500;
+}
+p,
+li {
+  text-wrap: pretty;
+}
+.small {
+  font-size: 1.12cqw;
+  line-height: 1.4;
+}
+.mute {
+  color: var(--muted);
+}
+.acc {
+  color: var(--accent);
+}
+.num {
+  font-family: var(--display);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.8;
+  white-space: nowrap;
+}
+.src {
+  margin-top: auto;
+  padding-top: 1.2cqw;
+  font-size: 0.92cqw;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.quote {
+  font-family: var(--display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 3.2cqw;
+  line-height: 0.92;
+}
+
+/* ── Сетка ───────────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  gap: 2.4cqw;
+}
+.g2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.g3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.g4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.g5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.g-7-5 {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+}
+.g-5-7 {
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+}
+.g-4-8 {
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+}
+.mt-s {
+  margin-top: 1.1cqw;
+}
+.mt {
+  margin-top: 2.2cqw;
+}
+.mt-l {
+  margin-top: 3.4cqw;
+}
+.push {
+  margin-top: auto;
+}
+.end {
+  align-items: end;
+}
+.fill-rest {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Линейки и строки как на этикетке ────────────────────────────────── */
+.rule {
+  border-top: 0.16cqw solid currentColor;
+  padding-top: 1.1cqw;
+}
+.rows > * {
+  border-top: 0.06cqw solid var(--hair);
+  padding: 1.2cqw 0;
+}
+.rows > *:first-child {
+  border-top: 0.16cqw solid currentColor;
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: 2cqw;
+  align-items: baseline;
+}
+.row > b,
+.row .k {
+  font-family: var(--display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 2.1cqw;
+  line-height: 0.95;
+}
+.box {
+  padding: 1.6cqw;
+  background: var(--coal);
+}
+.slide.coal .box {
+  background: var(--night);
+}
+.slide.paper .box {
+  background: #f1f0ec;
+}
+.slide.red .box {
+  background: rgba(0, 0, 0, 0.16);
+}
+ul.dash {
+  list-style: none;
+}
+ul.dash li {
+  position: relative;
+  padding-left: 1.6cqw;
+}
+ul.dash li + li {
+  margin-top: 0.6cqw;
+}
+ul.dash li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.68em;
+  width: 0.9cqw;
+  height: 0.12cqw;
+  background: currentColor;
+}
+
+/* ── Цифра с подписью ────────────────────────────────────────────────── */
+.stat .num {
+  font-size: 6.4cqw;
+  display: block;
+}
+.stat p {
+  margin-top: 0.9cqw;
+  font-size: 1.35cqw;
+  line-height: 1.35;
+}
+
+/* ── Картинки ────────────────────────────────────────────────────────── */
+figure {
+  position: relative;
+  overflow: hidden;
+}
+figure img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+figcaption {
+  margin-top: 0.6cqw;
+  font-size: 0.9cqw;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.logo {
+  height: 2.6cqw;
+  width: auto;
+  display: block;
+  align-self: flex-start;
+}
+/* Название группировки — как его пишет сама группировка, строчными */
+.team {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.pict {
+  width: 3.4cqw;
+  height: 3.4cqw;
+}
+
+/* ── Обложка и финал: фото справа, лента бутылок внизу ───────────────── */
+.cover {
+  padding-top: 3.4cqw;
+}
+.cover .photo {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 52%;
+}
+.cover .photo img {
+  object-position: 62% 30%;
+  filter: brightness(0.82);
+}
+.cover .photo::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 -2px;
+  background: linear-gradient(90deg, var(--night) 0, var(--night) 3%, rgba(12, 12, 12, 0.62) 20%, rgba(12, 12, 12, 0) 54%),
+    linear-gradient(0deg, var(--night) 0, rgba(12, 12, 12, 0) 34%);
+}
+.cover.red .photo::after {
+  display: none;
+}
+.belt {
+  position: absolute;
+  inset: auto 0 0;
+  height: 9cqw;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.92);
+  border-top: 0.12cqw solid var(--red);
+  background: linear-gradient(0deg, #0c0c0c, rgba(12, 12, 12, 0.85));
+}
+.slide.red .belt {
+  background: rgba(0, 0, 0, 0.18);
+  border-top-color: #fff;
+}
+.belt-row {
+  position: absolute;
+  bottom: 0.9cqw;
+  left: 0;
+  display: flex;
+  gap: 3.2cqw;
+  padding-right: 3.2cqw;
+  width: max-content;
+}
+.belt .b {
+  width: 2.9cqw;
+  height: 7.2cqw;
+}
+
+/* ── Поле точек: 2 из 10 000 ─────────────────────────────────────────── */
+.dots {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  --dot: rgba(20, 20, 20, 0.34);
+  background-image: radial-gradient(circle, var(--dot) 30%, transparent 36%);
+  background-size: 1% 2%;
+}
+.slide:not(.paper) .dots {
+  --dot: rgba(255, 255, 255, 0.3);
+}
+.dots .hit {
+  position: absolute;
+  width: 3%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 0.35cqw rgba(213, 0, 50, 0.22);
+  transform: translate(-50%, -50%);
+}
+
+/* ── Сетка «N из M»: квадраты, первые N закрашены ─────────────────────── */
+.squares {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0.3cqw;
+  width: 100%;
+  max-width: 19cqw;
+}
+.squares i {
+  aspect-ratio: 1;
+  background: var(--hair);
+}
+.squares i.on {
+  background: var(--red);
+}
+.segs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0.18cqw;
+  height: 0.9cqw;
+}
+.segs i {
+  background: var(--hair);
+}
+.segs i.on {
+  background: var(--accent);
+}
+
+/* ── Шкала возраста: 47 → 52 ─────────────────────────────────────────── */
+.age .track {
+  position: relative;
+  height: 6cqw;
+  border-bottom: 0.16cqw solid currentColor;
+}
+.age .seg {
+  position: absolute;
+  bottom: 0;
+  left: var(--from);
+  width: calc(var(--to) - var(--from));
+  height: 0.9cqw;
+  background: var(--red);
+  transform-origin: left;
+}
+.age .mark {
+  position: absolute;
+  bottom: 1.4cqw;
+  left: var(--at);
+  transform: translateX(-50%);
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 4.4cqw;
+  line-height: 0.8;
+}
+.age .mark.was {
+  color: var(--muted);
+  font-size: 3cqw;
+}
+.age .scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5cqw;
+  font-size: 0.85cqw;
+  color: var(--muted);
+}
+
+/* ── Горизонтальные столбцы ──────────────────────────────────────────── */
+.hbar {
+  display: grid;
+  grid-template-columns: minmax(0, 15fr) minmax(0, 20fr) 7cqw;
+  gap: 1.6cqw;
+  align-items: center;
+  padding: 1.05cqw 0;
+  border-top: 0.06cqw solid var(--hair);
+}
+.hbar .label {
+  font-size: 1.3cqw;
+  line-height: 1.3;
+}
+.hbar .track {
+  display: block;
+  height: 2.4cqw;
+  background: rgba(255, 255, 255, 0.07);
+}
+.slide.paper .hbar .track {
+  background: rgba(20, 20, 20, 0.06);
+}
+.hbar .fill {
+  display: block;
+  height: 100%;
+  width: var(--v);
+  background: var(--fg);
+  transform-origin: left;
+}
+.hbar.hot .fill {
+  background: var(--red);
+}
+.hbar .num {
+  font-size: 3.6cqw;
+  text-align: right;
+}
+
+/* Сравнение двух столбцов */
+.cmp .line {
+  display: grid;
+  grid-template-columns: 9cqw minmax(0, 1fr) 6cqw;
+  gap: 1.2cqw;
+  align-items: center;
+  margin-top: 0.8cqw;
+}
+.cmp .who {
+  font-size: 1.2cqw;
+  line-height: 1.25;
+}
+.cmp .fill {
+  display: block;
+  height: 2.4cqw;
+  width: var(--v);
+  background: var(--red);
+  transform-origin: left;
+}
+.cmp .fill.calm {
+  background: var(--hair);
+}
+.cmp .num {
+  font-size: 3cqw;
+}
+
+/* ── Воронка ─────────────────────────────────────────────────────────── */
+.funnel .bar {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 1.2cqw;
+  margin-top: 0.7cqw;
+  padding: 1.15cqw 1.3cqw;
+  width: var(--w);
+  min-width: max-content;
+  background: var(--ash);
+  font-size: 1.25cqw;
+  transform-origin: left;
+}
+.funnel .bar .num {
+  font-size: 3.2cqw;
+}
+.funnel .bar.hot {
+  background: var(--red);
+}
+
+/* ── Таймлайн легенды ────────────────────────────────────────────────── */
+.timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2cqw;
+  padding-top: 2.2cqw;
+}
+.tl-line {
+  position: absolute;
+  top: 0.6cqw;
+  left: 0;
+  right: 0;
+  height: 0.16cqw;
+  background: currentColor;
+  transform-origin: left;
+}
+.timeline > div::before {
+  content: '';
+  position: absolute;
+  top: -2.05cqw;
+  left: 0;
+  width: 1.3cqw;
+  height: 1.3cqw;
+  border-radius: 50%;
+  background: var(--fg);
+}
+.timeline > div {
+  position: relative;
+}
+.timeline > div.now::before {
+  background: var(--red);
+}
+.timeline .num {
+  display: block;
+  font-size: 6.6cqw;
+}
+.timeline p {
+  margin-top: 0.7cqw;
+  font-size: 1.35cqw;
+}
+
+/* ── Календарь сезона полосами ───────────────────────────────────────── */
+.gantt {
+  display: grid;
+  grid-template-columns: 12cqw repeat(13, minmax(0, 1fr));
+  row-gap: 0.7cqw;
+  align-items: center;
+}
+.gantt .m {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.15cqw;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-left: 0.06cqw solid var(--hair);
+  padding-left: 0.4cqw;
+}
+.gantt .name {
+  grid-column: 1;
+  font-family: var(--display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 2cqw;
+  line-height: 0.95;
+}
+.gantt .phase {
+  height: 5.2cqw;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.6cqw 0.9cqw;
+  font-size: 1.1cqw;
+  line-height: 1.25;
+  display: flex;
+  align-items: center;
+  transform-origin: left;
+  overflow: hidden;
+}
+.gantt .phase.hot {
+  background: var(--red);
+}
+
+/* ── Картинки на слайдах ─────────────────────────────────────────────── */
+.images {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1.2cqw;
+}
+.images figure {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.images figure > div {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.images {
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+}
+.images .i1 {
+  grid-row: span 2;
+}
+.images .i6 {
+  grid-column: span 2;
+}
+.images .i6 {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.6cqw;
+}
+.images .i6 .pict {
+  display: inline-block;
+  margin-right: 0.8cqw;
+}
+
+.shots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 2.2fr);
+  gap: 1.2cqw;
+  align-items: start;
+}
+.shots .phone img {
+  aspect-ratio: 600 / 1298;
+  object-fit: cover;
+  object-position: top;
+  border: 0.08cqw solid rgba(255, 255, 255, 0.18);
+}
+.shots .desk img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top left;
+  border: 0.08cqw solid rgba(255, 255, 255, 0.18);
+}
+.materials {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.4cqw;
+  align-items: end;
+}
+.materials img {
+  height: 36cqw;
+  object-fit: contain;
+  object-position: bottom;
+}
+.merch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1cqw;
+}
+.merch figure {
+  background: #f1f0ec;
+  aspect-ratio: 1 / 0.82;
+}
+.merch img {
+  object-fit: contain;
+  padding: 0.6cqw;
+}
+.frames {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8cqw;
+}
+.frames img {
+  aspect-ratio: 16 / 9;
+}
+.covers {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.6cqw;
+}
+.covers img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+}
+
+/* Плитки: механики, посылы, календарь */
+.tiles {
+  display: grid;
+  gap: 1.2cqw 2cqw;
+}
+.tile {
+  border-top: 0.16cqw solid currentColor;
+  padding-top: 0.9cqw;
+}
+.tile .n {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.6cqw;
+  color: var(--accent);
+}
+.tile h3 {
+  margin-top: 0.5cqw;
+}
+.tile p {
+  margin-top: 0.6cqw;
+  font-size: 1.25cqw;
+  line-height: 1.35;
+}
+.msgs > div {
+  border-top: 0.16cqw solid currentColor;
+  padding-top: 1cqw;
+}
+.msgs .display {
+  font-size: 2.5cqw;
+  line-height: 0.95;
+}
+.fraction {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9cqw;
+  gap: 0.6cqw 1.6cqw;
+  align-items: end;
+  padding: 0.85cqw 0;
+  border-top: 0.06cqw solid var(--hair);
+}
+.fraction p {
+  font-size: 1.3cqw;
+  line-height: 1.3;
+}
+.fraction .num {
+  font-size: 2.8cqw;
+  text-align: right;
+}
+.fraction .segs {
+  grid-column: 1 / -1;
+}
+ol.steps {
+  list-style: none;
+  counter-reset: step;
+}
+ol.steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 3cqw 1fr;
+  gap: 1cqw;
+  padding: 0.8cqw 0;
+  border-top: 0.06cqw solid var(--hair);
+  font-size: 1.45cqw;
+}
+ol.steps li::before {
+  content: '0' counter(step);
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.8cqw;
+  line-height: 1;
+}
+.strike {
+  text-decoration: line-through;
+  text-decoration-thickness: 0.12cqw;
+  text-decoration-color: var(--red);
+  color: var(--muted);
+}
+
+/* ── Показ: один слайд на экран (класс show ставит deck.js) ──────────── */
+html.show {
+  overflow: hidden;
+  height: 100%;
+}
+html.show body {
+  padding: 0;
+  height: 100%;
+}
+html.show .slide {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(100vw, 177.78vh);
+  visibility: hidden;
+  z-index: 1;
+}
+html.show .slide.is-active {
+  visibility: visible;
+  z-index: 3;
+  animation: wipe-in 0.85s var(--ease) both;
+}
+html.show .slide.is-active.back {
+  animation-name: wipe-in-back;
+}
+html.show .slide.leaving {
+  visibility: visible;
+  z-index: 2;
+  animation: sink 0.85s var(--ease) both;
+}
+@keyframes wipe-in {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes wipe-in-back {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes sink {
+  to {
+    transform: translateX(-6%);
+    filter: brightness(0.5);
+  }
+}
+
+/* Появление элементов: метку data-a и порядок --i ставит deck.js */
+html.show .slide [data-a] {
+  transition-delay: calc(var(--i, 0) * 70ms + 280ms);
+  transition-timing-function: var(--ease);
+}
+html.show .slide:not(.is-active) [data-a='up'] {
+  opacity: 0;
+  transform: translateY(2.2cqw);
+}
+html.show .slide [data-a='up'] {
+  transition-property: opacity, transform;
+  transition-duration: 0.7s, 0.9s;
+}
+html.show .slide:not(.is-active) [data-a='mask'] {
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(1.6cqw);
+}
+html.show .slide [data-a='mask'] {
+  clip-path: inset(-10% -2% -10% -2%);
+  transition-property: clip-path, transform;
+  transition-duration: 0.95s;
+}
+html.show .slide:not(.is-active) [data-a='grow'] {
+  transform: scaleX(0);
+}
+html.show .slide [data-a='grow'] {
+  transition-property: transform;
+  transition-duration: 1.2s;
+  transition-delay: calc(var(--i, 0) * 70ms + 450ms);
+}
+html.show .slide:not(.is-active) [data-a='rise'] {
+  opacity: 0;
+  transform: translateY(3cqw) scale(0.97);
+}
+html.show .slide [data-a='rise'] {
+  transition-property: opacity, transform;
+  transition-duration: 0.8s, 1.1s;
+}
+/* Фото медленно наезжают, пока слайд открыт */
+html.show .slide.is-active figure img,
+html.show .slide.is-active .images img {
+  animation: drift 9s ease-out both;
+}
+@keyframes drift {
+  from {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+/* Квадраты и сегменты закрашиваются по очереди */
+html.show .slide:not(.is-active) .squares i.on,
+html.show .slide:not(.is-active) .segs i.on {
+  background: var(--hair);
+}
+html.show .slide .squares i.on,
+html.show .slide .segs i.on {
+  transition: background-color 0.2s;
+  transition-delay: calc(var(--k) * 22ms + 700ms);
+}
+html.show .slide.is-active .dots .hit {
+  animation: pulse 1.8s ease-out 1.2s 3 both;
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(213, 0, 50, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 1.6cqw rgba(213, 0, 50, 0);
+  }
+}
+/* Лента бутылок едет, пока слайд открыт */
+html.show .slide.is-active .belt-row {
+  animation: belt 26s linear infinite;
+}
+@keyframes belt {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Управление показом */
+.deck-ui {
+  display: none;
+}
+html.show .deck-ui {
+  display: flex;
+  position: fixed;
+  right: 1.2vw;
+  bottom: 1.1vw;
+  z-index: 10;
+  gap: 0.4vw;
+  align-items: center;
+  font-family: var(--display);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.75);
+  mix-blend-mode: difference;
+}
+.deck-ui button {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: max(14px, 0.9vw);
+  padding: 0.3vw 0.5vw;
+  cursor: pointer;
+}
+.deck-ui button:focus-visible {
+  outline: 2px solid currentColor;
+}
+.deck-count {
+  font-size: max(13px, 0.8vw);
+  font-variant-numeric: tabular-nums;
+  margin-right: 0.6vw;
+}
+.deck-progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+}
+.deck-progress i {
+  display: block;
+  height: 100%;
+  background: var(--red);
+  transform-origin: left;
+  transition: transform 0.6s var(--ease);
+}
+
+/* Уменьшить движение: без переходов и появлений */
+html.calm .slide,
+html.calm .slide * {
+  animation: none !important;
+  transition: none !important;
+}
+html.calm .slide [data-a] {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+/* ── Печать: 1920 × 1080 px на страницу, всё в конечном виде ─────────── */
+@page {
+  size: 1920px 1080px;
+  margin: 0;
+}
+@media print {
+  html,
+  html.show {
+    background: none;
+    overflow: visible;
+    height: auto;
+  }
+  body,
+  html.show body {
+    padding: 0;
+    height: auto;
+  }
+  .slide,
+  html.show .slide {
+    position: relative;
+    visibility: visible;
+    width: 1920px;
+    height: 1080px;
+    margin: 0;
+    animation: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .slide [data-a] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  .deck-ui {
+    display: none !important;
+  }
+  /* Фильтр растрирует картинку целиком — в PDF без фильтров, затемнение даёт градиент поверх */
+  .slide img {
+    filter: none !important;
+  }
+}
+
+/* Фото фоном в нижней части слайда (легенда) */
+.slide .backdrop {
+  position: absolute;
+  inset: 40% 0 0 0;
+  z-index: 0;
+}
+.slide .backdrop img {
+  opacity: 0.38;
+  filter: grayscale(0.3);
+}
+.slide .backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--coal) 0, rgba(22, 22, 22, 0.4) 45%, var(--coal) 100%);
+}
+.slide.has-backdrop > :not(.backdrop):not(.top) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Смета пилота одной полосой: статьи по верхней границе */
+.stack {
+  display: flex;
+  height: 4.4cqw;
+  gap: 0.2cqw;
+}
+.stack > span {
+  flex: var(--v) 1 0;
+  background: var(--ash);
+  transform-origin: left;
+  display: flex;
+  align-items: flex-end;
+  padding: 0.5cqw 0.6cqw;
+  font-size: 0.95cqw;
+  line-height: 1.1;
+  overflow: hidden;
+}
+.stack > span.hot {
+  background: var(--red);
+}
+.stack-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.6cqw;
+  font-size: 1cqw;
+  color: var(--muted);
+}
+
+/* Скриншоты: телефоны в ряд */
+.phones {
+  display: grid;
+  grid-template-columns: repeat(3, 15.5cqw);
+  gap: 1.4cqw;
+  align-items: start;
+  justify-content: end;
+}
+.phones img {
+  aspect-ratio: 600 / 1298;
+  object-fit: cover;
+  object-position: top;
+  border: 0.08cqw solid rgba(255, 255, 255, 0.18);
+}
+.deskshot img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top left;
+  border: 0.08cqw solid rgba(255, 255, 255, 0.18);
+}
+
+/* Путь кандидата: восемь шагов на линии, у «горячих» шагов — красная точка */
+.journey {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 1.4cqw;
+  padding-top: 2.4cqw;
+}
+.j-line {
+  position: absolute;
+  top: 0.6cqw;
+  left: 0;
+  right: 0;
+  height: 0.16cqw;
+  background: currentColor;
+  transform-origin: left;
+}
+.journey > div {
+  position: relative;
+}
+.journey > div::before {
+  content: '';
+  position: absolute;
+  top: -2.25cqw;
+  left: 0;
+  width: 1.3cqw;
+  height: 1.3cqw;
+  border-radius: 50%;
+  background: var(--fg);
+}
+.journey > div.hot::before {
+  background: var(--red);
+  box-shadow: 0 0 0 0.45cqw rgba(213, 0, 50, 0.18);
+}
+.journey .n {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.4cqw;
+  color: var(--muted);
+}
+.journey h3 {
+  margin-top: 0.4cqw;
+  font-size: 1.9cqw;
+}
+.journey p {
+  margin-top: 0.8cqw;
+  font-size: 1.08cqw;
+  line-height: 1.3;
+}
+.journey p.lose {
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* Аналоги: карточки с линейкой сверху */
+.analogs > div {
+  border-top: 0.16cqw solid currentColor;
+  padding-top: 1cqw;
+}
+.analogs p {
+  font-size: 1.15cqw;
+  line-height: 1.35;
+}
+.crit .row {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+}
+.crit .row > span {
+  font-size: 1.2cqw;
+  line-height: 1.35;
+}
+.crit i {
+  font-style: normal;
+  white-space: nowrap;
+}
+
+/* ── Основная презентация: экраны продукта в рамках ──────────────────── */
+/* Телефон: тёмная рамка со скруглением, экран 390 × 844 (снимки 600 × 1298) */
+.device {
+  position: relative;
+  padding: 0.4cqw;
+  border-radius: 2cqw;
+  background: #050505;
+  box-shadow:
+    0 0 0 0.1cqw rgba(255, 255, 255, 0.24),
+    0 2.4cqw 4cqw rgba(0, 0, 0, 0.5);
+}
+.slide.paper .device {
+  box-shadow:
+    0 0 0 0.1cqw rgba(0, 0, 0, 0.6),
+    0 1.6cqw 3.2cqw rgba(0, 0, 0, 0.22);
+}
+.device img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 600 / 1298;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 1.6cqw;
+}
+/* Окно браузера: полоска с тремя точками сверху, снимки 1200 × 750 */
+.browser {
+  position: relative;
+  border-radius: 0.7cqw;
+  overflow: hidden;
+  background: #050505;
+  box-shadow:
+    0 0 0 0.1cqw rgba(255, 255, 255, 0.24),
+    0 2.4cqw 4cqw rgba(0, 0, 0, 0.5);
+}
+.slide.paper .browser {
+  box-shadow:
+    0 0 0 0.1cqw rgba(0, 0, 0, 0.6),
+    0 1.6cqw 3.2cqw rgba(0, 0, 0, 0.22);
+}
+.browser::before {
+  content: '';
+  display: block;
+  height: 1.5cqw;
+  background:
+    radial-gradient(circle at 1.2cqw 50%, #4a4a4a 0.28cqw, transparent 0.3cqw),
+    radial-gradient(circle at 2.1cqw 50%, #4a4a4a 0.28cqw, transparent 0.3cqw),
+    radial-gradient(circle at 3cqw 50%, #4a4a4a 0.28cqw, transparent 0.3cqw),
+    #1d1d1d;
+}
+.browser img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1200 / 750;
+  object-fit: cover;
+  object-position: top left;
+}
+/* Снимок с подписями поверх: метки ставятся по --x и --y в долях снимка */
+.shot {
+  position: relative;
+}
+.tag {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 2;
+  max-width: 17cqw;
+  padding: 0.55cqw 0.8cqw 0.6cqw;
+  background: var(--red);
+  color: #fff;
+  font-size: 1.08cqw;
+  line-height: 1.25;
+  font-weight: 600;
+  box-shadow: 0 0.8cqw 1.8cqw rgba(0, 0, 0, 0.35);
+}
+.tag.dark {
+  background: #0c0c0c;
+}
+.tag.light {
+  background: #fff;
+  color: var(--ink);
+}
+/* Подпись под снимком */
+.cap {
+  margin-top: 0.9cqw;
+  font-size: 1.1cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.cap b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.75cqw;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-bottom: 0.35cqw;
+}
+
+/* Путь кандидата: шесть экранов в ряд, под ними то, что в этот момент видит HR */
+.flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  column-gap: 2.2cqw;
+  align-items: end;
+}
+.flow .device::after,
+.flow .paper-shot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 2.2cqw;
+  height: 0.22cqw;
+  background: var(--red);
+  transform-origin: left;
+}
+.flow > :last-child .device::after {
+  display: none;
+}
+.flow .paper-shot {
+  position: relative;
+  align-self: center;
+}
+.flow .paper-shot img {
+  display: block;
+  width: 100%;
+  transform: rotate(-3deg);
+  box-shadow: 0 1.6cqw 3cqw rgba(0, 0, 0, 0.5);
+}
+.lane {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  column-gap: 2.2cqw;
+  margin-top: 1.4cqw;
+  padding-top: 1cqw;
+  border-top: 0.16cqw solid var(--red);
+  position: relative;
+}
+
+.lane p {
+  font-size: 1.02cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+
+/* Цель: было и куда двигаем */
+.goals > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 7cqw;
+  align-items: baseline;
+  gap: 1.4cqw;
+  padding: 1.1cqw 0;
+  border-top: 0.1cqw solid var(--hair);
+}
+.goals .num {
+  font-size: 4.4cqw;
+  color: var(--accent);
+}
+.goals span:last-child {
+  font-size: 1.1cqw;
+  color: var(--muted);
+}
+
+/* Ключевые образы: четыре картинки с подписями */
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.4cqw;
+}
+.keys figure > div {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.keys img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.keys .picts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  place-items: center;
+  padding: 1.4cqw;
+  background: #ab2328;
+}
+.keys .picts img {
+  width: 4.2cqw;
+  height: 4.2cqw;
+  object-fit: contain;
+}
+.keys figcaption {
+  margin-top: 0.7cqw;
+  font-size: 1.05cqw;
+  line-height: 1.3;
+}
+
+/* Материалы: стенд, листовки, мерч и обложки роликов одной раскладкой */
+.collage {
+  display: grid;
+  grid-template-columns: 12cqw 17cqw 17cqw minmax(0, 1fr);
+  gap: 1.2cqw;
+  align-items: end;
+}
+.collage img {
+  display: block;
+  width: 100%;
+}
+.collage .merch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6cqw;
+}
+.collage .merch-grid > div {
+  background: #f1f0ec;
+  aspect-ratio: 1 / 0.86;
+  display: grid;
+  place-items: center;
+}
+.collage .merch-grid img {
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+}
+.collage .clips {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.5cqw;
+  margin-top: 0.6cqw;
+}
+.collage .clips img {
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+}
+
+/* Анимация: экраны не наезжают, как фото, а поднимаются целиком; соединительные линии тянутся по очереди */
+html.show .slide.is-active .device img,
+html.show .slide.is-active .browser img,
+html.show .slide.is-active .paper-shot img,
+html.show .slide.is-active .collage img {
+  animation: none;
+}
+html.show .slide:not(.is-active) .flow .device::after,
+html.show .slide:not(.is-active) .flow .paper-shot::after {
+  transform: scaleX(0);
+}
+html.show .slide .flow .device::after,
+html.show .slide .flow .paper-shot::after {
+  transition: transform 0.5s var(--ease);
+  transition-delay: calc(var(--i, 0) * 70ms + 750ms);
+}
+@media print {
+  .flow .device::after,
+  .flow .paper-shot::after {
+    transform: none !important;
+  }
+}
+.keys .picts img {
+  filter: brightness(0) invert(1);
+}
+.gantt-s {
+  grid-template-columns: 10cqw repeat(11, minmax(0, 1fr));
+}
+.gantt-s .phase {
+  height: 3.2cqw;
+}
+.gantt-s .name {
+  font-size: 1.6cqw;
+}
+
+/* Мерч: вещь и шаг, за который её выдают */
+.reward {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.4cqw 1.6cqw;
+}
+.reward figure > div {
+  background: #f1f0ec;
+  aspect-ratio: 2 / 1;
+  display: grid;
+  place-items: center;
+}
+.reward img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+}
+.reward figure {
+  display: grid;
+  grid-template-columns: 58% minmax(0, 1fr);
+  gap: 1cqw;
+  align-items: center;
+}
+.reward figure > div {
+  aspect-ratio: 4 / 3 !important;
+}
+.reward figcaption {
+  margin-top: 0;
+  font-size: 1.05cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.reward figcaption b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.6cqw;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-bottom: 0.3cqw;
+}
+
+/* Печатные материалы и образы рядом */
+.print-row {
+  display: grid;
+  grid-template-columns: 9.5cqw repeat(3, minmax(0, 1fr));
+  gap: 1cqw;
+  align-items: end;
+}
+.print-row img {
+  display: block;
+  width: 100%;
+  box-shadow: 0 1cqw 2cqw rgba(0, 0, 0, 0.35);
+}
+.key-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8cqw;
+}
+.key-grid figure > div {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.key-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.key-grid .picts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  place-items: center;
+  padding: 1cqw;
+  background: #ab2328;
+}
+.key-grid .picts img {
+  width: 3.2cqw;
+  height: 3.2cqw;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+.key-grid figcaption {
+  margin-top: 0.4cqw;
+  font-size: 0.95cqw;
+  line-height: 1.25;
+  color: var(--muted);
+}
+
+/* Раскадровка ролика: четыре кадра 16:9 с номером сцены */
+.board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8cqw;
+}
+.board figure > div {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.board img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.board figcaption {
+  margin-top: 0.35cqw;
+  font-size: 0.95cqw;
+  color: var(--muted);
+}
+html.show .slide.is-active .reward img,
+html.show .slide.is-active .print-row img,
+html.show .slide.is-active .key-grid img,
+html.show .slide.is-active .board img {
+  animation: none;
+}
+.shot {
+  align-self: start;
+}
+
+/* Что заметили: пункты с крупным номером */
+.points > div {
+  display: grid;
+  grid-template-columns: 3.4cqw minmax(0, 1fr);
+  gap: 1cqw;
+  padding: 1.2cqw 0;
+  border-top: 0.1cqw solid var(--hair);
+}
+.points .num {
+  font-size: 3cqw;
+  color: var(--accent);
+}
+.points p {
+  font-size: 1.45cqw;
+  line-height: 1.35;
+}
+/* Посылы: кто, что останавливает, что говорим */
+.msg {
+  border-top: 0.16cqw solid currentColor;
+  padding-top: 1cqw;
+}
+.msg .who {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 2.2cqw;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.msg .stop {
+  margin-top: 0.8cqw;
+  font-size: 1.3cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.msg .say {
+  margin-top: 1.6cqw;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 2.9cqw;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.msg .fact {
+  margin-top: 1.2cqw;
+  font-size: 1.3cqw;
+  line-height: 1.3;
+}
+
+/* ── Одно решение на слайд: как работает, что даёт, почему так; справа экран ─ */
+.feat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20.5cqw;
+  column-gap: 5cqw;
+  align-items: center;
+  flex: 1;
+}
+.feat.desk {
+  grid-template-columns: 27cqw minmax(0, 1fr);
+  column-gap: 3cqw;
+}
+.feat.two {
+  grid-template-columns: minmax(0, 1fr) 19cqw 19cqw;
+  column-gap: 2.4cqw;
+}
+.feat.sheet {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.feat.item {
+  grid-template-columns: minmax(0, 1fr) 50cqw;
+}
+.feat .device {
+  width: 100%;
+}
+.feat h2 {
+  font-size: 4.2cqw;
+}
+.feat.desk h2 {
+  font-size: 3.6cqw;
+}
+.q {
+  margin-top: 1.3cqw;
+}
+.q .kicker {
+  color: var(--accent);
+  font-size: 1.05cqw;
+}
+.q p {
+  margin-top: 0.35cqw;
+  font-size: 1.3cqw;
+  line-height: 1.38;
+}
+.feat.desk .q p {
+  font-size: 1.15cqw;
+}
+.why {
+  margin-top: 1.5cqw;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 1.2cqw;
+  align-items: center;
+  padding: 0.9cqw 1.2cqw;
+  border-left: 0.3cqw solid var(--red);
+  background: rgba(255, 255, 255, 0.06);
+}
+.slide.paper .why {
+  background: #f4f3ef;
+}
+.why .num {
+  font-size: 3.4cqw;
+  color: var(--accent);
+}
+.why p {
+  font-size: 1.05cqw;
+  line-height: 1.35;
+}
+.why small {
+  display: block;
+  margin-top: 0.25cqw;
+  color: var(--muted);
+  font-size: 0.85cqw;
+}
+/* Листовки и стенд: развороты рядом */
+.sheets {
+  display: flex;
+  gap: 1.6cqw;
+  align-items: center;
+  height: 45cqw;
+}
+.sheets img {
+  height: 100%;
+  width: auto;
+  box-shadow: 0 1.4cqw 3cqw rgba(0, 0, 0, 0.45);
+}
+.sheets.low {
+  height: 38cqw;
+}
+/* Вещь мерча на светлом фоне */
+.item-box {
+  background: #f1f0ec;
+  height: 44cqw;
+  display: grid;
+  place-items: center;
+}
+.item-box img {
+  max-width: 92%;
+  max-height: 90%;
+  object-fit: contain;
+}
+.item-box.duo {
+  grid-template-columns: 1fr 1fr;
+  gap: 2cqw;
+  padding: 0 2cqw;
+}
+/* Фото на весь слайд, текст слева на затемнении */
+.slide.photo {
+  justify-content: flex-end;
+}
+.slide.photo > .bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.slide.photo > .bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.slide.photo > .bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(12, 12, 12, 0.94) 0, rgba(12, 12, 12, 0.72) 40%, rgba(12, 12, 12, 0) 72%);
+}
+.slide.photo > :not(.bg):not(.top) {
+  position: relative;
+  z-index: 1;
+}
+.slide.photo > .top {
+  z-index: 2;
+}
+/* Сценарий встречи: 75 минут полосой, ширина блока по минутам */
+.agenda {
+  display: flex;
+  gap: 0.25cqw;
+}
+.agenda > div {
+  flex: var(--m) 1 0;
+  min-width: 0;
+}
+.agenda .bar {
+  height: 3.4cqw;
+  background: var(--ash);
+  display: flex;
+  align-items: center;
+  padding: 0 0.5cqw;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.2cqw;
+  color: #fff;
+  transform-origin: left;
+}
+.agenda .hot .bar {
+  background: var(--red);
+}
+.agenda p {
+  margin-top: 0.6cqw;
+  font-size: 0.98cqw;
+  line-height: 1.25;
+}
+.agenda b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.2cqw;
+  line-height: 1;
+  text-transform: uppercase;
+  margin-bottom: 0.3cqw;
+}
+html.show .slide.is-active .item-box img,
+html.show .slide.is-active .sheets img {
+  animation: none;
+}
+.picts-big {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3cqw;
+  place-items: center;
+}
+.picts-big img {
+  width: 7cqw;
+  height: 7cqw;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+.nw { white-space: nowrap; }
+.tiles.big {
+  row-gap: 3cqw;
+}
+.tiles.big h3 {
+  font-size: 2.3cqw;
+}
+.tiles.big p:not(.n) {
+  font-size: 1.3cqw;
+  line-height: 1.35;
+}
+/* Ключевые образы на одном слайде: шесть картинок 3 × 2 */
+.keys6 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.6cqw 1.6cqw;
+  flex: 1;
+}
+.keys6 figure > div {
+  aspect-ratio: 16 / 8.2;
+  overflow: hidden;
+}
+.keys6 img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.keys6 .picts {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  place-items: center;
+  padding: 1.4cqw;
+  background: #ab2328;
+}
+.keys6 .picts img {
+  width: 3.6cqw;
+  height: 3.6cqw;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+.keys6 figcaption {
+  margin-top: 0.6cqw;
+  font-size: 1.05cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.keys6 figcaption b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.6cqw;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-bottom: 0.25cqw;
+}
+html.show .slide.is-active .keys6 img {
+  animation: none;
+}
+
+/* ── Плотные слайды: несколько экранов и блоков на одном ──────────────── */
+.feat.n2 {
+  grid-template-columns: minmax(0, 1fr) 17cqw 17cqw;
+  column-gap: 2.2cqw;
+}
+.feat.n3 {
+  grid-template-columns: minmax(0, 1fr) 16cqw 16cqw 16cqw;
+  column-gap: 1.8cqw;
+}
+.feat.n4 {
+  grid-template-columns: minmax(0, 1fr) 13.6cqw 13.6cqw 13.6cqw 13.6cqw;
+  column-gap: 1.4cqw;
+}
+.feat.n3 h2,
+.feat.n4 h2,
+.feat.n2 h2 {
+  font-size: 3.4cqw;
+}
+.feat.n3 .q p,
+.feat.n4 .q p,
+.feat.n2 .q p {
+  font-size: 1.12cqw;
+}
+.feat.n4 .q {
+  margin-top: 0.9cqw;
+}
+.feat.n3 .device,
+.feat.n4 .device,
+.feat.n2 .device {
+  padding: 0.3cqw;
+  border-radius: 1.5cqw;
+}
+.feat.n3 .device img,
+.feat.n4 .device img,
+.feat.n2 .device img {
+  border-radius: 1.2cqw;
+}
+.mini {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6cqw 1.6cqw;
+}
+.mini p {
+  font-size: 0.98cqw;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.mini b {
+  display: block;
+  color: var(--fg);
+  font-weight: 700;
+}
+.bars-s .hbar {
+  padding: 0.7cqw 0;
+  grid-template-columns: minmax(0, 15fr) minmax(0, 14fr) 6cqw;
+}
+.bars-s .hbar .label {
+  font-size: 1.1cqw;
+}
+.bars-s .hbar .track {
+  height: 1.8cqw;
+}
+.bars-s .hbar .num {
+  font-size: 2.8cqw;
+}
+.red-box {
+  background: #f4f3ef !important;
+  color: var(--ink);
+  border-left: 0.4cqw solid var(--red);
+  padding: 2.2cqw;
+}
+.red-box .kicker,
+.red-box .display {
+  color: var(--red);
+}
+.red-box .small {
+  color: var(--muted);
+}
+.agenda-s .bar {
+  height: 2.6cqw;
+  font-size: 1.05cqw;
+}
+.agenda-s p {
+  font-size: 0.9cqw;
+}
+.agenda-s b {
+  font-size: 1.05cqw;
+}
+.fr-s .fraction {
+  padding: 0.55cqw 0;
+}
+.fr-s .fraction p {
+  font-size: 1.05cqw;
+}
+.fr-s .fraction .num {
+  font-size: 2.1cqw;
+}
+.fr-s .segs {
+  height: 0.7cqw;
+}
+.fr-note {
+  align-self: end;
+}
+.fr-note p {
+  font-size: 1.15cqw;
+  line-height: 1.4;
+  color: var(--muted);
+}
+/* Путь кандидата плотнее: телефоны уже, под ними проблема и ответ */
+.flow.compact > div {
+  padding: 0 1.3cqw;
+}
+.flow.compact .device::after,
+.flow.compact .paper-shot::after {
+  left: calc(100% + 0cqw);
+  width: 4.8cqw;
+}
+.flow.compact .cap {
+  font-size: 0.98cqw;
+  padding: 0;
+}
+.flow.compact .cap b {
+  font-size: 1.5cqw;
+}
+.cap .lose {
+  display: block;
+  color: var(--red);
+  font-weight: 600;
+  margin-bottom: 0.25cqw;
+}
+/* Два окна панели внахлёст */
+.two-browsers {
+  position: relative;
+  height: 44cqw;
+}
+.two-browsers .browser {
+  position: absolute;
+  width: 82%;
+}
+.two-browsers .browser:first-child {
+  top: 0;
+  left: 0;
+}
+.two-browsers .browser:last-child {
+  bottom: 0;
+  right: 0;
+}
+/* Аналоги и свои идеи */
+.an {
+  padding: 0.8cqw 0;
+  border-top: 0.1cqw solid var(--hair);
+}
+.an b {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.6cqw;
+  text-transform: uppercase;
+}
+.an p {
+  margin-top: 0.25cqw;
+  font-size: 1.05cqw;
+  line-height: 1.3;
+}
+.an p span {
+  font-weight: 700;
+}
+.own {
+  display: grid;
+  grid-template-columns: 3cqw minmax(0, 1fr);
+  gap: 0.8cqw;
+  padding: 0.62cqw 0;
+  border-top: 0.1cqw solid var(--hair);
+}
+.own .num {
+  font-size: 1.6cqw;
+  color: var(--accent);
+}
+.own p {
+  font-size: 1.05cqw;
+  line-height: 1.3;
+}
+.own b {
+  font-weight: 700;
+  margin-right: 0.4cqw;
+}
+.sheets.row4 {
+  height: 36cqw;
+  gap: 1cqw;
+  justify-content: flex-end;
+}
+.rows-s .row {
+  padding: 0.75cqw 0;
+}
+.rows-s .row > b {
+  font-size: 1.35cqw;
+}
+.rows-s .row > span {
+  font-size: 1.12cqw;
+  line-height: 1.35;
+}
+.sheets.row4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.72fr 1fr;
+  align-items: end;
+  height: auto;
+}
+.sheets.row4 img {
+  width: 100%;
+  height: auto;
+}
+
+/* ── Правки по ревью вёрстки ─────────────────────────────────────────── */
+/* Размеры слайда от его ширины: свои cqw контейнер не видит, без --sw поля считались от окна и низ обрезался */
+.slide {
+  --sw: min(96vw, 173.78vh);
+  width: var(--sw);
+  padding: calc(var(--sw) * 0.046) calc(var(--sw) * 0.042) calc(var(--sw) * 0.036);
+  font-size: calc(var(--sw) * 0.0145);
+}
+.cover {
+  padding-top: calc(var(--sw) * 0.034);
+}
+html.show .slide {
+  --sw: min(100vw, 177.78vh);
+  width: var(--sw);
+}
+.slide > .top {
+  inset: calc(var(--sw) * 0.019) calc(var(--sw) * 0.042) auto;
+}
+.deck-progress {
+  z-index: 10;
+}
+@media print {
+  .slide,
+  html.show .slide {
+    --sw: 1920px;
+  }
+  .deck-progress {
+    display: none !important;
+  }
+}
+h2 {
+  font-size: 4.6cqw;
+}
+/* Мелкий красный на тёмном почти не виден на проекторе: для мелкого текста яркий красный */
+.slide:not(.paper) :is(.q .kicker, .kicker.acc, .cap .lose, .tile .n) {
+  color: var(--red-bright);
+}
+/* Минимальный кегль мелкого текста */
+.why p {
+  font-size: 1.2cqw;
+}
+.why small {
+  font-size: 1cqw;
+}
+.mini p {
+  font-size: 1.1cqw;
+}
+.agenda p {
+  font-size: 1.1cqw;
+}
+.lane p {
+  font-size: 1.15cqw;
+  padding: 0 1.3cqw;
+}
+.flow.compact .cap {
+  font-size: 1.1cqw;
+  padding: 0 1.3cqw;
+}
+.flow.compact + .flow.compact {
+  align-items: start;
+}
+.keys6 figcaption {
+  font-size: 1.15cqw;
+}
+.reward figcaption {
+  font-size: 1.2cqw;
+}
+.src {
+  font-size: 1cqw;
+}
+.points p {
+  font-size: 1.6cqw;
+}
+.points-s p {
+  font-size: 1.35cqw;
+}
+.points-s > div {
+  padding: 0.9cqw 0;
+}
+.bars-s .hbar {
+  padding: 1.15cqw 0;
+}
+.bars-s .hbar .label {
+  font-size: 1.35cqw;
+}
+.bars-s .hbar .track {
+  height: 2.2cqw;
+}
+.bars-s .hbar .num {
+  font-size: 3.2cqw;
+}
+.crit .row {
+  padding: 1.45cqw 0;
+}
+.crit .row > span {
+  font-size: 1.4cqw;
+}
+.an {
+  padding: 1.1cqw 0;
+}
+.an b {
+  font-size: 2cqw;
+}
+.an p {
+  font-size: 1.3cqw;
+}
+.own {
+  padding: 1cqw 0;
+  grid-template-columns: 3.4cqw minmax(0, 1fr);
+}
+.own .num {
+  font-size: 2cqw;
+}
+.own p {
+  font-size: 1.3cqw;
+}
+.gantt-s {
+  row-gap: 0.7cqw;
+}
+.gantt-s .phase {
+  height: 3cqw;
+  font-size: 1.15cqw;
+}
+.gantt-s .name {
+  font-size: 1.6cqw;
+}
+/* Ключевые образы: плитка пиктограмм тёмная, «Тогда и сейчас» парой, вшитая подпись кадра срезана */
+.keys6 .picts {
+  background: #1d1d1d;
+  box-shadow: inset 0 0 0 0.1cqw rgba(255, 255, 255, 0.18);
+}
+.keys6 .pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3cqw;
+}
+.keys6 .pair img:first-child {
+  filter: grayscale(1) contrast(1.05);
+}
+.keys6 .no-burn img {
+  transform: scale(1.32);
+  transform-origin: 70% 100%;
+}
+.msg .say {
+  font-size: 2.7cqw;
+}
+.msg .stop,
+.msg .fact {
+  font-size: 1.3cqw;
+}
+.device img.crop-top {
+  aspect-ratio: 780 / 1560;
+  object-position: bottom;
+}
+.browser img.crop-b {
+  aspect-ratio: 1200 / 725;
+}
+.sheets.row4 {
+  grid-template-columns: 1fr 1fr 0.72fr 1.3fr;
+}
+.sheets.row4 img.tent-front {
+  aspect-ratio: 640 / 453;
+  object-fit: cover;
+  object-position: bottom;
+}
+.tiles.big p:not(.n) {
+  font-size: 1.35cqw;
+}
+.intro2 {
+  font-size: 1.25cqw;
+  line-height: 1.4;
+  min-height: 2.8em;
+}
+.cover .team {
+  font-size: 1.6cqw;
+}
+
+/* Одна система: таблица точек контакта */
+.sys-head,
+.sys-row {
+  display: grid;
+  grid-template-columns: 11cqw minmax(0, 1fr) 13cqw;
+  gap: 1.4cqw;
+}
+.sys-head {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.05cqw;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: 0.6cqw;
+  border-bottom: 0.16cqw solid currentColor;
+}
+.sys-row {
+  padding: 0.95cqw 0;
+  border-bottom: 0.1cqw solid var(--hair);
+  font-size: 1.2cqw;
+  line-height: 1.3;
+  align-items: baseline;
+}
+.sys-row b {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.55cqw;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.sys-row .to {
+  color: var(--red-bright);
+  font-weight: 600;
+}
+/* Пороги фокус-группы: таблица, без заливок, чтобы не читались как результаты */
+.th-head,
+.th-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 1.2cqw;
+}
+.th-head {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1cqw;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: 0.5cqw;
+  border-bottom: 0.16cqw solid currentColor;
+}
+.th-row {
+  padding: 0.75cqw 0;
+  border-bottom: 0.1cqw solid var(--hair);
+  font-size: 1.15cqw;
+  line-height: 1.3;
+}
+.th-row b {
+  font-weight: 700;
+}
+/* Воронка сезона в одну строку */
+.fun {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.4cqw;
+}
+.fun > div {
+  background: #f4f3ef;
+  padding: 0.8cqw 1cqw;
+  border-left: 0.3cqw solid var(--hair);
+}
+.fun > div:last-child {
+  border-left-color: var(--red);
+}
+.fun .num {
+  display: block;
+  font-size: 2.4cqw;
+}
+.fun span:not(.num) {
+  display: block;
+  margin-top: 0.3cqw;
+  font-size: 1.05cqw;
+  color: var(--muted);
+}
+/* Потенциальная аудитория под посылами */
+.later {
+  display: grid;
+  grid-template-columns: 14cqw minmax(0, 1fr);
+  gap: 1.6cqw;
+  align-items: baseline;
+  padding-top: 1cqw;
+  border-top: 0.1cqw solid var(--hair);
+}
+.later p:last-child {
+  font-size: 1.25cqw;
+  line-height: 1.35;
+}
+/* Крупный факт с подписью */
+.big-fact {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.6cqw;
+  align-items: center;
+}
+.big-fact .num {
+  font-size: 9cqw;
+}
+.big-fact p {
+  font-size: 1.4cqw;
+  line-height: 1.35;
+}
+
+/* Шапка с навигацией: шесть блоков, текущий выделен красной чертой, справа тема слайда и номер */
+.slide > .top {
+  align-items: baseline;
+  gap: 2cqw;
+}
+.top .parts {
+  display: flex;
+  gap: 1.7cqw;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: part;
+}
+.top .parts li {
+  counter-increment: part;
+}
+.top .parts a {
+  display: inline-block;
+  padding-bottom: 0.4cqw;
+  border-bottom: 0.18cqw solid transparent;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.62;
+  transition: opacity 0.2s;
+}
+.top .parts a::before {
+  content: counter(part, decimal-leading-zero) '\00a0\00a0';
+  opacity: 0.7;
+}
+.top .parts a:hover {
+  opacity: 1;
+}
+.top .parts .on a {
+  color: var(--fg);
+  border-bottom-color: var(--red);
+  opacity: 1;
+}
+.top .sub {
+  margin-left: auto;
+}
+.top .n {
+  color: var(--fg);
+}
+@media print {
+  .top .parts a {
+    transition: none;
+  }
+}
+.slide > .top {
+  font-size: 1cqw;
+}
+.top .parts a {
+  opacity: 0.78;
+}
+/* Квасыч и мемы с прозрачным фоном поверх вёрстки */
+.slide .fig {
+  position: absolute;
+  width: auto;
+  z-index: 3;
+  pointer-events: none;
+}
+.slide .fig.meme {
+  filter: drop-shadow(0 0 0.1cqw rgba(0, 0, 0, 0.4));
+}
+.meme-in {
+  display: block;
+  height: 13cqw;
+  width: auto;
+  margin-top: auto;
+}
+.poses {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.8cqw;
+}
+.poses img {
+  height: 7.5cqw;
+  width: auto;
+  min-width: 0;
+}
+/* Маскот и стикерпак полосой под материалами */
+.kv {
+  display: grid;
+  grid-template-columns: 21cqw minmax(0, 1fr);
+  gap: 2cqw;
+  align-items: center;
+  margin-top: 1.6cqw;
+  padding: 1.4cqw 2cqw;
+  background: var(--night);
+}
+.kv .stk {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5cqw;
+}
+.kv .stk img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

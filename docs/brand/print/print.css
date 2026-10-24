@@ -1,0 +1,275 @@
+/*
+ * Макеты листовок «Очаково» для согласования и печати из браузера.
+ * Сетка, тексты и правила описаны в docs/brand/visuals.md, раздел «Листовки».
+ * Цвета по брендбуку, стр. 58. Шрифты те же, что на сайте (лицензия OFL в fonts/OFL.txt);
+ * фирменный Proxima Nova для тиража покупает компания.
+ * Печать: Chrome → «Печать» → «Сохранить как PDF», поля «Нет», «Фон» включён.
+ * Адрес с #bleed (скрипт bleed.js) добавляет вылеты по 3 мм и поле 6 мм с метками реза, это PDF для типографии.
+ */
+
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(fonts/onest-cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(fonts/onest-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2212;
+}
+@font-face {
+  font-family: 'Onest';
+  font-weight: 100 900;
+  src: url(fonts/onest-ruble-wght.woff2) format('woff2-variations');
+  unicode-range: U+20BD;
+}
+@font-face {
+  font-family: 'Display Signs';
+  font-weight: 900;
+  src: url(fonts/display-signs-900.woff2) format('woff2');
+  unicode-range: U+20BD;
+}
+@font-face {
+  font-family: 'Display Signs';
+  font-weight: 800;
+  src: url(fonts/display-signs-800.woff2) format('woff2');
+  unicode-range: U+20BD;
+}
+@font-face {
+  font-family: 'Sofia Display';
+  font-weight: 1 1000;
+  src: url(fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Display';
+  font-weight: 1 1000;
+  src: url(fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2212;
+}
+
+:root {
+  /* Брендбук, стр. 58 */
+  --red: #d50032; /* Pantone 199, CMYK 0 100 75 0 */
+  --red-dark: #ab2328; /* Pantone 7621: пиктограммы и заливки на красном */
+  --grey: #a2aaad; /* Pantone 429: паттерн и заливки, текстом не пишем */
+  --ink: #3e3e3e; /* тёмно-серый Cool Gray 10 (CMYK 0 0 0 75) для текста */
+  --white: #ffffff;
+  --display: 'Display Signs', 'Sofia Display', 'Arial Narrow', sans-serif;
+  --text: 'Onest', system-ui, sans-serif;
+  --bleed: 0mm;
+  --slug: 0mm; /* поле за вылетом под метки реза: только в режиме #bleed */
+  --field: 8mm; /* поле от края листа до текста */
+  --module: 44mm; /* квадратный модуль: 3 модуля = 132 мм рабочего поля A5 */
+}
+
+@page {
+  size: A5;
+  margin: 0;
+}
+@page a6-sheet {
+  size: 105mm 148mm; /* у Chrome нет ключевого слова A6 */
+  margin: 0;
+}
+/* Лист с вылетами по 3 мм и полем 6 мм под метки реза: 148 + 6 + 12 × 210 + 6 + 12 */
+@page a5-bleed {
+  size: 166mm 228mm;
+  margin: 0;
+}
+@page a6-bleed {
+  size: 123mm 166mm;
+  margin: 0;
+}
+
+html.bleed {
+  --bleed: 3mm;
+  --slug: 6mm;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Экран просмотра в цветах сайта: тёмный фон, листы как есть */
+html,
+body {
+  margin: 0;
+  background: #0c0c0c;
+  color: var(--ink);
+  font-family: var(--text);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Подпись над макетами видна только на экране */
+.notes {
+  max-width: 320mm;
+  margin: 0 auto;
+  padding: 10mm 8mm 2mm;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.72);
+}
+.notes b {
+  color: #fff;
+}
+.notes code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  color: #fff;
+}
+.notes a {
+  color: #fff;
+}
+
+.sheets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10mm;
+  justify-content: center;
+  padding: 6mm 8mm 14mm;
+}
+
+/* Лист: обрез + вылеты, вокруг поле --slug (рамка border, внутрь неё макет не заходит: overflow режет по ней) */
+.sheet {
+  position: relative;
+  width: calc(148mm + 2 * var(--bleed) + 2 * var(--slug));
+  height: calc(210mm + 2 * var(--bleed) + 2 * var(--slug));
+  overflow: hidden;
+  background: var(--white);
+  border: var(--slug) solid transparent;
+  font-size: 2.9mm;
+  line-height: 1.38;
+}
+.sheet.a6 {
+  width: calc(105mm + 2 * var(--bleed) + 2 * var(--slug));
+  height: calc(148mm + 2 * var(--bleed) + 2 * var(--slug));
+  font-size: 2.55mm;
+}
+
+/* Метки реза: по продолжению линий обреза в поле за вылетом, на 1 мм не доходят до вылета */
+html.bleed .sheet {
+  --len: calc(var(--slug) - 1mm);
+  --at: calc(var(--slug) + var(--bleed) - 0.125mm);
+  --mark: linear-gradient(#000, #000);
+  background:
+    var(--mark) left 0 top var(--at) / var(--len) 0.25mm no-repeat,
+    var(--mark) right 0 top var(--at) / var(--len) 0.25mm no-repeat,
+    var(--mark) left 0 bottom var(--at) / var(--len) 0.25mm no-repeat,
+    var(--mark) right 0 bottom var(--at) / var(--len) 0.25mm no-repeat,
+    var(--mark) left var(--at) top 0 / 0.25mm var(--len) no-repeat,
+    var(--mark) right var(--at) top 0 / 0.25mm var(--len) no-repeat,
+    var(--mark) left var(--at) bottom 0 / 0.25mm var(--len) no-repeat,
+    var(--mark) right var(--at) bottom 0 / 0.25mm var(--len) no-repeat,
+    var(--white);
+  background-origin: border-box;
+}
+
+/* Внутренняя рамка отмечает границу обреза: всё, что «под обрез», выходит за неё на --bleed */
+.trim {
+  position: absolute;
+  inset: var(--bleed);
+}
+
+.display {
+  font-family: var(--display);
+  font-weight: 860;
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+}
+
+.kicker {
+  font-weight: 650;
+  font-size: 2.5mm;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.red {
+  color: var(--red);
+}
+
+.fill-red {
+  background: var(--red);
+  color: var(--white);
+}
+
+.logo {
+  display: block;
+}
+
+.nb {
+  white-space: nowrap;
+}
+
+/* QR с меткой точки контакта. В макетах стоит демо-код на демо-адрес (scripts/materials-qr.ts); перед тиражом его
+   меняют на код своей точки из HR-панели, вкладка «Источники». Свободное поле в 4 модуля уже внутри SVG */
+.qr {
+  margin: 0;
+  width: 28mm;
+}
+.qr img {
+  display: block;
+  width: 28mm;
+  height: 28mm;
+  background: var(--white);
+}
+.qr figcaption {
+  margin-top: 1.2mm;
+  font-size: 2.1mm;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.picto {
+  width: 9mm;
+  height: 9mm;
+  flex: none;
+}
+
+/* На телефоне листы уменьшаем целиком, чтобы макет помещался в экран без прокрутки вбок */
+@media screen and (max-width: 640px) {
+  .notes {
+    padding: 16px 16px 4px;
+  }
+  .sheets {
+    gap: 16px;
+    padding: 8px 16px 24px;
+  }
+  .sheet {
+    zoom: 0.6;
+  }
+}
+
+@media print {
+  html,
+  body {
+    background: none;
+  }
+  .notes {
+    display: none;
+  }
+  .sheets {
+    display: block;
+    padding: 0;
+  }
+  .sheet {
+    box-shadow: none;
+    page: auto;
+    break-after: page;
+  }
+  .sheet.a6 {
+    page: a6-sheet;
+  }
+  html.bleed .sheet {
+    page: a5-bleed;
+  }
+  html.bleed .sheet.a6 {
+    page: a6-bleed;
+  }
+}

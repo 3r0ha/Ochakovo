@@ -1,0 +1,187 @@
+{
+  "source": "archive/case-materials/video",
+  "checked": "кадры каждую секунду и по границам сцен",
+  "videos": [
+    {
+      "id": "machinist",
+      "profession": "Машинист технологических установок",
+      "department": "Производство углекислоты",
+      "duration": 31.3,
+      "speech": false,
+      "sound": "музыка",
+      "speechCheck": "Речи нет: на кадрах никто не говорит в камеру, смысл несут титры; звук — музыка с ровной громкостью без речевых формант на спектрограмме.",
+      "volume": {
+        "mean": -14.1,
+        "max": 0
+      },
+      "steps": [
+        "Подготовься к работе",
+        "Следи за работой",
+        "Контролируй и управляй",
+        "Наставники всему научат",
+        "Закрепляй пройденный материал",
+        "Твоя точность — наш успех"
+      ],
+      "width": 1280,
+      "height": 720,
+      "files": {
+        "480": "/video/machinist-480.mp4",
+        "720": "/video/machinist-720.mp4"
+      },
+      "bytes": {
+        "480": 1688026,
+        "720": 3829054
+      },
+      "poster": {
+        "avif": {
+          "640": "/video/machinist-640.avif",
+          "1280": "/video/machinist-1280.avif"
+        },
+        "webp": {
+          "640": "/video/machinist-640.webp",
+          "1280": "/video/machinist-1280.webp"
+        }
+      },
+      "lqip": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAACQAwCdASoYAA4APu1iqk4ppaQiMAgBMB2JbACsAAeppAj5ZD0gAP1Ke6cTTapTmmXKjO3BbLi+1RtwJEVwrnzEsbsEFqT47verQbR+pWao0aGc3sgAAA==",
+      "source": "archive/case-materials/video/Машинист оборудования.mp4",
+      "keep": [
+        [
+          0,
+          31.3
+        ]
+      ],
+      "review": "Пива и алкогольных этикеток нет. Вырезана концовка: прежний логотип в квадрате и QR-код."
+    },
+    {
+      "id": "bottling-operator",
+      "profession": "Оператор линии розлива",
+      "department": "Цех розлива напитков",
+      "duration": 27,
+      "speech": false,
+      "sound": "музыка",
+      "speechCheck": "Речи нет: на кадрах никто не говорит в камеру, смысл несут титры; звук — музыка с ровной громкостью без речевых формант на спектрограмме.",
+      "volume": {
+        "mean": -14.2,
+        "max": 0
+      },
+      "steps": [
+        "Надень форму",
+        "Следи за работой",
+        "Контролируй и управляй",
+        "Наставники всегда помогут",
+        "Твоя точность — наш успех",
+        "Обучайся легко и просто"
+      ],
+      "width": 1280,
+      "height": 720,
+      "files": {
+        "480": "/video/bottling-operator-480.mp4",
+        "720": "/video/bottling-operator-720.mp4"
+      },
+      "bytes": {
+        "480": 1674165,
+        "720": 3805913
+      },
+      "poster": {
+        "avif": {
+          "640": "/video/bottling-operator-640.avif",
+          "1280": "/video/bottling-operator-1280.avif"
+        },
+        "webp": {
+          "640": "/video/bottling-operator-640.webp",
+          "1280": "/video/bottling-operator-1280.webp"
+        }
+      },
+      "lqip": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAAAQBACdASoYAA4APu1iqU2ppaOiMAgBMB2JZAC7ABuoed7Dm+/xehXpAAD+BnEsw0/dj+28TDWEsEh2AgKs504Gu7JcUGQV/EDusnJkkSl8JEVaxGVT+24AlwEHXg5Vl2+zbBG4AAA=",
+      "source": "archive/case-materials/video/Оператор линии розлива.mp4",
+      "keep": [
+        [
+          0,
+          0.733
+        ],
+        [
+          1.7,
+          2.7
+        ],
+        [
+          3.7,
+          7.5
+        ],
+        [
+          10.467,
+          11.6
+        ],
+        [
+          12.633,
+          32.933
+        ]
+      ],
+      "review": "На линии разливают коктейль «Джин & Грейпфрут»: сцены, где читается этикетка, вырезаны. В оставшихся банки мелко, размыто или в плёнке, надписей не прочитать. Вырезана концовка: прежний логотип в квадрате и QR-код."
+    },
+    {
+      "id": "lab-assistant",
+      "profession": "Лаборант",
+      "department": "Лаборатория",
+      "duration": 25.2,
+      "speech": false,
+      "sound": "музыка",
+      "speechCheck": "Речи нет: на кадрах никто не говорит в камеру, смысл несут титры; звук — музыка с ровной громкостью без речевых формант на спектрограмме.",
+      "volume": {
+        "mean": -15,
+        "max": 0
+      },
+      "steps": [
+        "Надень форму",
+        "Контролируй процесс",
+        "Выполняй органолептические анализы",
+        "Наставники всему научат",
+        "Проверяй качество",
+        "Обучайся легко и просто",
+        "Закрепляй пройденный материал"
+      ],
+      "width": 1280,
+      "height": 720,
+      "files": {
+        "480": "/video/lab-assistant-480.mp4",
+        "720": "/video/lab-assistant-720.mp4"
+      },
+      "bytes": {
+        "480": 1687891,
+        "720": 3847776
+      },
+      "poster": {
+        "avif": {
+          "640": "/video/lab-assistant-640.avif",
+          "1280": "/video/lab-assistant-1280.avif"
+        },
+        "webp": {
+          "640": "/video/lab-assistant-640.webp",
+          "1280": "/video/lab-assistant-1280.webp"
+        }
+      },
+      "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAABwAwCdASoYAA4APu1kqk4ppaQiMAgBMB2JZQDA3AMViiyFIAAA+nGwmxgDPti85MW9jAyL6NVzP7a9iOnyElTH0hspLjyRcRbdwAAA",
+      "source": "archive/case-materials/video/Химик-лаборант.mp4",
+      "keep": [
+        [
+          0,
+          1.467
+        ],
+        [
+          3.067,
+          20.933
+        ],
+        [
+          21.933,
+          27.8
+        ]
+      ],
+      "review": "Вырезаны полки и стол с образцами, где видны банка сидра и тёмные бутылки с этикетками. Вырезана концовка: прежний логотип в квадрате и QR-код."
+    }
+  ],
+  "excluded": [
+    {
+      "source": "Процесс создания нового вкуса.mp4",
+      "why": "Ролик о солодовом напитке KERN: его наливают в стакан с пеной, как пиво, на ёмкостях — «Лаборатория экспериментального пивоварения», в магазинных холодильниках — пиво. Без этих сцен связного ролика не остаётся."
+    }
+  ]
+}

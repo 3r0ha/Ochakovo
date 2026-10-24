@@ -1,0 +1,53 @@
+# Сервер «Очаково»: сайт, API, HR-панель и боты в одном контейнере. Настройки — в .env (пример в .env.example).
+#
+#   С управляемой базой провайдера:   APP_DATABASE_URL=postgres://… в .env, затем  docker compose up -d --build
+#   С базой в контейнере рядом:        POSTGRES_PASSWORD=… в .env, затем  docker compose --profile local-db up -d --build
+#   Только база для разработки:        docker compose --profile local-db up -d db
+#
+# Порты открыты только на этой машине (127.0.0.1): наружу сайт выходит через HTTPS-прокси, см. docs/deploy.md.
+
+services:
+  db:
+    image: postgres:16
+    # База в контейнере — только по профилю local-db: с APP_DATABASE_URL она не нужна и не запускается
+    profiles: [local-db]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ochakovo}
+      POSTGRES_USER: ${POSTGRES_USER:-ochakovo}
+      # Пароля по умолчанию нет. Без APP_DATABASE_URL compose требует его в адресе базы у app (ниже)
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ochakovo} -d ${POSTGRES_DB:-ochakovo}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: 8787
+      # APP_DATABASE_URL — адрес управляемой базы. Без него — база из профиля local-db, и тогда нужен POSTGRES_PASSWORD
+      DATABASE_URL: ${APP_DATABASE_URL:-postgres://${POSTGRES_USER:-ochakovo}:${POSTGRES_PASSWORD:?задайте в .env APP_DATABASE_URL (адрес своей базы) или POSTGRES_PASSWORD (пароль базы из профиля local-db)}@db:5432/${POSTGRES_DB:-ochakovo}}
+    ports:
+      - "127.0.0.1:${APP_PORT:-8787}:8787"
+    volumes:
+      - generated:/app/server/.generated
+    depends_on:
+      db:
+        condition: service_healthy
+        # С APP_DATABASE_URL сервиса db нет — приложение стартует без него
+        required: false
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  generated:

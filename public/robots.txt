@@ -1,0 +1,6 @@
+# Поиску открыты страницы сайта. Панель HR, API и вебхуки ботов закрыты.
+# Строку Sitemap с адресом сайта (SITE_URL) сервер дописывает сам: /robots.txt и /sitemap.xml — в server/app.ts
+User-agent: *
+Disallow: /hr
+Disallow: /api/
+Disallow: /bots/

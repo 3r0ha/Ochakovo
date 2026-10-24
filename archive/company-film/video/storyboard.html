@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ролик о компании: раскадровка</title>
+<style>
+  /*
+   * Раскадровка ролика о компании, 60 секунд, по сценарию docs/brand/video.md, раздел 2.
+   * Кадры роликов компании о профессиях лежат в ../frames/ (без вшитых подписей ролика), фото в public/photos.
+   * Сцены без готового кадра описаны рамкой: что снимать и с какой точки. Титры как в чистовом монтаже.
+   * Цвета по брендбуку, стр. 58. Шрифты те же, что на сайте и листовках (OFL, ../print/fonts/OFL.txt).
+   */
+  @font-face {
+    font-family: 'Onest';
+    font-weight: 100 900;
+    src: url(../print/fonts/onest-cyrillic-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  }
+  @font-face {
+    font-family: 'Onest';
+    font-weight: 100 900;
+    src: url(../print/fonts/onest-latin-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2212;
+  }
+  @font-face {
+    font-family: 'Onest';
+    font-weight: 100 900;
+    src: url(../print/fonts/onest-ruble-wght.woff2) format('woff2-variations');
+    unicode-range: U+20BD;
+  }
+  @font-face {
+    font-family: 'Sofia Display';
+    font-weight: 1 1000;
+    src: url(../print/fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  }
+  @font-face {
+    font-family: 'Sofia Display';
+    font-weight: 1 1000;
+    src: url(../print/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2212;
+  }
+  :root {
+    --red: #d50032;
+    --display: 'Sofia Display', 'Arial Narrow', sans-serif;
+    --text: 'Onest', system-ui, sans-serif;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  /* Экран просмотра в цветах сайта: тёмный фон, белый текст, красный акцент. Кадры как есть */
+  html,
+  body {
+    margin: 0;
+    background: #0c0c0c;
+    color: rgba(255, 255, 255, 0.78);
+    font-family: var(--text);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 40px 32px 64px;
+  }
+  .kicker {
+    margin: 0 0 10px;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ff3d5e;
+  }
+  h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: clamp(56px, 8vw, 104px);
+    line-height: 0.86;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.88em;
+    color: #fff;
+  }
+  .lead {
+    max-width: 760px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .timeline {
+    display: flex;
+    height: 10px;
+    margin: 28px 0 8px;
+    gap: 2px;
+  }
+  .timeline i {
+    background: #5c5c5c;
+  }
+  .timeline i.new {
+    background: var(--red);
+  }
+  .legend {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.62);
+  }
+  .legend b {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 4px 0 12px;
+    vertical-align: -1px;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 24px;
+    margin-top: 28px;
+  }
+  .scene {
+    background: #161616;
+  }
+  /* Кадр 16:9 */
+  .frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #242424;
+    overflow: hidden;
+    container-type: inline-size;
+  }
+  .frame > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .quad {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    background: #000;
+  }
+  .quad > div {
+    position: relative;
+    overflow: hidden;
+    background: #222;
+  }
+  .quad img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Сцена без готового кадра: что снимать */
+  .shoot {
+    position: absolute;
+    inset: 6%;
+    border: 2px dashed rgba(255, 255, 255, 0.35);
+    display: grid;
+    place-items: center;
+    padding: 6%;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 3.2cqw;
+    line-height: 1.35;
+    background: linear-gradient(to right, transparent 33.2%, rgba(255, 255, 255, 0.08) 33.3%, transparent 33.4%, transparent 66.6%, rgba(255, 255, 255, 0.08) 66.7%, transparent 66.8%),
+      linear-gradient(to bottom, transparent 33.2%, rgba(255, 255, 255, 0.08) 33.3%, transparent 33.4%, transparent 66.6%, rgba(255, 255, 255, 0.08) 66.7%, transparent 66.8%);
+  }
+  .quad .shoot {
+    inset: 8%;
+    font-size: 2.2cqw;
+  }
+  /* Титр в кадре как в чистовом монтаже: белый, крупно, снизу слева */
+  .title {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    bottom: 7%;
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 6.2cqw;
+    line-height: 0.9;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0.2cqw 1.2cqw rgba(0, 0, 0, 0.55);
+  }
+  .title.small {
+    font-size: 4.2cqw;
+  }
+  .title.top {
+    top: 8%;
+    bottom: auto;
+  }
+  /* Подпись в четверти кадра: каждый из четырёх кадров сцены 4 идёт со своим титром */
+  .title.quarter {
+    left: 7%;
+    bottom: 9%;
+    font-size: 3.6cqw;
+  }
+  /* Графика: финальные кадры */
+  .graphic {
+    position: absolute;
+    inset: 0;
+    background: var(--red);
+    color: #fff;
+    padding: 7%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .graphic img {
+    width: 34%;
+  }
+  .graphic .slogan {
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 11cqw;
+    line-height: 0.88;
+    text-transform: uppercase;
+  }
+  .graphic .sum {
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 7.2cqw;
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .graphic .qr {
+    width: 20cqw;
+    height: 20cqw;
+    flex: none;
+    background: #fff;
+    display: block;
+  }
+  .tc {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font: 600 12px/1 var(--text);
+    padding: 6px 8px;
+    letter-spacing: 0.04em;
+  }
+  .info {
+    padding: 14px 16px 16px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .info h2 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 650;
+    color: #fff;
+  }
+  .info p {
+    margin: 4px 0 0;
+  }
+  .info .src {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 6px;
+    margin-right: 6px;
+    background: #2b2b2b;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .tag.new {
+    background: var(--red);
+    color: #fff;
+  }
+  @media (max-width: 800px) {
+    .wrap {
+      padding: 24px 16px 40px;
+    }
+    .board {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media print {
+    @page {
+      size: A3 landscape;
+      margin: 10mm;
+    }
+    /* На бумаге светлый вариант */
+    html,
+    body {
+      background: none;
+      color: #3e3e3e;
+    }
+    h1,
+    code,
+    .info h2 {
+      color: #1d1d1d;
+    }
+    .kicker {
+      color: var(--red);
+    }
+    .legend,
+    .info .src {
+      color: #6f6a64;
+    }
+    .timeline i {
+      background: #bdb6ad;
+    }
+    .tag {
+      background: #ece9e4;
+      color: #555;
+    }
+    .scene {
+      background: #fff;
+      border: 0.3mm solid #ddd;
+      break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="kicker">Ролик о компании, 60 секунд, 16:9</p>
+  <h1>Раскадровка</h1>
+  <p class="lead">По сценарию <code>docs/brand/video.md</code>, раздел 2. Шесть сцен из десяти уже можно собрать в черновой монтаж из роликов компании о профессиях, фото сайта и графики. Его показывают фокус-группе и руководству до съёмки. Остальное снимают за один съёмочный день, вместе с короткими роликами.</p>
+  <div class="timeline" id="timeline" aria-hidden="true"></div>
+  <p class="legend"><b style="background:#5c5c5c"></b>есть черновой кадр или графика <b style="background:var(--red)"></b>только новая съёмка</p>
+  <section class="board" id="board" aria-label="Сцены"></section>
+</div>
+<script src="storyboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Памятка A6 «Перед первой сменой»</title>
+<link rel="stylesheet" href="print.css">
+<script src="bleed.js"></script>
+<style>
+  /* A6: 105 × 148 мм, поле 6 мм. На лицевой что сделать до первой смены и как доехать, на обороте кто поможет */
+  .a6 {
+    --field: 6mm;
+  }
+  .a6 .top {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: calc(var(--bleed) + 30mm);
+    padding: calc(var(--bleed) + var(--field)) calc(var(--bleed) + var(--field)) 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .a6 .top .display {
+    font-size: 9.4mm;
+    margin-top: 4mm;
+  }
+  .a6 .body {
+    position: absolute;
+    left: var(--field);
+    right: var(--field);
+    top: 34mm;
+    bottom: var(--field);
+    display: flex;
+    flex-direction: column;
+  }
+  .item {
+    display: grid;
+    grid-template-columns: 17mm 1fr;
+    column-gap: 2.4mm;
+    padding: 1.6mm 0;
+    border-top: 0.25mm solid #e1e1e1;
+    line-height: 1.32;
+  }
+  .item:last-child {
+    border-bottom: 0.25mm solid #e1e1e1;
+  }
+  .item .k {
+    font-weight: 650;
+    font-size: 2.2mm;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--red);
+    padding-top: 0.2mm;
+  }
+  .phones .item {
+    grid-template-columns: 1fr auto;
+  }
+  .phones .item .k {
+    font-size: 2.55mm;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .phones .item .v {
+    text-align: right;
+    white-space: nowrap;
+  }
+  .phones .item .v small {
+    display: block;
+    color: #666;
+    font-size: 2.2mm;
+  }
+  .a6 h3 {
+    margin: 0 0 1.6mm;
+    font-size: 6mm;
+  }
+  .main-phone {
+    margin-bottom: 2.6mm;
+  }
+  .main-phone .display {
+    font-size: 7.4mm;
+    color: var(--red);
+  }
+  .main-phone small {
+    display: block;
+    color: #666;
+    font-size: 2.2mm;
+  }
+  .daily {
+    margin-top: 4mm;
+  }
+  /* Группа фирменных пиктограмм внизу лицевой. Брендбук, стр. 51: модули стыкуются без промежутков, масштаб и цвет
+     в группе один, жанры разные (процесс, оборудование, сырьё, продукция), вокруг группы свободное поле */
+  .group {
+    position: absolute;
+    left: calc(var(--bleed) + var(--field));
+    right: calc(var(--bleed) + var(--field));
+    bottom: calc(var(--bleed) + var(--field));
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .group img {
+    width: 100%;
+    aspect-ratio: 1;
+    display: block;
+  }
+</style>
+</head>
+<body>
+<div class="notes">
+  <b>Памятка A6 «Перед первой сменой»</b>. Её выдают на&nbsp;собеседовании или при&nbsp;оформлении. Лицевая и оборот, 105 × 148 мм.
+  Факты взяты из справочника студента, тексты и сетка описаны в <code>docs/brand/visuals.md</code>.
+</div>
+<div class="sheets">
+
+  <section class="sheet a6" aria-label="Лицевая сторона">
+    <div class="top fill-red">
+      <div class="display">Перед первой<br>сменой</div>
+      <img class="logo" src="../../../public/brand/logo-white.svg" alt="ОЧАКОВО, натуральные напитки" style="width:19mm">
+    </div>
+    <div class="trim">
+      <div class="body">
+        <div class="item"><div class="k">До смены</div><div>Медосмотр за&nbsp;счёт компании, договор и&nbsp;инструктаж по&nbsp;охране труда</div></div>
+        <div class="item"><div class="k">Одежда</div><div>Спецодежду и&nbsp;обувь выдают. Стирают в&nbsp;прачечной завода по&nbsp;будням 8:30–16:30</div></div>
+        <div class="item"><div class="k">Пропуск</div><div>В&nbsp;отделе кадров. Если потерялся, новый выдадут за&nbsp;штраф 500&nbsp;₽</div></div>
+        <div class="item"><div class="k">Дорога</div><div>От&nbsp;м.&nbsp;«Озёрная» ходит корпоративный автобус. Городские: 275 и&nbsp;610 от&nbsp;м.&nbsp;«Кунцевская», 259 от&nbsp;станции «Рабочий посёлок», 259, 275 и&nbsp;221 от&nbsp;м.&nbsp;«Говорово»</div></div>
+        <div class="item"><div class="k">Общежитие</div><div>Ул.&nbsp;Рябиновая, 36,&nbsp;к.&nbsp;2. Заезд до&nbsp;14:00 или после 16:00, ключи у&nbsp;коменданта. Вход закрыт с&nbsp;23:00 до&nbsp;6:00. Фен взять с&nbsp;собой</div></div>
+        <div class="item"><div class="k">Наставник</div><div>Его прикрепляют к&nbsp;каждому новичку. На&nbsp;старте: освоить процессы, освоить оборудование, работать на&nbsp;нём</div></div>
+      </div>
+    </div>
+    <div class="group" aria-hidden="true">
+      <img src="../../../public/brand/pictograms/cycle.svg" alt="">
+      <img src="../../../public/brand/pictograms/kettle.svg" alt="">
+      <img src="../../../public/brand/pictograms/ears.svg" alt="">
+      <img src="../../../public/brand/pictograms/pet-bottle.svg" alt="">
+      <img src="../../../public/brand/pictograms/control.svg" alt="">
+      <img src="../../../public/brand/pictograms/citrus.svg" alt="">
+    </div>
+  </section>
+
+  <section class="sheet a6" aria-label="Оборотная сторона">
+    <div class="trim">
+      <div class="body" style="top: var(--field)">
+        <div class="main-phone">
+          <h3 class="display">Кто поможет</h3>
+          <div class="display nb">8&nbsp;800&nbsp;100-77-77</div>
+          <small>общий номер, потом добавочный</small>
+        </div>
+        <div class="phones">
+          <div class="item"><div class="k">Учебный центр, кабинет 525</div><div class="v">доб. 1244 или 3105<small>8&nbsp;903&nbsp;591-00-13</small></div></div>
+          <div class="item"><div class="k">Отдел подбора</div><div class="v">доб. 1155, 3105, 2107</div></div>
+          <div class="item"><div class="k">Отдел кадров</div><div class="v">доб. 1234</div></div>
+          <div class="item"><div class="k">Здравпункт, круглосуточно</div><div class="v">доб. 1370 или 1303</div></div>
+          <div class="item"><div class="k">Охрана</div><div class="v">доб. 1490</div></div>
+          <div class="item"><div class="k">Комендант общежития</div><div class="v">8&nbsp;495&nbsp;446-42-55</div></div>
+        </div>
+        <div class="daily">
+          <div class="item"><div class="k">Зарплата</div><div>12-го и&nbsp;27-го, расчётный лист приходит на&nbsp;почту</div></div>
+          <div class="item"><div class="k">Столовая</div><div>Обед по&nbsp;будням 11:30–14:30, вечером каждый день 20:30–22:00. Половину платит компания, деньги с&nbsp;собой не&nbsp;нужны</div></div>
+          <div class="item"><div class="k">Здоровье</div><div>Если плохо себя чувствуешь, скажи руководителю и&nbsp;иди в&nbsp;здравпункт. Пропускать работу можно только по&nbsp;уважительной причине, при болезни нужен больничный</div></div>
+          <div class="item"><div class="k">Экзамен</div><div>Скажи руководителю заранее, и&nbsp;смену на&nbsp;это время не&nbsp;поставят</div></div>
+          <div class="item"><div class="k">Тяжело</div><div>Скажи сразу. После первой смены спросим в&nbsp;боте или на&nbsp;«Моей заявке», как дела. Если тяжело, отдел персонала перезвонит</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

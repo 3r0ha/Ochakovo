@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Коллекция «Смена»: мерч</title>
+<style>
+  /*
+   * Коллекция мерча «Смена»: технические рисунки изделий и принты в масштабе. Концепция, правила выдачи и цена описаны
+   * в docs/brand/merch.md. Файлы принтов для производства лежат в art/*.svg (scripts/merch-art.py): размеры в миллиметрах,
+   * текст в кривых. На рисунках изделий единица равна миллиметру, принты стоят в натуральную величину относительно вещи.
+   * Цвета по брендбуку, стр. 58. Шрифты те же, что на сайте и листовках (OFL, ../print/fonts/OFL.txt).
+   */
+  @font-face {
+    font-family: 'Onest';
+    font-weight: 100 900;
+    src: url(../print/fonts/onest-cyrillic-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  }
+  @font-face {
+    font-family: 'Onest';
+    font-weight: 100 900;
+    src: url(../print/fonts/onest-latin-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2212;
+  }
+  @font-face {
+    font-family: 'Sofia Display';
+    font-weight: 1 1000;
+    src: url(../print/fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  }
+  @font-face {
+    font-family: 'Sofia Display';
+    font-weight: 1 1000;
+    src: url(../print/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2212;
+  }
+
+  :root {
+    --red: #d50032;
+    --red-dark: #ab2328;
+    --ink: #3e3e3e;
+    --paper: #f3f1ed;
+    --display: 'Sofia Display', 'Arial Narrow', sans-serif;
+    --text: 'Onest', system-ui, sans-serif;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  /* Экран просмотра в цветах сайта: тёмный фон, белый текст, красный акцент. Рисунки изделий на светлом поле */
+  html,
+  body {
+    margin: 0;
+    background: #0c0c0c;
+    color: rgba(255, 255, 255, 0.78);
+    font-family: var(--text);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 40px 32px 64px;
+  }
+  .display {
+    font-family: var(--display);
+    font-weight: 860;
+    text-transform: uppercase;
+    line-height: 0.86;
+  }
+
+  /* Шапка */
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: end;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .kicker {
+    margin: 0 0 10px;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ff3d5e;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(64px, 9vw, 128px);
+    color: #fff;
+  }
+  h1 span {
+    color: var(--red);
+  }
+  .lead {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .rules {
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .rules li {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 12px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .rules b {
+    display: block;
+    margin-bottom: 4px;
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 22px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  /* Путь: за что что получают */
+  .path {
+    margin: 36px 0 8px;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+  }
+  .path div {
+    background: #161616;
+    padding: 14px 12px 16px;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  .path div:nth-child(5) {
+    background: var(--red);
+    color: #fff;
+  }
+  .path b {
+    display: block;
+    font-family: var(--display);
+    font-weight: 860;
+    font-size: 20px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .path small {
+    display: block;
+    margin-top: 6px;
+    opacity: 0.7;
+  }
+
+  /* Изделие */
+  .item {
+    margin-top: 40px;
+    background: #161616;
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    scroll-margin-top: 24px;
+  }
+  .item .stage {
+    background: var(--paper);
+    padding: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .item .info {
+    padding: 28px 28px 30px;
+  }
+  .item h2 {
+    margin: 0;
+    font-size: 48px;
+    color: #fff;
+  }
+  .why {
+    margin: 14px 0 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .spec {
+    margin: 20px 0 0;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 7px 16px;
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+  .spec dt {
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .spec dd {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .spec a {
+    color: #fff;
+    text-underline-offset: 3px;
+  }
+  .spec dd {
+    margin: 0;
+  }
+  .spec code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    background: #2b2b2b;
+    color: #fff;
+    padding: 1px 4px;
+  }
+  figure {
+    margin: 0;
+    text-align: center;
+    max-width: 100%;
+  }
+  figcaption {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #7a7570;
+  }
+  .flat,
+  figure > img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+  }
+  figure.f {
+    max-width: 100%;
+  }
+  .chips {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .chips figure {
+    background: #1c1d1f;
+    padding: 12px 14px 8px;
+  }
+  .chips figcaption {
+    color: #a9a9a9;
+  }
+  .chips img {
+    height: 44px;
+    display: block;
+    margin: 0 auto;
+  }
+  .strip {
+    display: flex;
+    justify-content: center;
+    max-width: 100%;
+  }
+  .strip img {
+    width: 50%;
+    max-width: 300px;
+    height: auto;
+    display: block;
+  }
+
+  /* Технический рисунок */
+  .f-body {
+    stroke: rgba(0, 0, 0, 0.18);
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+  .f-seam {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.32);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+  }
+  .f-seam.light {
+    stroke: rgba(255, 255, 255, 0.14);
+  }
+  .f-stitch {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.22);
+    stroke-width: 1.6;
+    stroke-dasharray: 7 5;
+  }
+  .f-stitch.dark {
+    stroke: rgba(0, 0, 0, 0.25);
+  }
+  .f-rib {
+    fill: rgba(0, 0, 0, 0.22);
+  }
+
+  @media (max-width: 900px) {
+    .wrap {
+      padding: 24px 16px 40px;
+    }
+    .head,
+    .item {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rules {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .path {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .item .stage {
+      padding: 16px;
+    }
+  }
+
+  @media print {
+    @page {
+      size: A3 landscape;
+      margin: 10mm;
+    }
+    /* На бумаге светлый вариант */
+    html,
+    body {
+      background: none;
+      color: var(--ink);
+    }
+    h1,
+    .rules b,
+    .item h2,
+    .spec dd {
+      color: #1d1d1d;
+    }
+    .kicker {
+      color: var(--red);
+    }
+    .head,
+    .rules li {
+      border-color: #bdb8b0;
+    }
+    .path div {
+      background: #f3f1ed;
+    }
+    .spec dt {
+      color: #7a7570;
+    }
+    .spec code {
+      background: var(--paper);
+      color: var(--ink);
+    }
+    .item {
+      background: #fff;
+      border: 0.3mm solid #ddd;
+      break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div>
+      <p class="kicker">Мерч «Очаково» для практикантов и наставников</p>
+      <h1 class="display">Коллекция <span>«Смена»</span></h1>
+    </div>
+    <p class="lead">Вещи, которые носят и после завода. На каждой есть то, что знают только свои: график 2/2, двойное брожение, пиктограмма своего отдела, надпись со спины рабочей куртки. Получить их можно только за шаг на заводе, поэтому каждая вещь что-то значит.</p>
+  </header>
+
+  <ul class="rules">
+    <li><b>Знак маленький</b>Логотип стоит на бирке, под воротником или на ленте. На груди и спине фраза или рисунок, ради которых вещь и надевают.</li>
+    <li><b>Язык завода</b>Только настоящее: график смен из «Описания практики», брожение из истории компании, пиктограммы оборудования из брендбука.</li>
+    <li><b>За шаг на заводе</b>Вещь выдают за экскурсию, первую смену, месяц, друга на смене, законченную практику. Купить нельзя, за одну заявку не дают.</li>
+    <li><b>Плотные вещи</b>Худи и лонгслив шьют из плотного хлопка, мелкий рисунок вышивают. Тонкая футболка с логотипом уходит в шкаф.</li>
+  </ul>
+
+  <section class="path" aria-label="За что выдают">
+    <div><b>Экскурсия, музей</b>Значок и наклейка: колос за контрольные вопросы на экскурсии, «1978» в музее</div>
+    <div><b>Стенд на ярмарке</b>Носки за все контрольные вопросы без ошибок<small>300 пар на сезон</small></div>
+    <div><b>Первая смена</b>Лента с чехлом для пропуска и значок своего отдела</div>
+    <div><b>Месяц на смене</b>Лонгслив «2/2»</div>
+    <div><b>Практика закончена</b>Худи «Я делаю натуральные напитки» с пиктограммой отдела</div>
+    <div><b>Друг вышел на смену</b>Шоппер «Состав смены» каждому из двоих</div>
+    <div><b>Амбассадор, наставник</b>Футболка «Двойное брожение» для роликов, нашивка «Наставник»</div>
+  </section>
+
+  <!-- Худи -->
+  <article class="item" id="hoodie" aria-labelledby="i-hoodie">
+    <div class="stage">
+      <figure class="f" style="width:300px">
+        <svg class="flat" width="300" viewBox="0 0 900 900" role="img" aria-label="Худи, спина">
+          <path class="f-body" fill="#1c1d1f" d="M320,165 C300,15 600,15 580,165 Q450,205 320,165 Z"/>
+          <path class="f-seam light" d="M450,40 L450,185"/>
+          <path class="f-body" fill="#1c1d1f" d="M330,150 Q450,185 570,150 L730,190 L885,770 L790,800 L715,385 L715,870 L185,870 L185,385 L110,800 L15,770 L170,190 Z"/>
+          <path class="f-seam light" d="M245,198 L200,385 M655,198 L700,385"/>
+          <rect class="f-rib" x="185" y="835" width="530" height="35"/>
+          <path class="f-rib" d="M110,800 L15,770 L24,735 L118,765 Z M790,800 L885,770 L876,735 L782,765 Z"/>
+          <path class="f-stitch" d="M190,828 H710"/>
+          <image href="art/hoodie-back.svg" x="300" y="285" width="300" height="156"/>
+        </svg>
+        <figcaption>Спина: надпись 300 × 156 мм, 120 мм от горловины</figcaption>
+      </figure>
+      <figure class="f" style="width:300px">
+        <svg class="flat" width="300" viewBox="0 0 900 900" role="img" aria-label="Худи, перед">
+          <path class="f-body" fill="#1c1d1f" d="M330,150 Q450,185 570,150 L730,190 L885,770 L790,800 L715,385 L715,870 L185,870 L185,385 L110,800 L15,770 L170,190 Z"/>
+          <path class="f-body" fill="#1c1d1f" d="M320,165 C300,25 600,25 580,165 L545,180 C535,95 365,95 355,180 Z"/>
+          <path class="f-seam" d="M355,180 C365,95 535,95 545,180"/>
+          <path class="f-seam light" d="M245,198 L200,385 M655,198 L700,385"/>
+          <path d="M425,190 L421,320 M475,190 L479,320" stroke="#d9d4cc" stroke-width="5" stroke-linecap="round"/>
+          <path class="f-seam light" d="M300,600 L600,600 L640,800 L260,800 Z"/>
+          <rect class="f-rib" x="185" y="835" width="530" height="35"/>
+          <path class="f-rib" d="M110,800 L15,770 L24,735 L118,765 Z M790,800 L885,770 L876,735 L782,765 Z"/>
+          <path class="f-stitch" d="M190,828 H710"/>
+          <image href="art/chest-bottling.svg" x="520" y="250" width="60" height="55"/>
+          <rect x="196" y="790" width="46" height="18" fill="#d50032"/>
+          <image href="../../../public/brand/logo-wordmark-white.svg" x="201" y="795.5" width="36" height="4.4"/>
+        </svg>
+        <figcaption>Грудь: пиктограмма отдела, вышивка 55 мм. Низ: тканая бирка</figcaption>
+      </figure>
+      <div class="chips" aria-label="Пиктограммы отделов на груди">
+        <figure><img src="art/chest-lab.svg" alt=""><figcaption>Лаборатория</figcaption></figure>
+        <figure><img src="art/chest-bottling.svg" alt=""><figcaption>Цех розлива</figcaption></figure>
+        <figure><img src="art/chest-brewing.svg" alt=""><figcaption>Технологический цех</figcaption></figure>
+        <figure><img src="art/chest-warehouse.svg" alt=""><figcaption>Склад</figcaption></figure>
+      </div>
+    </div>
+    <div class="info">
+      <p class="kicker">Практика закончена</p>
+      <h2 id="i-hoodie" class="display">Худи</h2>
+      <p class="why">Надпись та же, что на спинах рабочих курток в ролике компании. Худи вручает наставник вместе с характеристикой, поэтому надпись правдива: её носит человек, который делал напитки. На груди вместо логотипа пиктограмма своего отдела: свои узнают, остальные спрашивают.</p>
+      <dl class="spec">
+        <dt>Основа</dt><dd>футер с начёсом 320–360 г/м², свободный крой, капюшон двойной, карман-кенгуру</dd>
+        <dt>Цвет</dt><dd>чёрный</dd>
+        <dt>Спина</dt><dd>шелкография белым, 300 × 156 мм, текст в&nbsp;кривых: <a href="art/hoodie-back.svg" download>скачать SVG</a></dd>
+        <dt>Грудь</dt><dd>вышивка красным, своя у каждого отдела: <code>art/chest-*.svg</code></dd>
+        <dt>Горловина</dt><dd>печать внутри: слоган «Квас делают люди», <code>art/hoodie-neck.svg</code></dd>
+        <dt>Бирка</dt><dd>тканая, красная, знак «Очаково» белым, в шве слева внизу</dd>
+        <dt>Тираж</dt><dd>по числу закончивших практику, размеры XS–XXL</dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- Лонгслив -->
+  <article class="item" id="longsleeve" aria-labelledby="i-ls">
+    <div class="stage">
+      <figure class="f" style="width:300px">
+        <svg class="flat" width="300" viewBox="0 0 900 900" role="img" aria-label="Лонгслив, перед">
+          <path class="f-body" fill="#efe9dd" d="M360,150 Q450,215 540,150 L730,190 L885,770 L800,795 L715,385 L715,860 L185,860 L185,385 L100,795 L15,770 L170,190 Z"/>
+          <path fill="#e2dccd" d="M360,150 Q450,215 540,150 L550,166 Q450,236 350,166 Z"/>
+          <path class="f-seam" d="M245,198 L200,385 M655,198 L700,385"/>
+          <path fill="#e2dccd" d="M100,795 L15,770 L24,735 L108,760 Z M800,795 L885,770 L876,735 L792,760 Z"/>
+          <path class="f-stitch dark" d="M190,846 H710"/>
+          <image href="art/longsleeve-front.svg" x="250" y="250" width="400" height="235"/>
+        </svg>
+        <figcaption>Перед: «2/2» во всю ширину, 400 мм</figcaption>
+      </figure>
+      <figure class="f" style="width:300px">
+        <svg class="flat" width="300" viewBox="0 0 900 900" role="img" aria-label="Лонгслив, спина">
+          <path class="f-body" fill="#efe9dd" d="M360,150 Q450,180 540,150 L730,190 L885,770 L800,795 L715,385 L715,860 L185,860 L185,385 L100,795 L15,770 L170,190 Z"/>
+          <path fill="#e2dccd" d="M360,150 Q450,180 540,150 L548,164 Q450,198 352,164 Z"/>
+          <path class="f-seam" d="M245,198 L200,385 M655,198 L700,385"/>
+          <path fill="#e2dccd" d="M100,795 L15,770 L24,735 L108,760 Z M800,795 L885,770 L876,735 L792,760 Z"/>
+          <path class="f-stitch dark" d="M190,846 H710"/>
+          <image href="art/longsleeve-nape.svg" x="420" y="215" width="60" height="7.4"/>
+        </svg>
+        <figcaption>Сзади: знак «Очаково» под воротником, 60 мм</figcaption>
+      </figure>
+    </div>
+    <div class="info">
+      <p class="kicker">Месяц на смене</p>
+      <h2 id="i-ls" class="display">Лонгслив</h2>
+      <p class="why">На заводе график «день, ночь, отсыпной, выходной» называют «2/2». Посторонним это ничего не скажет, а свои поймут сразу. В первый месяц новички уходят чаще всего, и вещь за месяц отмечает, что самое трудное позади.</p>
+      <dl class="spec">
+        <dt>Основа</dt><dd>кулирная гладь 200–220 г/м², рукав с манжетом</dd>
+        <dt>Цвет</dt><dd>натуральный, небелёный хлопок</dd>
+        <dt>Перед</dt><dd>«2/2» во всю ширину, шелкография красным, 400 × 235 мм, 90 мм от&nbsp;горловины, текст в&nbsp;кривых: <a href="art/longsleeve-front.svg" download>скачать SVG</a></dd>
+        <dt>Сзади</dt><dd>знак под воротником, <code>art/longsleeve-nape.svg</code></dd>
+        <dt>Когда</dt><dd>после месяца на смене, вместе с вопросом «Как дела на смене»</dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- Шоппер -->
+  <article class="item" id="tote" aria-labelledby="i-tote">
+    <div class="stage">
+      <figure class="f" style="width:340px">
+        <svg class="flat" width="340" viewBox="0 0 520 640" role="img" aria-label="Шоппер «Состав смены»">
+          <path d="M175,215 C175,40 345,40 345,215" fill="none" stroke="#ddd3bf" stroke-width="26"/>
+          <rect class="f-body" x="70" y="200" width="380" height="420" fill="#e9e1cf"/>
+          <path class="f-stitch dark" d="M78,214 H442"/>
+          <image href="art/tote-sostav.svg" x="120" y="250" width="280" height="238"/>
+        </svg>
+        <figcaption>Принт 280 × 238 мм на сумке 380 × 420 мм</figcaption>
+      </figure>
+    </div>
+    <div class="info">
+      <p class="kicker">Друг вышел на смену</p>
+      <h2 id="i-tote" class="display">Шоппер «Состав смены»</h2>
+      <p class="why">Сделан как этикетка с составом, только вместо ингредиентов люди и смена: наставник, новичок, пульт линии, 12 часов. Под составом слоган «Квас делают люди». Шоппер получают оба друга, когда второй вышел на смену, и у них одна шутка на двоих.</p>
+      <dl class="spec">
+        <dt>Основа</dt><dd>плотная бязь или саржа 220–280 г/м², ручки 65 см</dd>
+        <dt>Цвет</dt><dd>натуральный, небелёный</dd>
+        <dt>Нанесение</dt><dd>шелкография в&nbsp;два цвета, 280 × 238 мм, текст в&nbsp;кривых: <a href="art/tote-sostav.svg" download>скачать SVG</a></dd>
+        <dt>Условие</dt><dd>награду за друга компания ещё утверждает: на сайте и в боте её нет</dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- Футболка -->
+  <article class="item" id="tee" aria-labelledby="i-tee">
+    <div class="stage">
+      <figure class="f" style="width:360px">
+        <svg class="flat" width="360" viewBox="0 0 900 900" role="img" aria-label="Футболка «Двойное брожение»">
+          <path class="f-body" fill="#fbfbf9" d="M360,150 Q450,215 540,150 L720,185 L850,400 L760,450 L715,360 L715,870 L185,870 L185,360 L140,450 L50,400 L180,185 Z"/>
+          <path fill="#ecebe7" d="M360,150 Q450,215 540,150 L550,166 Q450,236 350,166 Z"/>
+          <path class="f-stitch dark" d="M190,856 H710 M142,436 L60,393 M758,436 L840,393"/>
+          <image href="art/tee-fermentation.svg" x="310" y="260" width="280" height="266"/>
+        </svg>
+        <figcaption>Грудь: схема 280 × 266 мм</figcaption>
+      </figure>
+    </div>
+    <div class="info">
+      <p class="kicker">Амбассадоры: в ней снимают ролики</p>
+      <h2 id="i-tee" class="display">Футболка «Двойное брожение»</h2>
+      <p class="why">Схема как из учебника: солод, варка, брожение, розлив, и две ветки брожения, молочнокислое и дрожжевое. Амбассадоры носят её в коротких роликах, поэтому вещь работает и как реклама.</p>
+      <dl class="spec">
+        <dt>Основа</dt><dd>кулирная гладь 200–220 г/м², свободный крой</dd>
+        <dt>Цвет</dt><dd>белый</dd>
+        <dt>Нанесение</dt><dd>шелкография в два цвета, <code>art/tee-fermentation.svg</code></dd>
+        <dt>Тираж</dt><dd>по числу амбассадоров, две на человека</dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- Носки -->
+  <article class="item" id="socks" aria-labelledby="i-socks">
+    <div class="stage">
+      <figure class="f" style="width:230px">
+        <svg class="flat" width="230" viewBox="0 0 360 480" role="img" aria-label="Носки, жаккард">
+          <defs>
+            <pattern id="knit" patternUnits="userSpaceOnUse" width="80" height="80"><image href="art/socks.svg" width="80" height="80"/></pattern>
+            <clipPath id="sock"><path d="M60,20 H150 V280 Q150,300 170,312 L300,360 Q345,380 335,420 Q325,455 280,455 L110,455 Q60,455 52,405 Q46,365 60,330 Z"/></clipPath>
+          </defs>
+          <g clip-path="url(#sock)">
+            <rect x="0" y="0" width="360" height="480" fill="url(#knit)"/>
+            <rect x="0" y="20" width="360" height="70" fill="#141414"/>
+            <rect x="0" y="34" width="360" height="9" fill="#d50032"/>
+            <rect x="0" y="52" width="360" height="9" fill="#d50032"/>
+            <path d="M40,330 Q46,450 120,460 L120,400 Q90,390 90,330 Z" fill="#d50032"/>
+            <path d="M285,345 Q350,370 340,425 Q330,465 270,460 Q300,420 285,345 Z" fill="#d50032"/>
+          </g>
+          <path d="M60,20 H150 V280 Q150,300 170,312 L300,360 Q345,380 335,420 Q325,455 280,455 L110,455 Q60,455 52,405 Q46,365 60,330 Z" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+        </svg>
+        <figcaption>Раппорт 64 × 64 петли, пятка и мысок красные</figcaption>
+      </figure>
+      <figure>
+        <img src="art/socks.svg" width="200" alt="Раппорт жаккарда: пиктограммы в сетке петель">
+        <figcaption>Раппорт крупно: одна клетка равна одной петле</figcaption>
+      </figure>
+    </div>
+    <div class="info">
+      <p class="kicker">Стенд на ярмарке: все контрольные вопросы без ошибок</p>
+      <h2 id="i-socks" class="display">Носки</h2>
+      <p class="why">Пиктограммы варочного котла, бутылки, колоса и танка брожения, переведённые в петли жаккарда. Из недорогого мерча носки носят чаще всего: их надевают каждый день, и за ними подходят к стенду. Выдаём за знание компании, без заявки.</p>
+      <dl class="spec">
+        <dt>Основа</dt><dd>хлопок с эластаном, высокие, вязаный жаккард в два цвета</dd>
+        <dt>Цвет</dt><dd>чёрный, рисунок красный</dd>
+        <dt>Файлы</dt><dd><code>art/socks.svg</code> и сетка петель <code>art/socks-grid.txt</code></dd>
+        <dt>Размеры</dt><dd>36–39 и 40–45</dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- Значки и наклейки -->
+  <article class="item" id="pins" aria-labelledby="i-pins">
+    <div class="stage">
+      <figure>
+        <img src="art/pins.svg" width="440" alt="Значки: лаборатория, цех розлива, технологический цех, склад, колос, 1978">
+        <figcaption>Значки 25 мм: лаборатория, розлив, технологический цех, склад, колос, «1978»</figcaption>
+      </figure>
+      <figure>
+        <img src="art/stickers.svg" width="190" alt="Лист наклеек A6">
+        <figcaption>Наклейки, лист A6, розовый контур показывает высечку</figcaption>
+      </figure>
+    </div>
+    <div class="info">
+      <p class="kicker">Экскурсия, музей, первая смена</p>
+      <h2 id="i-pins" class="display">Значки и наклейки</h2>
+      <p class="why">Коллекция из шести: четыре отдела практики, колос за контрольные вопросы на экскурсии и «1978» в музее, год, когда комбинат начал работу. Значок своего отдела получают в первую смену. Собрать все шесть можно, только пройдя весь путь. Значки цепляют на рюкзак и шоппер.</p>
+      <dl class="spec">
+        <dt>Значки</dt><dd>мягкая эмаль, красное поле, кант и рисунок из никеля, застёжка «бабочка», <code>art/pins.svg</code></dd>
+        <dt>Наклейки</dt><dd>виниловая плёнка, матовый ламинат, высечка по контуру, <code>art/stickers.svg</code></dd>
+        <dt>Склад</dt><dd>пиктограммы склада в брендбуке нет, её нарисовали по той же сетке (<code>art/picto-warehouse.svg</code>), нужно согласовать</dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- Лента и нашивка -->
+  <article class="item" id="pass" aria-labelledby="i-pass">
+    <div class="stage">
+      <figure style="flex-basis:100%">
+        <div class="strip"><img src="art/lanyard.svg" alt="Лента для пропуска"><img src="art/lanyard.svg" alt=""></div>
+        <figcaption>Лента 20 × 900 мм, раппорт 225 мм</figcaption>
+      </figure>
+      <figure>
+        <img src="art/patch-mentor.svg" width="220" alt="Нашивка «Наставник»">
+        <figcaption>Нашивка «Наставник», 110 × 45 мм</figcaption>
+      </figure>
+    </div>
+    <div class="info">
+      <p class="kicker">Первая смена и наставники</p>
+      <h2 id="i-pass" class="display">Лента и нашивка</h2>
+      <p class="why">Пропуск нужен на каждой проходной, а за потерю по справочнику студента берут штраф 500 ₽. Лента с чехлом полезна с первого дня. Нашивку «Наставник» получают сотрудники после обучения в Учебном центре: новичок сразу видит, к кому подойти.</p>
+      <dl class="spec">
+        <dt>Лента</dt><dd>сублимация, 20 мм, карабин и прозрачный чехол, <code>art/lanyard.svg</code></dd>
+        <dt>Нашивка</dt><dd>вышивка, оверлок тёмно-красный, на липучке, <code>art/patch-mentor.svg</code></dd>
+      </dl>
+    </div>
+  </article>
+</div>
+</body>
+</html>
