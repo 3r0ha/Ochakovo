@@ -6,6 +6,7 @@ import { GameSection } from '../home/GameSection'
 import { Hero } from '../home/Hero'
 import { History } from '../home/History'
 import { BeltSeam } from '../home/kit'
+import { MerchSection } from '../home/MerchSection'
 import { Mentors } from '../home/Mentors'
 import { Money } from '../home/Money'
 import { MythSection } from '../home/MythSection'
@@ -16,7 +17,7 @@ import { ShiftInside } from '../home/ShiftInside'
 import { VacancyList } from '../home/VacancyList'
 
 // Сначала предложение, потом задания и подробности: практика → смена изнутри → деньги → подбор → условия → путь кваса → игра →
-// вакансии → история «Квас делают люди» → наставники → миф (с контрольными вопросами) → Квасыч → вопросы.
+// вакансии → история «Квас делают люди» → наставники → миф (с контрольными вопросами) → мерч за шаги → Квасыч → вопросы.
 // Миф стоит после истории: его карточки об истории проверяют то, что человек только что прочитал.
 // Где соседние секции одного цвета, между ними шов-лента: без неё две пустые полосы отступов сливаются в одну дыру
 export function Home() {
@@ -37,6 +38,7 @@ export function Home() {
       <History />
       <Mentors />
       <MythSection />
+      <MerchSection />
       <BotBlock />
       <Faq />
       <FinalBand />
