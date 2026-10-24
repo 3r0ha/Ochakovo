@@ -2674,3 +2674,7 @@ h2 {
   margin: 0;
   font-size: 1.05cqw;
 }
+/* Заметки докладчика: на слайдах и в PDF не видны, их показывает окно докладчика (клавиша N) */
+.slide aside.notes {
+  display: none !important;
+}
